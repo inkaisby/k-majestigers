@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Majestigers | Elite Karate Academy & Championship Arena</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lightbg: '#f8fafc',
+                        cardbg: '#ffffff',
+                        gold: '#b8860b',
+                        'gold-light': '#dfb347',
+                        'gold-dark': '#8b6508',
+                        branddark: '#0f172a',
+                    },
+                    fontFamily: {
+                        heading: ['Cinzel', 'serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body, button, input, select, textarea {
+            font-family: 'Inter', sans-serif !important;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Cinzel', serif !important;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #dfb347 0%, #b8860b 50%, #8b6508 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-gradient-bg {
+            background: linear-gradient(135deg, #dfb347 0%, #b8860b 50%, #8b6508 100%);
+        }
+        .gold-border {
+            border-color: rgba(184, 134, 11, 0.3);
+        }
+        canvas {
+            display: block;
+            background: #ffffff;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            border: 2px solid rgba(184, 134, 11, 0.3);
+            border-radius: 1rem;
+        }
+        .hero-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(184, 134, 11, 0.1) 0%, rgba(248, 250, 252, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-lightbg text-branddark min-h-screen flex flex-col justify-between selection:bg-gold selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 px-4 sm:px-8 py-4 transition-all shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-xl gold-gradient-bg flex items-center justify-center shadow-md shadow-gold/20">
+                    <i class="fa-solid fa-crown text-white text-xl font-bold"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black font-heading tracking-wider text-branddark">K-<span class="gold-gradient-text">MAJESTIGERS</span></span>
+                    <span class="block text-[9px] tracking-widest text-gold uppercase font-semibold">Elite Karate & Championship</span>
+                </div>
+            </div>
+            
+            <nav class="hidden lg:flex items-center space-x-6 text-xs font-semibold uppercase tracking-wider text-gray-600">
+                <a href="#about" class="hover:text-gold transition-colors">Tentang Kami</a>
+                <a href="#academy" class="hover:text-gold transition-colors">Akademi</a>
+                <a href="#championship" class="hover:text-gold transition-colors">Kejuaraan & Brackets</a>
+                <a href="#store" class="hover:text-gold transition-colors">Store</a>
+                <a href="#arena" class="hover:text-gold transition-colors text-gold">Kumite Arena</a>
+                <a href="#contact" class="hover:text-gold transition-colors">Kontak</a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <div id="auth-nav-container">
+                    <button onclick="openAuthModal('login')" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 border gold-border text-gold-dark font-bold text-xs uppercase tracking-wider transition-all">
+                        <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk / Daftar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative overflow-hidden py-16 sm:py-24 px-4 sm:px-6 flex flex-col items-center text-center">
+        <div class="hero-glow -top-20 -left-20"></div>
+        <div class="hero-glow bottom-0 -right-20"></div>
+
+        <div class="max-w-4xl mx-auto relative z-10 space-y-6">
+            <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-amber-50 border gold-border text-gold-dark text-xs font-semibold uppercase tracking-widest shadow-sm">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Majesty in Discipline, Power in the Arena</span>
+            </div>
+            
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black font-heading tracking-tight leading-tight text-branddark">
+                ROAR WITH MAJESTY, <br><span class="gold-gradient-text">CONQUER THE CHAMPIONSHIP</span>
+            </h1>
+            
+            <p class="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                Pusat pelatihan karate elite bersandar pada disiplin tradisional dan sport science modern, lengkap dengan portal manajemen turnamen digital, live brackets, dan official store.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <a href="#arena" class="w-full sm:w-auto px-8 py-3.5 rounded-xl gold-gradient-bg text-white font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Masuk Kumite Arena</span>
+                </a>
+                <a href="#championship" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white hover:bg-gray-50 border gold-border text-branddark font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center space-x-2 shadow-sm">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Cek Turnamen & Brackets</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-16 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+        <div class="text-center mb-12">
+            <span class="text-xs uppercase tracking-widest text-gold font-semibold block mb-2">Pilar Utama K-Majestigers</span>
+            <h2 class="text-3xl sm:text-4xl font-black font-heading text-branddark">Ekosistem Bela Diri & Kejuaraan Profesional</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div id="academy" class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gold transition-all flex flex-col justify-between group">
+                <div>
+                    <div class="w-14 h-14 rounded-xl gold-gradient-bg flex items-center justify-center text-white text-2xl font-bold mb-6 group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fa-solid fa-user-ninja"></i>
+                    </div>
+                    <h3 class="text-xl font-bold font-heading text-branddark mb-3">Akademi Dojo Elite</h3>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        Kurikulum berjenjang dengan pemantauan sabuk (*Kyu/Dan*) digital langsung dari dashboard member pribadi Anda.
+                    </p>
+                </div>
+                <div class="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gold-dark font-semibold">
+                    <span>Kurikulum Bertaraf WKF</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gold transition-all flex flex-col justify-between group">
+                <div>
+                    <div class="w-14 h-14 rounded-xl gold-gradient-bg flex items-center justify-center text-white text-2xl font-bold mb-6 group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h3 class="text-xl font-bold font-heading text-branddark mb-3">Championship Brackets</h3>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        Sistem turnamen real-time lengkap dengan bagan pertandingan (*bracket*) interaktif dan jadwal matras kontingen.
+                    </p>
+                </div>
+                <div class="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gold-dark font-semibold">
+                    <span>Lihat Bagan Pertandingan</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gold transition-all flex flex-col justify-between group">
+                <div>
+                    <div class="w-14 h-14 rounded-xl gold-gradient-bg flex items-center justify-center text-white text-2xl font-bold mb-6 group-hover:scale-110 transition-transform shadow-md">
+                        <i class="fa-solid fa-shirt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold font-heading text-branddark mb-3">K-Majestigers Official Store</h3>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        Belanja perlengkapan WKF Approved, seragam Karate (*Gi*), protector, dan apparel eksklusif tim K-Majestigers.
+                    </p>
+                </div>
+                <div class="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gold-dark font-semibold">
+                    <span>Buka Katalog Toko</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="member-dashboard-section" class="hidden py-12 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+        <div class="bg-gradient-to-br from-branddark to-slate-800 text-white p-8 sm:p-10 rounded-3xl shadow-xl relative overflow-hidden border gold-border">
+            <div class="absolute -right-10 -bottom-10 text-white/5 text-9xl font-black font-heading pointer-events-none">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 relative z-10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 rounded-2xl gold-gradient-bg flex items-center justify-center text-branddark text-3xl font-black shadow-lg">
+                        <i class="fa-solid fa-user-ninja text-white"></i>
+                    </div>
+                    <div>
+                        <div class="inline-block px-3 py-1 rounded-full bg-gold/20 text-gold-light text-[10px] font-bold uppercase tracking-widest mb-1">
+                            Verified Member K-Majestigers
+                        </div>
+                        <h2 id="dash-name" class="text-2xl sm:text-3xl font-black font-heading text-white">Nama Atlet</h2>
+                        <p id="dash-email" class="text-xs text-gray-300">email@domain.com</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="openFormModal('Pendaftaran Ujian Kenaikan Tingkat')" class="px-4 py-2.5 rounded-xl gold-gradient-bg text-white font-bold text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-certificate mr-1.5"></i> Daftar Ujian Sabuk
+                    </button>
+                    <button onclick="logoutUser()" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider transition-all border border-white/20">
+                        Keluar
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10 text-xs">
+                <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
+                    <span class="text-gray-400 block mb-1">Tingkatan Sabuk Saat Ini</span>
+                    <span class="text-lg font-black font-heading text-amber-300"><i class="fa-solid fa-medal mr-2"></i> Sabuk Cokelat (Kyu 2)</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
+                    <span class="text-gray-400 block mb-1">Status Keanggotaan Dojo</span>
+                    <span class="text-lg font-black font-heading text-emerald-400"><i class="fa-solid fa-circle-check mr-2"></i> Aktif & Terdaftar</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
+                    <span class="text-gray-400 block mb-1">Turnamen Terdaftar</span>
+                    <span class="text-lg font-black font-heading text-cyan-300"><i class="fa-solid fa-trophy mr-2"></i> K-Majestigers National Cup</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="championship" class="py-16 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+        <div class="text-center mb-12">
+            <span class="text-xs uppercase tracking-widest text-gold font-semibold block mb-2">Sistem Turnamen Profesional</span>
+            <h2 class="text-3xl sm:text-4xl font-black font-heading text-branddark">K-Majestigers Championship & Live Brackets</h2>
+            <p class="text-gray-600 text-xs sm:text-sm mt-2">Cek simulasi bagan pertandingan eliminasi langsung turnamen nasional.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-md relative lg:col-span-1">
+                <div class="absolute -top-3 -right-3 px-4 py-1.5 rounded-full gold-gradient-bg text-white font-bold text-[10px] uppercase tracking-widest shadow-lg">
+                    Event Utama 2026
+                </div>
+                <h3 class="text-2xl font-black font-heading text-branddark mb-4">K-Majestigers National Cup</h3>
+                <p class="text-gray-600 text-xs leading-relaxed mb-6">
+                    Kejuaraan terbuka tingkat nasional memperebutkan Piala Bergilir Majestigers. Menggunakan sistem skoring digital WKF standard.
+                </p>
+
+                <div class="space-y-3 mb-8 text-xs text-gray-600">
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-500"><i class="fa-regular fa-calendar text-gold mr-2"></i> Tanggal:</span>
+                        <span class="font-semibold text-branddark">15 - 17 November 2026</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-500"><i class="fa-solid fa-location-dot text-gold mr-2"></i> Venue:</span>
+                        <span class="font-semibold text-branddark">Gor Utama K-Majestigers Arena</span>
+                    </div>
+                </div>
+
+                <button onclick="openFormModal('Pendaftaran Kontingen Championship')" class="w-full py-3.5 rounded-xl gold-gradient-bg text-white font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform text-center">
+                    Daftar Kontingen / Atlet
+                </button>
+            </div>
+
+            <!-- Interactive Bracket Viewer -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-md lg:col-span-2 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="text-lg font-bold font-heading text-branddark">Bagan Pertandingan (Live Brackets Simulator)</h4>
+                        <span class="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full text-[10px] font-bold uppercase">Quarter Finals</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
+                            <div class="font-bold text-gold uppercase text-[10px] tracking-wider">Match 1 (Matras A)</div>
+                            <div class="p-2.5 rounded-xl bg-white border border-gray-200 flex items-center justify-between shadow-sm">
+                                <span class="font-semibold text-red-600">Reza Pratama (Aka)</span>
+                                <span class="font-bold px-2 py-0.5 bg-red-50 rounded text-red-600">8</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white border border-gray-200 flex items-center justify-between shadow-sm">
+                                <span class="text-gray-600">Dicky Saputra (Ao)</span>
+                                <span class="font-bold px-2 py-0.5 bg-gray-100 rounded">3</span>
+                            </div>
+                            <div class="text-[10px] text-emerald-600 font-semibold text-right"><i class="fa-solid fa-check mr-1"></i> Selesai</div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
+                            <div class="font-bold text-gold uppercase text-[10px] tracking-wider">Match 2 (Matras A)</div>
+                            <div class="p-2.5 rounded-xl bg-white border border-gray-200 flex items-center justify-between shadow-sm">
+                                <span class="font-semibold text-red-600">Bima Sena (Aka)</span>
+                                <span class="font-bold px-2 py-0.5 bg-red-50 rounded text-red-600">5</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white border border-gray-200 flex items-center justify-between shadow-sm">
+                                <span class="font-semibold text-blue-600">Rian Hidayat (Ao)</span>
+                                <span class="font-bold px-2 py-0.5 bg-blue-50 rounded text-blue-600">6</span>
+                            </div>
+                            <div class="text-[10px] text-emerald-600 font-semibold text-right"><i class="fa-solid fa-check mr-1"></i> Selesai</div>
+                        </div>
+
+                        <div class="bg-amber-50/50 p-4 rounded-2xl border gold-border space-y-3">
+                            <div class="font-bold text-gold uppercase text-[10px] tracking-wider">Semi Final (Live Now)</div>
+                            <div class="p-2.5 rounded-xl bg-white border border-gray-200 flex items-center justify-between shadow-sm">
+                                <span class="font-semibold text-red-600">Reza Pratama</span>
+                                <span class="animate-pulse text-xs font-bold text-red-600">LIVE</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white border border-gray-200 flex items-center justify-between shadow-sm">
+                                <span class="font-semibold text-blue-600">Rian Hidayat</span>
+                                <span class="animate-pulse text-xs font-bold text-blue-600">LIVE</span>
+                            </div>
+                            <div class="text-[10px] text-gold font-semibold text-right"><i class="fa-solid fa-tower-broadcast mr-1"></i> Siaran Matras A</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                    <span>Diperbarui secara berkala oleh wasit juri WKF.</span>
+                    <button onclick="showToast('Memuat ulang data bracket terbaru...')" class="text-gold font-bold hover:underline">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Refresh Bracket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="store" class="py-16 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+        <div class="text-center mb-12">
+            <span class="text-xs uppercase tracking-widest text-gold font-semibold block mb-2">K-Majestigers Official Store</span>
+            <h2 class="text-3xl sm:text-4xl font-black font-heading text-branddark">Perlengkapan & Apparel Atlet Resmi</h2>
+            <p class="text-gray-600 text-xs sm:text-sm mt-2">Dapatkan seragam dan pelindung bersertifikasi standar kejuaraan.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-gold transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center text-gray-400 font-bold text-sm overflow-hidden relative group">
+                        <img src="https://placehold.co/400x300/f1f5f9/b8860b?text=Karate+Gi+Elite" alt="Karate Gi" class="object-cover w-full h-full group-hover:scale-105 transition-transform">
+                        <span class="absolute top-3 right-3 bg-gold text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">WKF Approved</span>
+                    </div>
+                    <h4 class="font-heading font-bold text-branddark text-sm mb-1">Karate Gi Majestigers Pro</h4>
+                    <p class="text-[11px] text-gray-500 mb-3">Bahan katun premium ringan untuk kumite & kata profesional.</p>
+                </div>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span class="font-bold text-branddark text-sm">Rp 750.000</span>
+                    <button onclick="openFormModal('Pemesanan Karate Gi Majestigers Pro')" class="px-3 py-2 rounded-xl gold-gradient-bg text-white font-bold text-xs shadow-sm hover:scale-105 transition-transform">
+                        Pesan
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-gold transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center text-gray-400 font-bold text-sm overflow-hidden relative group">
+                        <img src="https://placehold.co/400x300/f1f5f9/dc2626?text=Hand+Protector" alt="Hand Protector" class="object-cover w-full h-full group-hover:scale-105 transition-transform">
+                        <span class="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">WKF Standard</span>
+                    </div>
+                    <h4 class="font-heading font-bold text-branddark text-sm mb-1">WKF Kumite Hand Protector</h4>
+                    <p class="text-[11px] text-gray-500 mb-3">Pelindung tangan merah & biru ergonomis anti-slip.</p>
+                </div>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span class="font-bold text-branddark text-sm">Rp 320.000</span>
+                    <button onclick="openFormModal('Pemesanan Hand Protector WKF')" class="px-3 py-2 rounded-xl gold-gradient-bg text-white font-bold text-xs shadow-sm hover:scale-105 transition-transform">
+                        Pesan
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-gold transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center text-gray-400 font-bold text-sm overflow-hidden relative group">
+                        <img src="https://placehold.co/400x300/f1f5f9/0f172a?text=Shin+Guard" alt="Shin Guard" class="object-cover w-full h-full group-hover:scale-105 transition-transform">
+                        <span class="absolute top-3 right-3 bg-branddark text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Safety Gear</span>
+                    </div>
+                    <h4 class="font-heading font-bold text-branddark text-sm mb-1">Shin & Instep Guard</h4>
+                    <p class="text-[11px] text-gray-500 mb-3">Pelindung tulang kering dan kaki dengan bantalan busa ganda.</p>
+                </div>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span class="font-bold text-branddark text-sm">Rp 450.000</span>
+                    <button onclick="openFormModal('Pemesanan Shin & Instep Guard')" class="px-3 py-2 rounded-xl gold-gradient-bg text-white font-bold text-xs shadow-sm hover:scale-105 transition-transform">
+                        Pesan
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-gold transition-all flex flex-col justify-between">
+                <div>
+                    <div class="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center text-gray-400 font-bold text-sm overflow-hidden relative group">
+                        <img src="https://placehold.co/400x300/f1f5f9/b8860b?text=Champion+Hoodie" alt="Hoodie" class="object-cover w-full h-full group-hover:scale-105 transition-transform">
+                        <span class="absolute top-3 right-3 bg-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Apparel</span>
+                    </div>
+                    <h4 class="font-heading font-bold text-branddark text-sm mb-1">K-Majestigers Champion Hoodie</h4>
+                    <p class="text-[11px] text-gray-500 mb-3">Jaket hoodie eksklusif kontingen atlet K-Majestigers.</p>
+                </div>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span class="font-bold text-branddark text-sm">Rp 380.000</span>
+                    <button onclick="openFormModal('Pemesanan K-Majestigers Champion Hoodie')" class="px-3 py-2 rounded-xl gold-gradient-bg text-white font-bold text-xs shadow-sm hover:scale-105 transition-transform">
+                        Pesan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="arena" class="py-16 px-4 sm:px-6 max-w-5xl mx-auto w-full">
+        <div class="text-center mb-8">
+            <span class="text-xs uppercase tracking-widest text-gold font-semibold block mb-2">Simulasi Interaktif</span>
+            <h2 class="text-3xl sm:text-4xl font-black font-heading text-branddark">K-Majestigers Kumite Arena</h2>
+            <p class="text-gray-600 text-xs sm:text-sm mt-2">Rasakan atmosfer pertandingan di dalam simulasi Canvas interaktif kami.</p>
+        </div>
+
+        <div class="w-full bg-white p-4 rounded-2xl border gold-border/50 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+            <div class="text-center md:text-left">
+                <h3 class="text-sm font-bold text-branddark uppercase tracking-wider font-heading">Match Simulator WKF</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Gunakan tombol di bawah atau keyboard untuk menggerakkan Aka.</p>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="text-center">
+                    <span class="text-xs text-red-600 uppercase tracking-wider block font-semibold">Aka (Merah)</span>
+                    <span id="score-aka" class="text-2xl font-black font-heading text-branddark">0</span>
+                </div>
+                <span class="text-xl font-bold text-gray-400">VS</span>
+                <div class="text-center">
+                    <span class="text-xs text-blue-600 uppercase tracking-wider block font-semibold">Ao (Biru)</span>
+                    <span id="score-ao" class="text-2xl font-black font-heading text-branddark">0</span>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button onclick="resetMatch()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-xs font-bold rounded-xl transition-all border border-gray-200 text-branddark">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="relative w-full flex justify-center">
+            <canvas id="gameCanvas" width="900" height="450" class="w-full max-w-full h-auto cursor-pointer"></canvas>
+            
+            <div id="canvas-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center rounded-2xl transition-all p-6 shadow-lg">
+                <div class="w-16 h-16 rounded-2xl gold-gradient-bg flex items-center justify-center text-white text-3xl font-bold shadow-xl mb-4 animate-bounce">
+                    <i class="fa-solid fa-gamepad"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-black font-heading text-branddark mb-2">K-MAJESTIGERS ARENA</h2>
+                <p class="text-gray-600 text-xs sm:text-sm text-center max-w-md mb-6 leading-relaxed">
+                    Tekan tombol <strong class="text-gold-dark">Spasi / Punch</strong> untuk serangan Zuki, dan tombol <strong class="text-blue-600">Kick</strong> untuk jurus tendangan!
+                </p>
+                <button onclick="startGame()" class="px-8 py-3.5 rounded-xl gold-gradient-bg text-white font-bold text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-transform flex items-center space-x-2">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Mulai Pertandingan</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Touch Controls for Mobile -->
+        <div class="w-full grid grid-cols-2 gap-4 mt-4 md:hidden">
+            <button ontouchstart="playerAttack('punch')" onclick="playerAttack('punch')" class="py-4 bg-red-50 border border-red-200 text-red-600 font-bold rounded-xl text-center active:bg-red-600 active:text-white transition-colors text-xs uppercase tracking-wider shadow-sm">
+                <i class="fa-solid fa-hand-fist mr-2"></i> PUNCH (Zuki)
+            </button>
+            <button ontouchstart="playerAttack('kick')" onclick="playerAttack('kick')" class="py-4 bg-blue-50 border border-blue-200 text-blue-600 font-bold rounded-xl text-center active:bg-blue-600 active:text-white transition-colors text-xs uppercase tracking-wider shadow-sm">
+                <i class="fa-solid fa-shoe-prints mr-2"></i> KICK (Geri)
+            </button>
+        </div>
+    </section>
+
+    <footer id="contact" class="bg-white border-t border-gray-200 pt-16 pb-12 px-4 sm:px-6 w-full mt-12 shadow-sm">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div class="space-y-4 md:col-span-2">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl gold-gradient-bg flex items-center justify-center font-bold text-white shadow-md">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <span class="text-xl font-black font-heading text-branddark">K-<span class="gold-gradient-text">MAJESTIGERS</span></span>
+                </div>
+                <p class="text-gray-600 text-xs leading-relaxed max-w-sm">
+                    Pusat pengembangan seni bela diri karate profesional dan penyelenggara event kejuaraan terkemuka di tanah air. Menyatukan disiplin, kekuatan, dan sportivitas.
+                </p>
+                <div class="flex space-x-3 pt-2">
+                    <a href="#" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gold hover:text-white flex items-center justify-center text-gray-600 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gold hover:text-white flex items-center justify-center text-gray-600 transition-colors"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gold hover:text-white flex items-center justify-center text-gray-600 transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gold hover:text-white flex items-center justify-center text-gray-600 transition-colors"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-branddark font-heading font-bold text-sm tracking-wider uppercase">Tautan Cepat</h4>
+                <ul class="space-y-2 text-xs text-gray-600">
+                    <li><a href="#about" class="hover:text-gold transition-colors">Tentang Kami</a></li>
+                    <li><a href="#championship" class="hover:text-gold transition-colors">Championship Brackets</a></li>
+                    <li><a href="#store" class="hover:text-gold transition-colors">Official Store</a></li>
+                    <li><a href="#arena" class="hover:text-gold transition-colors">Kumite Arena</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-branddark font-heading font-bold text-sm tracking-wider uppercase">Markas Utama</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    <i class="fa-solid fa-location-dot text-gold mr-2"></i> Jl. Satria Garuda No. 88, Komplek Olahraga Mandiri, Jakarta & Surabaya
+                </p>
+                <p class="text-xs text-gray-600">
+                    <i class="fa-solid fa-envelope text-gold mr-2"></i> majestigers@gmail.com
+                </p>
+                <p class="text-xs text-gray-600">
+                    <i class="fa-brands fa-whatsapp text-gold mr-2"></i> 087712122333
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto pt-8 border-t border-gray-100 text-center text-xs text-gray-500">
+            &copy; 2026 K-Majestigers Karate Academy & Championship Organizer. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- Authentication / Login Modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-branddark/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 max-w-md w-full relative shadow-2xl">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-branddark text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div id="auth-header" class="mb-6">
+                <h3 id="auth-modal-title" class="text-2xl font-black font-heading text-branddark mb-1">Masuk ke K-Majestigers</h3>
+                <p id="auth-modal-desc" class="text-xs text-gray-500">Masukkan akun member atau atlet Anda untuk akses panel dashboard kejuaraan.</p>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4 text-xs">
+                <div id="name-field-container" class="hidden">
+                    <label class="block text-gray-700 font-semibold mb-1">Nama Lengkap</label>
+                    <input type="text" id="auth-name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="Nama lengkap atlet/member">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-1">Alamat Email</label>
+                    <input type="email" id="auth-email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="nama@email.com">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-1">Kata Sandi</label>
+                    <input type="password" id="auth-pass" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="••••••••">
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full py-3.5 rounded-xl gold-gradient-bg text-white font-bold uppercase tracking-widest shadow-lg hover:opacity-95 transition-opacity mt-2">
+                    Masuk Sekarang
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-xs text-gray-500 border-t border-gray-100 pt-4">
+                <span id="auth-switch-text">Belum punya akun?</span>
+                <button type="button" onclick="toggleAuthMode()" id="auth-switch-btn" class="text-gold font-bold ml-1 hover:underline">Daftar Akun Baru</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- General Form Modal -->
+    <div id="modal-container" class="fixed inset-0 bg-branddark/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 max-w-md w-full relative shadow-2xl">
+            <button onclick="closeFormModal()" class="absolute top-4 right-4 text-gray-400 hover:text-branddark text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <h3 id="modal-title" class="text-xl font-black font-heading text-branddark mb-2">Formulir Pendaftaran</h3>
+            <p class="text-xs text-gray-500 mb-6">Silakan lengkapi data diri Anda di bawah ini untuk bergabung bersama K-Majestigers.</p>
+
+            <form onsubmit="handleFormSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-1">Nama Lengkap</label>
+                    <input type="text" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="Masukkan nama lengkap">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-1">Nomor WhatsApp / Telepon</label>
+                    <input type="tel" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="Contoh: 087712122333">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-1">Catatan / Ukuran / Kategori</label>
+                    <input type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="Opsional (misal: Ukuran L, Kelas Kumite -60kg)">
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl gold-gradient-bg text-white font-bold uppercase tracking-widest shadow-lg hover:opacity-95 transition-opacity mt-2">
+                    Kirim Permintaan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-white border border-gray-200 text-branddark px-6 py-3.5 rounded-xl shadow-2xl z-50 transform translate-y-32 transition-transform duration-300 flex items-center space-x-3">
+        <div class="w-7 h-7 rounded-full gold-gradient-bg flex items-center justify-center text-white font-bold text-xs">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <span id="toast-msg" class="text-xs font-semibold">Pendaftaran berhasil dikirim!</span>
+    </div>
+
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('kmajestigers_user')) || null;
+        let isRegisterMode = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+        });
+
+        function updateAuthUI() {
+            const container = document.getElementById('auth-nav-container');
+            const dashSection = document.getElementById('member-dashboard-section');
+
+            if (currentUser) {
+                container.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden sm:flex flex-col text-right">
+                            <span class="text-xs font-bold text-branddark">${currentUser.name}</span>
+                            <span class="text-[10px] text-gold uppercase font-semibold">Member K-Majestigers</span>
+                        </div>
+                        <button onclick="logoutUser()" class="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider transition-all border border-red-200" title="Keluar">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                `;
+                dashSection.classList.remove('hidden');
+                document.getElementById('dash-name').innerText = currentUser.name;
+                document.getElementById('dash-email').innerText = currentUser.email;
+            } else {
+                container.innerHTML = `
+                    <button onclick="openAuthModal('login')" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 border gold-border text-gold-dark font-bold text-xs uppercase tracking-wider transition-all">
+                        <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk / Daftar
+                    </button>
+                `;
+                dashSection.classList.add('hidden');
+            }
+        }
+
+        function openAuthModal(mode) {
+            isRegisterMode = (mode === 'register');
+            renderAuthMode();
+            document.getElementById('auth-modal').classList.remove('hidden');
+            document.getElementById('auth-modal').classList.add('flex');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('auth-modal').classList.remove('flex');
+        }
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            renderAuthMode();
+        }
+
+        function renderAuthMode() {
+            const title = document.getElementById('auth-modal-title');
+            const desc = document.getElementById('auth-modal-desc');
+            const btn = document.getElementById('auth-submit-btn');
+            const nameContainer = document.getElementById('name-field-container');
+            const switchText = document.getElementById('auth-switch-text');
+            const switchBtn = document.getElementById('auth-switch-btn');
+
+            if (isRegisterMode) {
+                title.innerText = 'Daftar Akun Baru';
+                desc.innerText = 'Bergabunglah bersama komunitas eksklusif K-Majestigers Karate Academy.';
+                btn.innerText = 'Daftar Sekarang';
+                nameContainer.classList.remove('hidden');
+                document.getElementById('auth-name').required = true;
+                switchText.innerText = 'Sudah punya akun?';
+                switchBtn.innerText = 'Masuk di sini';
+            } else {
+                title.innerText = 'Masuk ke K-Majestigers';
+                desc.innerText = 'Masukkan akun member atau atlet Anda untuk akses panel dashboard kejuaraan.';
+                btn.innerText = 'Masuk Sekarang';
+                nameContainer.classList.add('hidden');
+                document.getElementById('auth-name').required = false;
+                switchText.innerText = 'Belum punya akun?';
+                switchBtn.innerText = 'Daftar Akun Baru';
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            const name = document.getElementById('auth-name').value || email.split('@')[0];
+
+            if (isRegisterMode) {
+                currentUser = { name, email };
+                localStorage.setItem('kmajestigers_user', JSON.stringify(currentUser));
+                showToast(`Akun berhasil dibuat! Selamat datang, ${name}`);
+            } else {
+                currentUser = { name: name.charAt(0).toUpperCase() + name.slice(1), email };
+                localStorage.setItem('kmajestigers_user', JSON.stringify(currentUser));
+                showToast(`Berhasil masuk sebagai ${currentUser.name}`);
+            }
+
+            closeAuthModal();
+            updateAuthUI();
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('kmajestigers_user');
+            updateAuthUI();
+            showToast('Anda telah keluar dari akun.');
+        }
+
+        function openFormModal(title) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-container').classList.remove('hidden');
+            document.getElementById('modal-container').classList.add('flex');
+        }
+
+        function closeFormModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+            document.getElementById('modal-container').classList.remove('flex');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            closeFormModal();
+            showToast('Permintaan / pendaftaran berhasil dikirim!');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-32');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32');
+            }, 3500);
+        }
+
+        // Canvas Kumite Arena Game Logic
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasOverlay = document.getElementById('canvas-overlay');
+
+        let gameRunning = false;
+        let scoreAka = 0;
+        let scoreAo = 0;
+
+        let akaFighter = {
+            x: 250,
+            y: 300,
+            width: 50,
+            height: 100,
+            color: '#dc2626',
+            name: 'AKA (Red)',
+            isAttacking: false,
+            attackType: null,
+            animTimer: 0,
+            health: 100
+        };
+
+        let aoFighter = {
+            x: 600,
+            y: 300,
+            width: 50,
+            height: 100,
+            color: '#2563eb',
+            name: 'AO (Blue)',
+            isAttacking: false,
+            attackType: null,
+            animTimer: 0,
+            health: 100
+        };
+
+        function startGame() {
+            canvasOverlay.style.display = 'none';
+            gameRunning = true;
+            resetMatchPositions();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resetMatchPositions() {
+            akaFighter.x = 250;
+            aoFighter.x = 600;
+            akaFighter.health = 100;
+            aoFighter.health = 100;
+        }
+
+        function resetMatch() {
+            scoreAka = 0;
+            scoreAo = 0;
+            document.getElementById('score-aka').innerText = scoreAka;
+            document.getElementById('score-ao').innerText = scoreAo;
+            resetMatchPositions();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            if (e.code === 'Space' || e.code === 'KeyZ') {
+                playerAttack('punch');
+            } else if (e.code === 'KeyX' || e.code === 'KeyC') {
+                playerAttack('kick');
+            } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+                akaFighter.x = Math.max(50, akaFighter.x - 15);
+            } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+                akaFighter.x = Math.min(aoFighter.x - 60, akaFighter.x + 15);
+            }
+        });
+
+        function playerAttack(type) {
+            if (akaFighter.isAttacking) return;
+            akaFighter.isAttacking = true;
+            akaFighter.attackType = type;
+            akaFighter.animTimer = 15;
+
+            let reach = type === 'kick' ? 90 : 70;
+            if (Math.abs(akaFighter.x - aoFighter.x) <= reach) {
+                aoFighter.health -= type === 'kick' ? 25 : 15;
+                if (aoFighter.health <= 0) {
+                    scoreAka++;
+                    document.getElementById('score-aka').innerText = scoreAka;
+                    resetMatchPositions();
+                }
+            }
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < canvas.width; i += 60) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, 120, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(184, 134, 11, 0.25)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            if (akaFighter.isAttacking) {
+                akaFighter.animTimer--;
+                if (akaFighter.animTimer <= 0) {
+                    akaFighter.isAttacking = false;
+                }
+            }
+
+            if (Math.random() < 0.02) {
+                if (akaFighter.x < aoFighter.x - 70) {
+                    aoFighter.x -= 5;
+                }
+            }
+
+            drawFighter(akaFighter);
+            drawFighter(aoFighter);
+
+            drawHealthBar(50, 30, akaFighter.health, 'AKA (Red)', '#dc2626');
+            drawHealthBar(canvas.width - 250, 30, aoFighter.health, 'AO (Blue)', '#2563eb');
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawFighter(f) {
+            ctx.save();
+            ctx.translate(f.x, f.y);
+
+            ctx.fillStyle = 'rgba(15,23,42,0.08)';
+            ctx.beginPath();
+            ctx.ellipse(25, 95, 25, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(10, 20, 30, 50);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.strokeRect(10, 20, 30, 50);
+
+            ctx.fillStyle = f.color;
+            ctx.fillRect(5, 50, 40, 10);
+
+            ctx.fillStyle = '#f3f4f6';
+            ctx.beginPath();
+            ctx.arc(25, 10, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#9ca3af';
+            ctx.stroke();
+
+            if (f.isAttacking) {
+                ctx.fillStyle = f.color;
+                if (f.attackType === 'kick') {
+                    ctx.fillRect(40, 40, 45, 12);
+                } else {
+                    ctx.fillRect(40, 25, 35, 10);
+                }
+            }
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(f.name, 25, -10);
+
+            ctx.restore();
+        }
+
+        function drawHealthBar(x, y, health, label, color) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(x, y, 200, 16);
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, Math.max(0, (health / 100) * 200), 16);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.strokeRect(x, y, 200, 16);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${label}: ${health}%`, x + 5, y + 12);
+        }
+    </script>
+</body>
+</html>
