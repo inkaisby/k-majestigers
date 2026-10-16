@@ -99,25 +99,25 @@
                         <div class="px-3 py-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                             Pilih Hak Akses Portal
                         </div>
-                        <a href="member.html" onclick="InkaiAPI.loginAsDemo('MEMBER')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
+                        <a href="/member" onclick="InkaiAPI.loginAsDemo('MEMBER')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-user-ninja"></i></span>
                             <div>
                                 <span class="font-bold text-xs block">1. Anggota / Atlet</span>
-                                <span class="text-[10px] text-gray-500 block">/member/* &amp; Kartu Digital</span>
+                                <span class="text-[10px] text-gray-500 block">/member &amp; Kartu Digital</span>
                             </div>
                         </a>
-                        <a href="dojo.html" onclick="InkaiAPI.loginAsDemo('DOJO_MANAGER')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
+                        <a href="/dojo" onclick="InkaiAPI.loginAsDemo('DOJO_MANAGER')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
                             <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-people-group"></i></span>
                             <div>
                                 <span class="font-bold text-xs block">2. Kontingen / Dojo</span>
-                                <span class="text-[10px] text-gray-500 block">/dojo/* &amp; Roster Atlet</span>
+                                <span class="text-[10px] text-gray-500 block">/dojo &amp; Roster Atlet</span>
                             </div>
                         </a>
-                        <a href="admin.html" onclick="InkaiAPI.loginAsDemo('ADMIN')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
+                        <a href="/admin" onclick="InkaiAPI.loginAsDemo('ADMIN')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
                             <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-crown"></i></span>
                             <div>
                                 <span class="font-bold text-xs block">3. Admin / Panitia</span>
-                                <span class="text-[10px] text-gray-500 block">/admin/* &amp; Championship Control</span>
+                                <span class="text-[10px] text-gray-500 block">/admin &amp; Championship Control</span>
                             </div>
                         </a>
                     </div>
@@ -673,6 +673,7 @@
         <span id="toast-msg" class="text-xs font-semibold">Pendaftaran berhasil dikirim!</span>
     </div>
 
+    <script src="security.js"></script>
     <script src="api.js"></script>
     <script>
         let currentUser = JSON.parse(localStorage.getItem('kmajestigers_user')) || null;
@@ -846,7 +847,7 @@
                         showToast(`Akun lokal dibuat untuk ${name}. Mengalihkan ke Portal Member...`);
                         closeAuthModal();
                         setTimeout(() => {
-                            window.location.href = 'member.html';
+                            window.location.href = InkaiAPI.getPortalUrl('MEMBER');
                         }, 800);
                     }
                 } else {

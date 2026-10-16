@@ -27,7 +27,7 @@ echo ========================================================
 echo  Layanan telah aktif di Localhost:
 echo  - Frontend Web : http://localhost:3000
 echo  - Backend API  : http://localhost:5001/api
-echo  - Member Portal: http://localhost:3000/member.html
-echo  - Dojo Portal  : http://localhost:3000/dojo.html
-echo  - Admin Portal : http://localhost:3000/admin.html
+echo  - Member Portal: http://localhost:3000/member
+echo  - Dojo Portal  : http://localhost:3000/dojo
+echo  - Admin Portal : http://localhost:3000/admin
 echo ========================================================

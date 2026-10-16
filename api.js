@@ -31,7 +31,7 @@ const InkaiAPI = (() => {
         listeners.forEach(cb => cb(status));
     }
 
-    async function request(endpoint, options = {}) {
+    async function rawRequest(endpoint, options = {}) {
         const url = `${getBaseUrl()}${endpoint}`;
         const headers = {
             'Content-Type': 'application/json',
@@ -72,6 +72,47 @@ const InkaiAPI = (() => {
             }
             throw err;
         }
+    }
+
+    async function request(endpoint, options = {}) {
+        const method = (options.method || 'GET').toUpperCase();
+
+        // 1. Layer Keamanan (InkaiSecurity WAF): Rate limiting & input sanitization
+        if (typeof InkaiSecurity !== 'undefined') {
+            const rate = InkaiSecurity.checkRateLimit(endpoint, 60, 10000);
+            if (!rate.allowed) {
+                throw new Error(`[Security RateLimit] Terlalu banyak permintaan pada ${endpoint}. Silakan tunggu sebentar.`);
+            }
+
+            if (options.body && typeof options.body === 'string') {
+                try {
+                    const parsed = JSON.parse(options.body);
+                    const cleanObj = InkaiSecurity.sanitizePayload(parsed);
+                    options.body = JSON.stringify(cleanObj);
+                } catch (e) {
+                    options.body = InkaiSecurity.sanitizeString(options.body);
+                }
+            }
+        }
+
+        // 2. Layer Anti-Bentrok & High-Concurrency (InkaiConcurrency SWR Cache untuk GET)
+        if (method === 'GET' && typeof InkaiConcurrency !== 'undefined') {
+            let ttl = 3000;
+            if (endpoint.includes('/matches')) ttl = 2000; // 2s cache untuk skor live pertandingan
+            else if (endpoint.includes('/inventory') || endpoint.includes('/events')) ttl = 30000; // 30s cache
+            else if (endpoint.includes('/members')) ttl = 10000; // 10s cache
+
+            return await InkaiConcurrency.fetchWithSWR(endpoint, () => rawRequest(endpoint, options), ttl);
+        }
+
+        // 3. Invalidate cache jika ada operasi mutasi (POST, PATCH, PUT, DELETE)
+        if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(method) && typeof InkaiConcurrency !== 'undefined') {
+            if (endpoint.includes('/matches')) InkaiConcurrency.invalidateCache('/matches');
+            if (endpoint.includes('/members')) InkaiConcurrency.invalidateCache('/members');
+            if (endpoint.includes('/inventory')) InkaiConcurrency.invalidateCache('/inventory');
+        }
+
+        return await rawRequest(endpoint, options);
     }
 
     // Akun live di Supabase Database
@@ -169,6 +210,14 @@ const InkaiAPI = (() => {
             const cleanId = (identifier || '').trim();
             const idLower = cleanId.toLowerCase();
 
+            // 0. Anti-Brute Force Guard (InkaiSecurity)
+            if (typeof InkaiSecurity !== 'undefined') {
+                const bruteCheck = InkaiSecurity.verifyLoginAttempt(cleanId);
+                if (!bruteCheck.allowed) {
+                    throw new Error(bruteCheck.message);
+                }
+            }
+
             // 1. Cek apakah cocok dengan Akun Dojo yang dibuat oleh Admin
             const customDojos = this.getCustomDojos();
             const matchedDojo = customDojos.find(d => 
@@ -176,6 +225,9 @@ const InkaiAPI = (() => {
                 (d.code && d.code.toLowerCase() === idLower)
             );
             if (matchedDojo && (!password || matchedDojo.password === password)) {
+                if (typeof InkaiSecurity !== 'undefined') {
+                    InkaiSecurity.recordLoginSuccess(cleanId);
+                }
                 const userObj = {
                     id: matchedDojo.id,
                     email: matchedDojo.email,
@@ -188,7 +240,7 @@ const InkaiAPI = (() => {
                     roles: ['DOJO_MANAGER']
                 };
                 localStorage.setItem('kmajestigers_user', JSON.stringify(userObj));
-                return { token: 'token-dojo-' + matchedDojo.id, user: userObj, targetPortal: 'dojo.html' };
+                return { token: 'token-dojo-' + matchedDojo.id, user: userObj, targetPortal: this.getPortalUrl('DOJO_MANAGER') };
             }
 
             // 2. Coba autentikasi live ke backend Supabase PostgreSQL
@@ -220,7 +272,9 @@ const InkaiAPI = (() => {
                             roleNames,
                             name: user.fullName || user.name || 'Member K-Majestigers',
                         };
-                        localStorage.setItem('kmajestigers_user', JSON.stringify(normalizedUser));
+                        if (typeof InkaiSecurity !== 'undefined') {
+                            InkaiSecurity.recordLoginSuccess(cleanId);
+                        }
                         return { ...res, user: normalizedUser, targetPortal: this.getPortalUrl(primaryRole) };
                     }
                     backendSuccess = true;
@@ -374,6 +428,24 @@ const InkaiAPI = (() => {
             return res?.data || res;
         },
 
+        // Atomic & Collision-Free Live Match Scoring Engine
+        async updateMatchScore(id, patchData) {
+            // Deteksi Anomali Bot Click Flood
+            if (typeof InkaiSecurity !== 'undefined') {
+                const isHumanVelocity = InkaiSecurity.checkActionVelocity('scoring-tatami', 8, 800);
+                if (!isHumanVelocity) {
+                    console.warn('[Security Sentinel] Klik skor diabaikan: Frekuensi terlalu tinggi / terdeteksi automasi bot');
+                    return null;
+                }
+            }
+
+            // Gunakan InkaiConcurrency OCC & Atomic Queue jika tersedia
+            if (typeof InkaiConcurrency !== 'undefined') {
+                return await InkaiConcurrency.safeUpdateMatchScore(id, patchData, (mId, payload) => this.updateMatch(mId, payload));
+            }
+            return await this.updateMatch(id, patchData);
+        },
+
         async createMatch(matchData) {
             const res = await request('/matches', {
                 method: 'POST',
@@ -492,9 +564,10 @@ const InkaiAPI = (() => {
 
         getPortalUrl(role) {
             const r = (role || '').toUpperCase();
-            if (r.includes('ADMIN') || r.includes('PANITIA')) return 'admin.html';
-            if (r.includes('DOJO') || r.includes('MANAGER') || r.includes('COACH') || r.includes('PELATIH')) return 'dojo.html';
-            return 'member.html';
+            const isFileProto = window.location.protocol === 'file:';
+            if (r.includes('ADMIN') || r.includes('PANITIA')) return isFileProto ? 'admin.html' : '/admin';
+            if (r.includes('DOJO') || r.includes('MANAGER') || r.includes('COACH') || r.includes('PELATIH')) return isFileProto ? 'dojo.html' : '/dojo';
+            return isFileProto ? 'member.html' : '/member';
         },
 
         checkAccess(allowedRoles = []) {
@@ -512,6 +585,17 @@ const InkaiAPI = (() => {
         async enforceRouteGuard(allowedRoles = [], fallbackRole = 'MEMBER') {
             let user = this.getCurrentUser();
             const token = this.getToken();
+
+            // Verifikasi Integritas Session (InkaiSecurity Anomaly Check)
+            if (user && typeof InkaiSecurity !== 'undefined') {
+                const isValid = InkaiSecurity.verifySessionIntegrity(user);
+                if (!isValid) {
+                    this.logout();
+                    alert('Sesi tidak valid atau terdeteksi manipulasi hak akses. Anda dialihkan.');
+                    window.location.href = window.location.protocol === 'file:' ? 'index.html' : '/';
+                    return null;
+                }
+            }
 
             // Jika belum login atau token kosong, login langsung ke database untuk akun peran tersebut
             if (!user || !token) {
@@ -545,6 +629,8 @@ const InkaiAPI = (() => {
 
             const currentUser = this.getCurrentUser();
             const activeKey = (currentUser?.primaryRole || activeRole).toUpperCase();
+            const isFileProto = window.location.protocol === 'file:';
+            const homeUrl = isFileProto ? 'index.html' : '/';
 
             container.innerHTML = `
                 <div class="relative inline-block text-left" id="role-switcher-dropdown">
@@ -562,7 +648,7 @@ const InkaiAPI = (() => {
                             <span class="text-emerald-700 text-[9px] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-semibold">Supabase Connected</span>
                         </div>
                         <div class="py-1 space-y-1 text-xs">
-                            <button onclick="InkaiAPI.switchRoleAndGo('MEMBER', 'member.html')" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-900 transition-all ${activeKey === 'MEMBER' ? 'bg-amber-100/80 text-amber-900 font-bold border border-amber-200' : ''}">
+                            <button onclick="InkaiAPI.switchRoleAndGo('MEMBER')" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-900 transition-all ${activeKey === 'MEMBER' ? 'bg-amber-100/80 text-amber-900 font-bold border border-amber-200' : ''}">
                                 <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
                                     <i class="fa-solid fa-user-ninja"></i>
                                 </div>
@@ -571,7 +657,7 @@ const InkaiAPI = (() => {
                                     <span class="block text-[10px] text-slate-500 font-mono">atlet@kmajestigers.com</span>
                                 </div>
                             </button>
-                            <button onclick="InkaiAPI.switchRoleAndGo('DOJO_MANAGER', 'dojo.html')" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-900 transition-all ${activeKey === 'DOJO_MANAGER' ? 'bg-amber-100/80 text-amber-900 font-bold border border-amber-200' : ''}">
+                            <button onclick="InkaiAPI.switchRoleAndGo('DOJO_MANAGER')" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-900 transition-all ${activeKey === 'DOJO_MANAGER' ? 'bg-amber-100/80 text-amber-900 font-bold border border-amber-200' : ''}">
                                 <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
                                     <i class="fa-solid fa-people-group"></i>
                                 </div>
@@ -580,7 +666,7 @@ const InkaiAPI = (() => {
                                     <span class="block text-[10px] text-slate-500 font-mono">sensei.budi@kmajestigers.com</span>
                                 </div>
                             </button>
-                            <button onclick="InkaiAPI.switchRoleAndGo('ADMIN', 'admin.html')" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-900 transition-all ${activeKey === 'ADMIN' ? 'bg-amber-100/80 text-amber-900 font-bold border border-amber-200' : ''}">
+                            <button onclick="InkaiAPI.switchRoleAndGo('ADMIN')" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-900 transition-all ${activeKey === 'ADMIN' ? 'bg-amber-100/80 text-amber-900 font-bold border border-amber-200' : ''}">
                                 <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
                                     <i class="fa-solid fa-crown"></i>
                                 </div>
@@ -591,7 +677,7 @@ const InkaiAPI = (() => {
                             </button>
                         </div>
                         <div class="pt-1">
-                            <a href="index.html" class="flex items-center space-x-2 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-[11px] transition-all">
+                            <a href="${homeUrl}" class="flex items-center space-x-2 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-[11px] transition-all">
                                 <i class="fa-solid fa-house text-slate-400"></i>
                                 <span>Kembali ke Halaman Publik Utama</span>
                             </a>
@@ -615,7 +701,15 @@ const InkaiAPI = (() => {
             } catch (e) {
                 console.error('Switch role failed:', e);
             }
-            window.location.href = targetUrl;
+            window.location.href = targetUrl || this.getPortalUrl(roleKey);
+        },
+
+        // Security & Concurrency Accessors
+        get security() {
+            return typeof InkaiSecurity !== 'undefined' ? InkaiSecurity : null;
+        },
+        get concurrency() {
+            return typeof InkaiConcurrency !== 'undefined' ? InkaiConcurrency : null;
         }
     };
 })();

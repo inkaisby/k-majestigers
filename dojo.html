@@ -76,6 +76,13 @@
             background: #d97706;
         }
     </style>
+    <script>
+        // Clean URL handler: remove .html if accessed via web server
+        if (window.location.protocol.startsWith('http') && window.location.pathname.endsWith('.html')) {
+            const cleanPath = window.location.pathname.replace(/\.html$/, '');
+            window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+        }
+    </script>
 </head>
 <body class="selection:bg-amber-400 selection:text-black flex flex-col justify-between">
 
@@ -84,7 +91,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <!-- Brand & Area Indicator -->
             <div class="flex items-center space-x-3">
-                <a href="index.html" class="flex items-center space-x-3 group">
+                <a href="/" class="flex items-center space-x-3 group">
                     <div class="w-10 h-10 rounded-xl gold-gradient-bg flex items-center justify-center text-slate-950 text-xl font-bold shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
                         <i class="fa-solid fa-crown"></i>
                     </div>
@@ -742,6 +749,7 @@
         <span id="toast-msg">Aksi berhasil diproses!</span>
     </div>
 
+    <script src="security.js"></script>
     <script src="api.js"></script>
     <script>
         // Guard Akses RBAC & Session Live Database
@@ -1039,7 +1047,7 @@
             InkaiAPI.logout();
             showToast('Anda telah keluar dari akun.');
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = window.location.protocol === 'file:' ? 'index.html' : '/';
             }, 800);
         }
 
