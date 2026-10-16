@@ -1,0 +1,10 @@
+{
+  "name": "k-majestigers",
+  "version": "1.0.0",
+  "description": "K-Majestigers Elite Karate Academy & Championship Web App",
+  "scripts": {
+    "start": "npx -y serve -l 3000 .",
+    "dev": "npx -y serve -l 3000 .",
+    "backend": "cd ../inkai/inkai-backend && npm run dev"
+  }
+}

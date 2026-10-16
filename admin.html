@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin &amp; Championship Control | K-Majestigers</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        branddark: '#0f172a',
+                        cardslate: '#ffffff',
+                        gold: '#b8860b',
+                        'gold-light': '#dfb347',
+                        'gold-dark': '#8b6508',
+                        lightbg: '#f8fafc',
+                    },
+                    fontFamily: {
+                        heading: ['Cinzel', 'serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Cinzel', serif;
+            color: #0f172a;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #92400e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-gradient-bg {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+        }
+        .gold-border {
+            border-color: rgba(217, 119, 6, 0.25);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+        }
+        .glass-card:hover {
+            border-color: rgba(217, 119, 6, 0.4);
+            box-shadow: 0 10px 25px -3px rgba(217, 119, 6, 0.08);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d97706;
+        }
+    </style>
+</head>
+<body class="selection:bg-amber-400 selection:text-black flex flex-col justify-between">
+
+    <!-- Top Admin Header (Bright / Light Theme) -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm px-4 sm:px-8 py-3.5 transition-all">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Brand & Area Indicator -->
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 rounded-xl gold-gradient-bg flex items-center justify-center text-slate-950 text-xl font-bold shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg font-black font-heading tracking-wider text-slate-900">K-<span class="gold-gradient-text">MAJESTIGERS</span></span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
+                                <i class="fa-solid fa-crown mr-1"></i> Admin Command
+                            </span>
+                        </div>
+                        <span class="block text-[9px] tracking-widest text-amber-700 uppercase font-semibold">Super Admin &amp; Event Organizer</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Portal Navigation Tabs (Desktop) -->
+            <nav class="hidden xl:flex items-center space-x-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200 text-xs font-semibold">
+                <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn px-3 py-2 rounded-xl text-slate-950 bg-amber-400 font-bold shadow-sm transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Overview</span>
+                </button>
+                <button onclick="switchTab('championship')" id="tab-btn-championship" class="tab-btn px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-sitemap"></i>
+                    <span>Championship &amp; Brackets</span>
+                </button>
+                <button onclick="switchTab('scoring')" id="tab-btn-scoring" class="tab-btn px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-tv text-amber-600"></i>
+                    <span>Live Scoring</span>
+                </button>
+                <button onclick="switchTab('verification')" id="tab-btn-verification" class="tab-btn px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-shield-check"></i>
+                    <span>Verifikasi Data</span>
+                </button>
+                <button onclick="switchTab('members')" id="tab-btn-members" class="tab-btn px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>Anggota &amp; Dojo</span>
+                </button>
+                <button onclick="switchTab('store')" id="tab-btn-store" class="tab-btn px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-store"></i>
+                    <span>Store</span>
+                </button>
+                <button onclick="switchTab('reports')" id="tab-btn-reports" class="tab-btn px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/70 transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-file-contract"></i>
+                    <span>Laporan</span>
+                </button>
+            </nav>
+
+            <!-- User Status & Quick Role Switcher -->
+            <div class="flex items-center space-x-3">
+                <div id="role-switcher-container"></div>
+
+                <div class="hidden sm:flex items-center space-x-3 pl-2 border-l border-slate-200">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-500 to-amber-400 p-0.5 shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" alt="Avatar Admin" class="w-full h-full object-cover rounded-full">
+                    </div>
+                    <div class="text-left text-xs">
+                        <span id="nav-user-name" class="block font-bold text-slate-900">Dr. Bambang S.</span>
+                        <span class="block text-[10px] text-rose-700 font-semibold">Super Admin • Dewan Guru</span>
+                    </div>
+                </div>
+
+                <button onclick="logoutToHome()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 transition-all text-xs" title="Keluar">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Tabs -->
+        <div class="flex xl:hidden items-center justify-between overflow-x-auto gap-2 pt-3 border-t border-slate-200 mt-2 text-xs">
+            <button onclick="switchTab('overview')" id="mob-tab-overview" class="py-1.5 px-2.5 rounded-lg bg-amber-400 text-slate-950 font-bold whitespace-nowrap shadow-xs">Overview</button>
+            <button onclick="switchTab('championship')" id="mob-tab-championship" class="py-1.5 px-2.5 rounded-lg text-slate-600 whitespace-nowrap">Brackets</button>
+            <button onclick="switchTab('scoring')" id="mob-tab-scoring" class="py-1.5 px-2.5 rounded-lg text-slate-600 whitespace-nowrap">Live Scoring</button>
+            <button onclick="switchTab('verification')" id="mob-tab-verification" class="py-1.5 px-2.5 rounded-lg text-slate-600 whitespace-nowrap">Verifikasi</button>
+            <button onclick="switchTab('members')" id="mob-tab-members" class="py-1.5 px-2.5 rounded-lg text-slate-600 whitespace-nowrap">Anggota</button>
+            <button onclick="switchTab('store')" id="mob-tab-store" class="py-1.5 px-2.5 rounded-lg text-slate-600 whitespace-nowrap">Store</button>
+            <button onclick="switchTab('reports')" id="mob-tab-reports" class="py-1.5 px-2.5 rounded-lg text-slate-600 whitespace-nowrap">Laporan</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8">
+
+        <!-- ==============================================
+             SECTION 1: DASHBOARD UTAMA (OVERVIEW) (/admin/*)
+             ============================================== -->
+        <section id="section-overview" class="space-y-8 animate-fadeIn">
+            <!-- Command Center Hero Header (Bright / Light Theme) -->
+            <div class="rounded-3xl bg-gradient-to-r from-amber-50/90 via-white to-rose-50/50 border border-amber-200/90 p-6 sm:p-8 relative overflow-hidden shadow-sm">
+                <div class="absolute -right-10 -bottom-10 opacity-5 text-9xl text-amber-500 pointer-events-none">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300">
+                                EVENT DIRECTORY &bull; SUPER ADMIN
+                            </span>
+                            <span class="text-xs text-emerald-700 font-semibold"><i class="fa-solid fa-signal mr-1"></i> Sistem Turnamen Online (Supabase Active)</span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+                            Pusat Komando &amp; <span class="gold-gradient-text">Event Organizer</span>
+                        </h1>
+                        <p class="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                            Turnamen Aktif: <strong class="text-slate-900">K-Majestigers National Open Championship 2026</strong> &bull; DBL Arena Surabaya
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <button onclick="switchTab('championship')" class="px-5 py-3 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md shadow-amber-500/20 hover:scale-105 transition-transform flex items-center space-x-2">
+                            <i class="fa-solid fa-sitemap"></i>
+                            <span>Buka Bracket Generator</span>
+                        </button>
+                        <button onclick="switchTab('scoring')" class="px-5 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center space-x-2">
+                            <i class="fa-solid fa-tv text-rose-600 animate-pulse"></i>
+                            <span>Layar Juri Arena</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Big Stat KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Registered Contingents -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kontingen Terdaftar</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-building-shield"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-black font-heading text-slate-900">42 <span class="text-xs text-slate-500 font-normal">Dojo</span></div>
+                    <p class="text-[11px] text-slate-500 mt-1">Dari 8 Provinsi di Seluruh Indonesia</p>
+                    <div class="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                        <span class="text-emerald-700 font-semibold">39 Terverifikasi</span>
+                        <button onclick="switchTab('verification')" class="text-amber-700 font-semibold hover:underline">Verifikasi &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Total Athletes -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Peserta Masuk</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-user-ninja"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-black font-heading text-amber-800">684 <span class="text-xs text-slate-500 font-normal">Atlet</span></div>
+                    <p class="text-[11px] text-slate-500 mt-1">412 Kumite &bull; 272 Kata</p>
+                    <div class="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                        <span class="text-amber-800 font-semibold">8 Matras Siap Pakai</span>
+                        <button onclick="switchTab('championship')" class="text-amber-700 font-semibold hover:underline">Bagan &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Registration Revenue -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pendapatan Registrasi</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black font-heading text-emerald-700">Rp 184.500.000</div>
+                    <p class="text-[11px] text-slate-500 mt-1">94% Pembayaran Telah Lunas</p>
+                    <div class="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                        <span class="text-emerald-700 font-bold">Rp 173.450.000 Masuk</span>
+                        <button onclick="switchTab('reports')" class="text-amber-700 font-semibold hover:underline">Laporan &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Store Merchandise Sales -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Penjualan Merchandise</span>
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-shirt"></i>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black font-heading text-purple-700">Rp 42.800.000</div>
+                    <p class="text-[11px] text-slate-500 mt-1">156 Pesanan Gi &amp; Perlengkapan WKF</p>
+                    <div class="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                        <span class="text-sky-700 font-semibold">12 Perlu Dikirim</span>
+                        <button onclick="switchTab('store')" class="text-amber-700 font-semibold hover:underline">Toko &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Charts & Analytics Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Registration Flow Chart (High-fidelity SVG, Light Mode) -->
+                <div class="lg:col-span-8 glass-card p-6 sm:p-7 rounded-3xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <div>
+                            <h3 class="text-base font-bold font-heading text-slate-900">Arus Pendaftaran Peserta (Harian)</h3>
+                            <span class="text-xs text-slate-500">Tren pendaftaran kontingen dalam 14 hari terakhir</span>
+                        </div>
+                        <span class="text-xs font-mono text-emerald-700 font-bold">+28% Lonjakan Minggu Ini</span>
+                    </div>
+
+                    <!-- SVG Line Chart Simulation -->
+                    <div class="h-56 w-full pt-4 relative">
+                        <svg class="w-full h-full overflow-visible" viewBox="0 0 700 200" fill="none">
+                            <defs>
+                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+                                    <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Grid lines -->
+                            <line x1="0" y1="40" x2="700" y2="40" stroke="#e2e8f0" stroke-dasharray="4"/>
+                            <line x1="0" y1="90" x2="700" y2="90" stroke="#e2e8f0" stroke-dasharray="4"/>
+                            <line x1="0" y1="140" x2="700" y2="140" stroke="#e2e8f0" stroke-dasharray="4"/>
+                            
+                            <!-- Area fill -->
+                            <path d="M0,170 Q100,150 200,120 T400,90 T550,45 T700,20 L700,200 L0,200 Z" fill="url(#chartGradient)"/>
+                            
+                            <!-- Line stroke -->
+                            <path d="M0,170 Q100,150 200,120 T400,90 T550,45 T700,20" stroke="#d97706" stroke-width="4" stroke-linecap="round"/>
+                            
+                            <!-- Points -->
+                            <circle cx="200" cy="120" r="5" fill="#d97706" stroke="#fff" stroke-width="2"/>
+                            <circle cx="400" cy="90" r="5" fill="#d97706" stroke="#fff" stroke-width="2"/>
+                            <circle cx="550" cy="45" r="5" fill="#d97706" stroke="#fff" stroke-width="2"/>
+                            <circle cx="700" cy="20" r="6" fill="#b45309" stroke="#fff" stroke-width="3"/>
+                        </svg>
+                        
+                        <div class="flex justify-between text-[10px] text-slate-500 pt-2 font-mono">
+                            <span>1 Okt</span>
+                            <span>4 Okt</span>
+                            <span>7 Okt</span>
+                            <span>10 Okt</span>
+                            <span>13 Okt</span>
+                            <span>16 Okt (Hari Ini)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown -->
+                <div class="lg:col-span-4 glass-card p-6 sm:p-7 rounded-3xl space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold font-heading text-slate-900 mb-1">Distribusi Nomor Tanding</h3>
+                        <span class="text-xs text-slate-500">Komposisi peserta berdasarkan kategori WKF</span>
+
+                        <div class="space-y-3.5 mt-5 text-xs">
+                            <div>
+                                <div class="flex justify-between text-slate-700 mb-1">
+                                    <span>Kumite Putra (Semua Kelas Berat)</span>
+                                    <span class="font-bold text-slate-900">42% (287 Atlet)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-amber-500 h-2 rounded-full" style="width: 42%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-slate-700 mb-1">
+                                    <span>Kata Perorangan &amp; Beregu</span>
+                                    <span class="font-bold text-slate-900">35% (239 Atlet)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-sky-500 h-2 rounded-full" style="width: 35%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-slate-700 mb-1">
+                                    <span>Kumite Putri</span>
+                                    <span class="font-bold text-slate-900">23% (158 Atlet)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-rose-500 h-2 rounded-full" style="width: 23%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">Total 684 Peserta Terverifikasi</span>
+                        <button onclick="switchTab('reports')" class="text-amber-700 font-semibold hover:underline">Export Detail &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Shortcuts -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold">
+                <button onclick="switchTab('championship')" class="p-4 rounded-2xl glass-card hover:bg-slate-50 transition-all flex flex-col items-center justify-center text-center space-y-2 group shadow-2xs">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <span class="text-slate-900">Generate Bracket Baru</span>
+                </button>
+
+                <button onclick="switchTab('verification')" class="p-4 rounded-2xl glass-card hover:bg-slate-50 transition-all flex flex-col items-center justify-center text-center space-y-2 group shadow-2xs">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-circle-check"></i>
+                    </div>
+                    <span class="text-slate-900">Verifikasi Pembayaran</span>
+                </button>
+
+                <button onclick="switchTab('scoring')" class="p-4 rounded-2xl glass-card hover:bg-slate-50 transition-all flex flex-col items-center justify-center text-center space-y-2 group shadow-2xs">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </div>
+                    <span class="text-slate-900">Panggil Atlet ke Matras</span>
+                </button>
+
+                <button onclick="switchTab('reports')" class="p-4 rounded-2xl glass-card hover:bg-slate-50 transition-all flex flex-col items-center justify-center text-center space-y-2 group shadow-2xs">
+                    <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-print"></i>
+                    </div>
+                    <span class="text-slate-900">Cetak ID Card Massal</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 2: CHAMPIONSHIP & BRACKET GENERATOR
+             ============================================== -->
+        <section id="section-championship" class="space-y-6 hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+                        Manajemen Event &amp; Bracket Generator
+                    </h2>
+                    <p class="text-xs text-slate-500">Pengaturan jadwal kelas tanding dan generator bagan sistem gugur standar World Karate Federation.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="generateRandomBracket()" class="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 border border-slate-300 shadow-xs flex items-center space-x-2">
+                        <i class="fa-solid fa-shuffle text-amber-600"></i>
+                        <span>Acak Bagan (Seeded Draw)</span>
+                    </button>
+                    <button onclick="printBracketTree()" class="px-4 py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md flex items-center space-x-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Bagan Dinding</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Selector Controls -->
+            <div class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 text-xs">
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-slate-500 font-bold uppercase">Pilih Kategori:</span>
+                    <select id="bracket-category-select" class="bg-white border border-slate-300 rounded-xl px-4 py-2 text-slate-900 font-bold focus:outline-none focus:border-amber-500">
+                        <option selected>Kumite Senior Putra -67kg (16 Besar)</option>
+                        <option>Kumite Senior Putra -75kg (16 Besar)</option>
+                        <option>Kumite Kadet Putri -47kg (8 Besar)</option>
+                        <option>Kata Senior Perorangan Putra (Final Pool)</option>
+                    </select>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Pool A &bull; Matras 2 Siap
+                    </span>
+                </div>
+
+                <div class="text-slate-500 text-xs">
+                    Format: <strong class="text-slate-900">Single Elimination + Repechage WKF</strong>
+                </div>
+            </div>
+
+            <!-- Interactive Visual Tournament Bracket Tree -->
+            <div class="glass-card p-6 sm:p-8 rounded-3xl overflow-x-auto border border-slate-200 shadow-sm">
+                <div class="min-w-[950px] space-y-6">
+                    <!-- Tree Round Headers -->
+                    <div class="grid grid-cols-4 gap-6 text-center text-xs font-bold uppercase tracking-wider text-slate-500 pb-2 border-b border-slate-200">
+                        <div class="text-amber-700">Babak 16 Besar (Perdelapan)</div>
+                        <div class="text-amber-800">Perempat Final (8 Besar)</div>
+                        <div class="text-sky-700">Semifinal</div>
+                        <div class="text-amber-800 font-black">FINAL &amp; PEREBUTAN EMAS</div>
+                    </div>
+
+                    <!-- Bracket Match Matchups Grid -->
+                    <div class="grid grid-cols-4 gap-6 items-center text-xs">
+                        <!-- Column 1: Round of 16 (4 matches shown for Pool A) -->
+                        <div class="space-y-4">
+                            <!-- Match 1 -->
+                            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+                                <span class="text-[9px] text-slate-500 font-mono block">Partai #101 &bull; Tatami 2</span>
+                                <div onclick="advanceFighter('Ahmad Rayhan (SBY)', 1)" class="p-1.5 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 cursor-pointer flex justify-between items-center transition-all">
+                                    <span class="text-rose-800 font-bold">1. Ahmad Rayhan (SBY)</span>
+                                    <span class="font-bold text-slate-900">6</span>
+                                </div>
+                                <div class="p-1.5 rounded-lg bg-white border border-slate-200 flex justify-between items-center text-slate-500">
+                                    <span>2. Arya Dimas (Dojo Elang)</span>
+                                    <span>1</span>
+                                </div>
+                            </div>
+
+                            <!-- Match 2 -->
+                            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+                                <span class="text-[9px] text-slate-500 font-mono block">Partai #102 &bull; Tatami 2</span>
+                                <div onclick="advanceFighter('Bambang Pamungkas (JKT)', 1)" class="p-1.5 rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 cursor-pointer flex justify-between items-center transition-all">
+                                    <span class="text-blue-800 font-bold">3. Bambang P. (Dojo Jkt)</span>
+                                    <span class="font-bold text-slate-900">4</span>
+                                </div>
+                                <div class="p-1.5 rounded-lg bg-white border border-slate-200 flex justify-between items-center text-slate-500">
+                                    <span>4. Kevin Sanjaya (Bali)</span>
+                                    <span>2</span>
+                                </div>
+                            </div>
+
+                            <!-- Match 3 -->
+                            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+                                <span class="text-[9px] text-slate-500 font-mono block">Partai #103 &bull; Tatami 2</span>
+                                <div onclick="advanceFighter('Rizky Ramadhan (BDG)', 2)" class="p-1.5 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 cursor-pointer flex justify-between items-center transition-all">
+                                    <span class="text-rose-800 font-bold">5. Rizky R. (Dojo Bdg)</span>
+                                    <span class="font-bold text-slate-900">3</span>
+                                </div>
+                                <div class="p-1.5 rounded-lg bg-white border border-slate-200 flex justify-between items-center text-slate-500">
+                                    <span>6. Hendra Setiawan (MDN)</span>
+                                    <span>0</span>
+                                </div>
+                            </div>
+
+                            <!-- Match 4 -->
+                            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-2xs">
+                                <span class="text-[9px] text-slate-500 font-mono block">Partai #104 &bull; Tatami 2</span>
+                                <div onclick="advanceFighter('Farhan Maulana (SBY)', 2)" class="p-1.5 rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 cursor-pointer flex justify-between items-center transition-all">
+                                    <span class="text-blue-800 font-bold">7. Farhan M. (Harimau)</span>
+                                    <span class="font-bold text-slate-900">5</span>
+                                </div>
+                                <div class="p-1.5 rounded-lg bg-white border border-slate-200 flex justify-between items-center text-slate-500">
+                                    <span>8. Doni Tata (Solo)</span>
+                                    <span>2</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Quarterfinals (8 Besar) -->
+                        <div class="space-y-12">
+                            <!-- QF 1 -->
+                            <div class="p-3.5 rounded-2xl bg-white border-2 border-amber-300 space-y-2 shadow-sm">
+                                <span class="text-[9px] text-amber-800 font-mono block">QF 1 &bull; Pukul 13:00 WIB</span>
+                                <div id="qf1-fighter1" onclick="advanceToSemi('Ahmad Rayhan (SBY)', 1)" class="p-2 rounded-lg bg-rose-50 border border-rose-300 cursor-pointer hover:bg-rose-100 flex justify-between items-center">
+                                    <span class="text-rose-800 font-bold">Ahmad Rayhan (SBY)</span>
+                                    <span class="text-slate-900 font-bold">4</span>
+                                </div>
+                                <div id="qf1-fighter2" class="p-2 rounded-lg bg-blue-50 border border-blue-200 flex justify-between items-center text-slate-700">
+                                    <span>Bambang P. (Dojo Jkt)</span>
+                                    <span>2</span>
+                                </div>
+                            </div>
+
+                            <!-- QF 2 -->
+                            <div class="p-3.5 rounded-2xl bg-white border-2 border-amber-300 space-y-2 shadow-sm">
+                                <span class="text-[9px] text-amber-800 font-mono block">QF 2 &bull; Pukul 13:30 WIB</span>
+                                <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center text-slate-700">
+                                    <span>Rizky R. (Dojo Bdg)</span>
+                                    <span>1</span>
+                                </div>
+                                <div id="qf2-fighter2" onclick="advanceToSemi('Farhan M. (Harimau)', 2)" class="p-2 rounded-lg bg-blue-50 border border-blue-300 cursor-pointer hover:bg-blue-100 flex justify-between items-center">
+                                    <span class="text-blue-800 font-bold">Farhan M. (Harimau)</span>
+                                    <span class="text-slate-900 font-bold">3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Semifinals -->
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-3xl bg-white border-2 border-sky-300 space-y-3 shadow-md">
+                                <span class="text-[10px] text-sky-800 font-mono font-bold block">SEMIFINAL &bull; 14:15 WIB</span>
+                                <div id="semi-fighter1" onclick="advanceToFinal('Ahmad Rayhan (SBY)')" class="p-2.5 rounded-xl bg-rose-50 border border-rose-300 hover:bg-rose-100 cursor-pointer flex justify-between items-center transition-all">
+                                    <span class="text-rose-900 font-bold text-sm">Ahmad Rayhan (SBY)</span>
+                                    <span class="text-amber-800 font-black">5</span>
+                                </div>
+                                <div id="semi-fighter2" class="p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex justify-between items-center text-slate-700">
+                                    <span class="font-medium">Farhan M. (Harimau)</span>
+                                    <span>3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 4: Final Match -->
+                        <div class="space-y-4">
+                            <div class="p-5 rounded-3xl bg-gradient-to-b from-amber-50 via-white to-amber-50/30 border-2 border-amber-400 shadow-lg space-y-3 text-center">
+                                <div class="w-12 h-12 rounded-2xl gold-gradient-bg flex items-center justify-center text-slate-950 text-2xl font-black mx-auto shadow-md animate-bounce">
+                                    <i class="fa-solid fa-trophy"></i>
+                                </div>
+                                <span class="text-[10px] uppercase font-black tracking-widest text-amber-900 block">CHAMPIONSHIP FINAL</span>
+                                
+                                <div class="p-3 rounded-2xl bg-rose-50 border border-rose-300 text-left">
+                                    <span class="text-[9px] uppercase font-bold text-rose-700 block">Kubu AKA (Merah)</span>
+                                    <span id="final-aka" class="text-sm font-black font-heading text-slate-900 block">Ahmad Rayhan Putra (SBY)</span>
+                                    <span class="text-[10px] text-amber-800 font-bold">POTENSI JUARA 1</span>
+                                </div>
+
+                                <div class="text-xs text-slate-400 font-bold">VS</div>
+
+                                <div class="p-3 rounded-2xl bg-blue-50 border border-blue-300 text-left">
+                                    <span class="text-[9px] uppercase font-bold text-blue-700 block">Kubu AO (Biru)</span>
+                                    <span class="text-sm font-black font-heading text-slate-900 block">Teguh Prakoso (Semarang)</span>
+                                    <span class="text-[10px] text-sky-700 font-bold">Pemenang Pool B</span>
+                                </div>
+
+                                <button onclick="switchTab('scoring')" class="w-full py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider text-xs shadow-md hover:opacity-90">
+                                    Buka Scoreboard Partai Ini
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 3: PANEL LIVE SCORING (TATAMI SCREEN)
+             ============================================== -->
+        <section id="section-scoring" class="space-y-6 hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping"></span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-rose-700">Panel Operator Wasit Juri</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+                        Live Scoreboard &amp; Screen Controller
+                    </h2>
+                    <p class="text-xs text-slate-500">Pengendali skor digital tatami resmi World Karate Federation (WKF Kumite 3:00 Menit).</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select class="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs text-slate-800 font-bold shadow-xs">
+                        <option>Matras 2 (Tatami Arena Utama)</option>
+                        <option>Matras 1</option>
+                        <option>Matras 3</option>
+                        <option>Matras 4</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Full Screen Digital Scoreboard Simulator -->
+            <div class="rounded-3xl bg-slate-950 border-4 border-slate-800 p-6 sm:p-10 shadow-2xl relative overflow-hidden space-y-8">
+                <!-- Top Match Info & Timer -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-6 text-center sm:text-left">
+                    <div>
+                        <span class="text-xs font-mono text-gray-400 uppercase tracking-widest block">K-MAJESTIGERS NATIONAL OPEN &bull; TATAMI 2</span>
+                        <h3 id="scoring-match-title" class="text-lg font-black font-heading text-white">Partai #42 &bull; Kumite Senior Putra -67kg (Babak 16 Besar)</h3>
+                    </div>
+
+                    <!-- Digital Countdown Timer -->
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Match Timer WKF</span>
+                        <div id="scoreboard-timer" class="text-5xl sm:text-6xl font-mono font-black text-amber-400 tracking-wider bg-slate-900 px-6 py-2 rounded-2xl border border-amber-500/40 shadow-inner">
+                            03:00
+                        </div>
+                        <div class="flex items-center space-x-2 mt-3">
+                            <button onclick="startTimer()" id="btn-timer-start" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase shadow-sm">Start</button>
+                            <button onclick="pauseTimer()" class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase shadow-sm">Pause</button>
+                            <button onclick="resetTimer()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs uppercase shadow-sm">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aka vs Ao Digital Board -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Corner AKA (Red) -->
+                    <div class="rounded-3xl bg-gradient-to-b from-rose-950/80 to-slate-950 border-4 border-rose-600 p-6 sm:p-8 space-y-6 text-center shadow-xl">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-600 text-white">
+                                AKA (MERAH)
+                            </span>
+                            <label class="flex items-center space-x-2 text-xs text-rose-300 cursor-pointer">
+                                <input type="checkbox" id="senshu-aka" class="w-4 h-4 text-rose-600 rounded">
+                                <span class="font-bold">SENSHU</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <h4 id="scoring-aka-name" class="text-2xl font-black font-heading text-white">Ahmad Rayhan Putra</h4>
+                            <span id="scoring-aka-dojo" class="text-xs text-gray-300">K-Majestigers Elite Surabaya</span>
+                        </div>
+
+                        <!-- Score Number -->
+                        <div class="text-8xl font-black font-heading text-rose-500 tracking-tight" id="score-aka-display">
+                            5
+                        </div>
+
+                        <!-- Action Buttons: Yuko, Waza-ari, Ippon -->
+                        <div class="grid grid-cols-3 gap-2 pt-2">
+                            <button onclick="addScore('aka', 1)" class="py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow">
+                                +1 Yuko
+                            </button>
+                            <button onclick="addScore('aka', 2)" class="py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow">
+                                +2 Waza-ari
+                            </button>
+                            <button onclick="addScore('aka', 3)" class="py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow">
+                                +3 Ippon
+                            </button>
+                        </div>
+
+                        <!-- Penalties (Chui & Hansoku) -->
+                        <div class="flex justify-between items-center pt-2 text-xs text-gray-300 border-t border-rose-900/60">
+                            <span>Penalti (Chui):</span>
+                            <div class="space-x-1">
+                                <span class="px-2 py-0.5 rounded bg-rose-950 border border-rose-800 text-[10px] text-rose-300 font-bold">C1</span>
+                                <span class="px-2 py-0.5 rounded bg-rose-950 border border-rose-800 text-[10px] text-rose-300 font-bold">C2</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C3</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C4</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Corner AO (Blue) -->
+                    <div class="rounded-3xl bg-gradient-to-b from-blue-950/80 to-slate-950 border-4 border-blue-600 p-6 sm:p-8 space-y-6 text-center shadow-xl">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-600 text-white">
+                                AO (BIRU)
+                            </span>
+                            <label class="flex items-center space-x-2 text-xs text-blue-300 cursor-pointer">
+                                <input type="checkbox" id="senshu-ao" class="w-4 h-4 text-blue-600 rounded">
+                                <span class="font-bold">SENSHU</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <h4 id="scoring-ao-name" class="text-2xl font-black font-heading text-white">Satria Wijaya</h4>
+                            <span id="scoring-ao-dojo" class="text-xs text-gray-300">Garuda Karate Club Malang</span>
+                        </div>
+
+                        <!-- Score Number -->
+                        <div class="text-8xl font-black font-heading text-blue-500 tracking-tight" id="score-ao-display">
+                            3
+                        </div>
+
+                        <!-- Action Buttons: Yuko, Waza-ari, Ippon -->
+                        <div class="grid grid-cols-3 gap-2 pt-2">
+                            <button onclick="addScore('ao', 1)" class="py-2.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow">
+                                +1 Yuko
+                            </button>
+                            <button onclick="addScore('ao', 2)" class="py-2.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow">
+                                +2 Waza-ari
+                            </button>
+                            <button onclick="addScore('ao', 3)" class="py-2.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow">
+                                +3 Ippon
+                            </button>
+                        </div>
+
+                        <!-- Penalties (Chui & Hansoku) -->
+                        <div class="flex justify-between items-center pt-2 text-xs text-gray-300 border-t border-blue-900/60">
+                            <span>Penalti (Chui):</span>
+                            <div class="space-x-1">
+                                <span class="px-2 py-0.5 rounded bg-blue-950 border border-blue-800 text-[10px] text-blue-300 font-bold">C1</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C2</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C3</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C4</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Broadcast Sync Controller -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800 text-xs text-gray-400">
+                    <div>
+                        <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-satellite-dish mr-1 animate-pulse"></i> Sinkronisasi Layar GOR DBL Aktif</span>
+                    </div>
+                    <div class="space-x-3">
+                        <button onclick="resetMatchScore()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200">Reset Skor</button>
+                        <button onclick="declareWinner('Ahmad Rayhan Putra (AKA)')" class="px-5 py-2 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider shadow">
+                            Sahkan Pemenang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 4: VERIFIKASI & VALIDASI DATA
+             ============================================== -->
+        <section id="section-verification" class="space-y-6 hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+                        Verifikasi Berkas &amp; Pembayaran Masuk
+                    </h2>
+                    <p class="text-xs text-slate-500">Persetujuan pendaftaran kontingen, cek bukti transfer bank, dan validasi dokumen batas umur (akta/ijazah).</p>
+                </div>
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-300">
+                        3 Menunggu Verifikasi
+                    </span>
+                </div>
+            </div>
+
+            <!-- Verification Subtabs -->
+            <div class="glass-card rounded-3xl p-6 space-y-6">
+                <!-- Verification Items Queue -->
+                <div class="space-y-4" id="verification-items-queue">
+                    <!-- Queue Item 1: Payment Verification -->
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 text-xs">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl flex-shrink-0">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">PEMBAYARAN KONTINGEN</span>
+                                    <span class="text-slate-500 font-mono">INV-KM-2026-091</span>
+                                </div>
+                                <h4 class="text-base font-bold text-slate-900">Dojo Singa Perkasa Bandung (Sensei Arman)</h4>
+                                <p class="text-slate-600">Total 18 Atlet &bull; Transfer BCA: <strong class="text-amber-800 font-mono">Rp 4.750.000</strong> &bull; Resi: TRX-992144</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 w-full lg:w-auto justify-end">
+                            <button onclick="previewTransferReceipt('Dojo Singa Perkasa Bandung', 'Rp 4.750.000', 'BCA - Sensei Arman')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold">
+                                <i class="fa-solid fa-eye mr-1"></i> Lihat Struk
+                            </button>
+                            <button onclick="approveQueueItem(this, 'Pembayaran Rp 4.750.000 telah disahkan LUNAS!')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-xs">
+                                <i class="fa-solid fa-check mr-1"></i> Sahkan Lunas
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Queue Item 2: Birth Certificate Verification -->
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 text-xs">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl flex-shrink-0">
+                                <i class="fa-solid fa-id-card-clip"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">VALIDASI USIA &amp; AKTA</span>
+                                    <span class="text-slate-500 font-mono">Kategori: Usia Dini (8-9 Th)</span>
+                                </div>
+                                <h4 class="text-base font-bold text-slate-900">Raffi Ahmadinejad (Dojo Harimau Putih)</h4>
+                                <p class="text-slate-600">Tgl Lahir: 12 Des 2017 &bull; Dokumen: Akta Lahir + Surat Keterangan Dokter Terlampir</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 w-full lg:w-auto justify-end">
+                            <button onclick="showToast('Menampilkan berkas Akta Kelahiran Raffi Ahmadinejad (PDF 1.2 MB)')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold">
+                                <i class="fa-solid fa-file-pdf text-rose-600 mr-1"></i> Cek Akta
+                            </button>
+                            <button onclick="approveQueueItem(this, 'Dokumen usia telah diverifikasi memenuhi syarat kelas Usia Dini!')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-xs">
+                                <i class="fa-solid fa-check mr-1"></i> Setujui Berkas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 5: MANAJEMEN ANGGOTA & DOJO (MASTER)
+             ============================================== -->
+        <section id="section-members" class="space-y-6 hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+                        Direktori Master Anggota &amp; Dojo
+                    </h2>
+                    <p class="text-xs text-slate-500">Database seluruh karateka, pelatih bersertifikat, dan cabang dojo K-Majestigers se-Indonesia.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openModal('modal-create-dojo')" class="px-4 py-2 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md flex items-center space-x-2 hover:opacity-95">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Buat Akun Login Dojo</span>
+                    </button>
+                    <button onclick="renderAllDojos(); showToast('Sinkronisasi database dojo berhasil.')" class="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 border border-slate-300 shadow-xs flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate text-amber-600"></i>
+                        <span>Sync Supabase</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dojo Directory Table (Bright Mode) -->
+            <div class="glass-card rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-900">Daftar Cabang Dojo K-Majestigers</span>
+                    <span id="dojo-count-badge" class="text-slate-500">Total 42 Cabang Aktif</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="py-3.5 px-4">Nama Dojo &amp; Kode</th>
+                                <th class="py-3.5 px-4">Kota / Wilayah</th>
+                                <th class="py-3.5 px-4">Kepala Pelatih (Sensei)</th>
+                                <th class="py-3.5 px-4">Email Login</th>
+                                <th class="py-3.5 px-4">Jumlah Atlet</th>
+                                <th class="py-3.5 px-4">Status Akun</th>
+                                <th class="py-3.5 px-4 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dojo-table-body" class="divide-y divide-slate-100 text-slate-800">
+                            <tr class="hover:bg-amber-50/40 transition-colors">
+                                <td class="py-3.5 px-4">
+                                    <span class="font-bold text-slate-900 block">K-Majestigers Elite Surabaya</span>
+                                    <span class="text-[10px] text-amber-800 font-mono font-bold">KM-SBY-01</span>
+                                </td>
+                                <td class="py-3.5 px-4">Surabaya, Jawa Timur</td>
+                                <td class="py-3.5 px-4">Sensei Budi Prasetyo (Dan 4)</td>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">38 Atlet</td>
+                                <td class="py-3.5 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">AKTIF</span>
+                                </td>
+                                <td class="py-3.5 px-4 text-right">
+                                    <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
+                                </td>
+                            </tr>
+
+                            <tr class="hover:bg-amber-50/40 transition-colors">
+                                <td class="py-3.5 px-4">
+                                    <span class="font-bold text-slate-900 block">K-Majestigers Jakarta Pusat</span>
+                                    <span class="text-[10px] text-amber-800 font-mono font-bold">KM-JKT-02</span>
+                                </td>
+                                <td class="py-3.5 px-4">Jakarta Pusat, DKI</td>
+                                <td class="py-3.5 px-4">Sensei Hendra Gunawan (Dan 5)</td>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">52 Atlet</td>
+                                <td class="py-3.5 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">AKTIF</span>
+                                </td>
+                                <td class="py-3.5 px-4 text-right">
+                                    <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 6: MANAJEMEN TOKO & MERCHANDISE
+             ============================================== -->
+        <section id="section-store" class="space-y-6 hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+                        Manajemen Katalog Toko &amp; Pesanan
+                    </h2>
+                    <p class="text-xs text-slate-500">Pengelolaan stok perlengkapan WKF, seragam Karate (Gi), dan nomor resi pengiriman ke member.</p>
+                </div>
+                <button onclick="openModal('modal-add-product')" class="px-4 py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Produk Baru</span>
+                </button>
+            </div>
+
+            <!-- Orders Tracking Table -->
+            <div class="glass-card rounded-3xl p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                    <h3 class="text-base font-bold font-heading text-slate-900">Daftar Pesanan Merchandise Member</h3>
+                    <span class="text-xs text-amber-800 font-bold">Total Omset: Rp 42.800.000</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-3">Order ID</th>
+                                <th class="py-3 px-3">Member Pemesan</th>
+                                <th class="py-3 px-3">Item Produk</th>
+                                <th class="py-3 px-3">Total</th>
+                                <th class="py-3 px-3">Status Pengiriman</th>
+                                <th class="py-3 px-3 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-800">
+                            <tr class="hover:bg-amber-50/40 transition-colors">
+                                <td class="py-3 px-3 font-mono font-bold text-amber-800">#ORD-9912</td>
+                                <td class="py-3 px-3 font-bold text-slate-900">Ahmad Rayhan Putra (Sby)</td>
+                                <td class="py-3 px-3">1x Karate Gi Kumite Master (Size 5)</td>
+                                <td class="py-3 px-3 font-mono">Rp 850.000</td>
+                                <td class="py-3 px-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">DIKIRIM (JNE: JNE-992144)</span>
+                                </td>
+                                <td class="py-3 px-3 text-right">
+                                    <button onclick="showToast('Detail pesanan #ORD-9912 ditampilkan')" class="text-amber-700 font-semibold hover:underline">Detail</button>
+                                </td>
+                            </tr>
+
+                            <tr class="hover:bg-amber-50/40 transition-colors">
+                                <td class="py-3 px-3 font-mono font-bold text-amber-800">#ORD-9913</td>
+                                <td class="py-3 px-3 font-bold text-slate-900">Sensei Budi Prasetyo</td>
+                                <td class="py-3 px-3">10x Hand Protector WKF (Merah/Biru)</td>
+                                <td class="py-3 px-3 font-mono">Rp 2.500.000</td>
+                                <td class="py-3 px-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">MENUNGGU RESI</span>
+                                </td>
+                                <td class="py-3 px-3 text-right">
+                                    <button onclick="inputTrackingNumber('#ORD-9913')" class="text-xs text-emerald-700 font-bold hover:underline">Input Resi</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 7: LAPORAN & REKAPITULASI (REPORTS)
+             ============================================== -->
+        <section id="section-reports" class="space-y-6 hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+                        Laporan, Sertifikat &amp; Rekapitulasi Medali
+                    </h2>
+                    <p class="text-xs text-slate-500">Ekspor data peserta format Excel/PDF untuk akreditasi ID Card massal dan klasemen Juara Umum Kontingen.</p>
+                </div>
+            </div>
+
+            <!-- Report Download Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Report Card 1 -->
+                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </div>
+                        <h4 class="text-lg font-bold font-heading text-slate-900">Data Peserta Lengkap (Excel)</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Ekspor seluruh 684 peserta lengkap dengan nama, NIA, dojo, kategori umur, berat badan aktual, dan nomor partai tanding.
+                        </p>
+                    </div>
+                    <button onclick="showToast('Mengunduh Laporan_Peserta_KMajestigers_2026.xlsx...')" class="w-full py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md">
+                        Download Excel (.xlsx)
+                    </button>
+                </div>
+
+                <!-- Report Card 2 -->
+                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-id-badge"></i>
+                        </div>
+                        <h4 class="text-lg font-bold font-heading text-slate-900">Lembar Akreditasi &amp; ID Card</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Generate file cetak ID Card massal dengan QR Code presensi untuk seluruh kontingen, pelatih (Sensei), dan official tim.
+                        </p>
+                    </div>
+                    <button onclick="showToast('Menyiapkan Lembar_IDCard_Massal.pdf untuk dicetak...')" class="w-full py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs uppercase tracking-wider border border-slate-300 shadow-xs">
+                        Cetak ID Card Massal
+                    </button>
+                </div>
+
+                <!-- Report Card 3 -->
+                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <h4 class="text-lg font-bold font-heading text-slate-900">Klasemen Juara Umum Kontingen</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Rekap perolehan medali Emas, Perak, Perunggu seluruh dojo untuk penentuan Juara Umum 1, 2, dan 3 Piala Bergilir K-Majestigers.
+                        </p>
+                    </div>
+                    <button onclick="showToast('Mengunduh Rekap_Klasemen_Medali_Kontingen.pdf...')" class="w-full py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md">
+                        Rekapitulasi Medali (PDF)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 px-4 sm:px-8 mt-12 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-crown text-rose-600"></i>
+                <span class="font-bold text-slate-800">K-Majestigers Portal Super Admin &amp; Championship Director</span>
+            </div>
+            <div>
+                &copy; 2026 K-Majestigers Elite Karate Academy. Hak Cipta Dilindungi.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Tambah Produk -->
+    <div id="modal-add-product" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-5 text-slate-800">
+            <button onclick="closeModal('modal-add-product')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 text-base">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-xl font-bold font-heading text-slate-900">Tambah Produk Baru ke Store</h3>
+            <form onsubmit="handleFormSubmit(event, 'Produk baru berhasil ditambahkan ke katalog resmi!')" class="space-y-4">
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Nama Produk</label>
+                    <input type="text" required placeholder="Contoh: Tokaido Kumite Master Gi" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Harga (Rp)</label>
+                        <input type="number" required placeholder="850000" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Stok Awal</label>
+                        <input type="number" required placeholder="25" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider shadow-md hover:opacity-90">
+                    Simpan Produk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Buat Akun Login Dojo Baru (Oleh Admin) -->
+    <div id="modal-create-dojo" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal-create-dojo')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 text-base">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="space-y-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                    AKREDITASI KONTINGEN RESMI
+                </span>
+                <h3 class="text-xl font-bold font-heading text-slate-900">Terbitkan Akun Login Dojo</h3>
+                <p class="text-slate-500 text-xs leading-relaxed">
+                    Admin membuat akun login untuk Manajer Kontingen / Sensei. Akun ini langsung aktif untuk mengelola pendaftaran rombongan dan memantau jadwal matras.
+                </p>
+            </div>
+
+            <form id="form-create-dojo" onsubmit="handleCreateDojoSubmit(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Nama Dojo / Kontingen</label>
+                    <input type="text" id="new-dojo-name" required placeholder="Contoh: K-Majestigers Cabang Surabaya Barat" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Kode Kontingen</label>
+                        <input type="text" id="new-dojo-code" required placeholder="Contoh: KM-SBY-03" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-mono focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Kota / Wilayah</label>
+                        <input type="text" id="new-dojo-city" required placeholder="Contoh: Surabaya, Jawa Timur" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Nama Sensei / Pelatih</label>
+                        <input type="text" id="new-dojo-sensei" required placeholder="Sensei Agus Santoso (Dan 3)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">No. WhatsApp Sensei</label>
+                        <input type="tel" id="new-dojo-phone" required placeholder="081234567890" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-3">
+                    <span class="text-[10px] uppercase font-bold text-amber-900 tracking-wider block">Kredensial Login Dojo (Untuk Masuk Sistem):</span>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Email Login Resmi Dojo</label>
+                        <input type="email" id="new-dojo-email" required placeholder="sensei.barat@kmajestigers.com" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Kata Sandi</label>
+                        <input type="text" id="new-dojo-password" required value="majestigers123" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-slate-900 font-mono focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider shadow-md hover:opacity-90 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Terbitkan Akun &amp; Simpan ke Database</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Kredensial Baru Dibuat (Siap Dikirim ke Sensei) -->
+    <div id="modal-dojo-success" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-emerald-300 rounded-3xl p-6 sm:p-8 max-w-md w-full relative shadow-2xl text-xs space-y-4 text-slate-800 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto shadow-sm">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <h3 class="text-xl font-bold font-heading text-slate-900">Akun Dojo Resmi Berhasil Dibuat!</h3>
+            <p class="text-slate-600 text-xs">
+                Kredensial login berikut sudah tersimpan di database dan siap digunakan oleh Sensei untuk masuk langsung ke portal Dojo tanpa pilih role manual.
+            </p>
+
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2 font-mono">
+                <div><span class="text-slate-400">Dojo:</span> <strong id="success-dojo-name" class="text-slate-900 font-sans">K-Majestigers Surabaya Barat</strong></div>
+                <div><span class="text-slate-400">Sensei:</span> <strong id="success-dojo-sensei" class="text-slate-900 font-sans">Sensei Agus Santoso</strong></div>
+                <div class="pt-2 border-t border-slate-200">
+                    <div><span class="text-slate-400">Email:</span> <span id="success-dojo-email" class="text-amber-700 font-bold">sensei.barat@kmajestigers.com</span></div>
+                    <div><span class="text-slate-400">Password:</span> <span id="success-dojo-pass" class="text-slate-900 font-bold">majestigers123</span></div>
+                    <div><span class="text-slate-400">Portal:</span> <span class="text-emerald-700">http://localhost:3000/dojo</span></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="copyDojoCredentials()" class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold">
+                    <i class="fa-solid fa-copy mr-1"></i> Salin Teks
+                </button>
+                <button type="button" onclick="shareDojoWhatsApp()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-xs">
+                    <i class="fa-brands fa-whatsapp mr-1"></i> Kirim ke WA
+                </button>
+            </div>
+
+            <button type="button" onclick="closeModal('modal-dojo-success')" class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 mt-1">
+                Tutup &amp; Lihat Tabel Dojo
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 transform translate-y-32 transition-transform duration-300 flex items-center space-x-3 text-xs">
+        <div class="w-7 h-7 rounded-full gold-gradient-bg flex items-center justify-center text-slate-950 font-bold text-xs">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <span id="toast-msg">Aksi berhasil diproses!</span>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        // Guard Akses RBAC & Session Live Database
+        let currentUser = null;
+        let activeMatch = null;
+        let currentScoreAka = 3;
+        let currentScoreAo = 2;
+        let timerSeconds = 180;
+        let timerInterval = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Guard halaman: Hanya izinkan role ADMIN
+            currentUser = await InkaiAPI.enforceRouteGuard(['ADMIN'], 'ADMIN');
+
+            // Render tombol quick switcher role di navbar
+            InkaiAPI.renderRoleSwitcherNav('role-switcher-container', 'ADMIN');
+
+            // Load pertandingan aktif dari DB
+            await loadLiveAdminData();
+
+            // Render daftar dojo (termasuk yang baru dibuat oleh admin)
+            renderAllDojos();
+        });
+
+        async function loadLiveAdminData() {
+            try {
+                const matches = await InkaiAPI.getMatches();
+                if (matches && matches.length > 0) {
+                    activeMatch = matches[0];
+                    renderActiveMatchScoreboard(activeMatch);
+                }
+            } catch (err) {
+                console.error('[AdminPortal] Error loading data from DB:', err);
+            }
+        }
+
+        function renderActiveMatchScoreboard(match) {
+            if (!match) return;
+            const titleEl = document.getElementById('scoring-match-title');
+            if (titleEl) titleEl.innerText = `Partai #${match.matchNumber} • ${match.category?.name || 'Kumite Senior'} (${match.round || '16 Besar'})`;
+
+            const akaNameEl = document.getElementById('scoring-aka-name');
+            if (akaNameEl) akaNameEl.innerText = match.akaName;
+            const akaDojoEl = document.getElementById('scoring-aka-dojo');
+            if (akaDojoEl) akaDojoEl.innerText = match.akaDojoName || 'Dojo Terdaftar';
+
+            const aoNameEl = document.getElementById('scoring-ao-name');
+            if (aoNameEl) aoNameEl.innerText = match.aoName;
+            const aoDojoEl = document.getElementById('scoring-ao-dojo');
+            if (aoDojoEl) aoDojoEl.innerText = match.aoDojoName || 'Dojo Terdaftar';
+
+            currentScoreAka = match.akaScore || 0;
+            currentScoreAo = match.aoScore || 0;
+            updateScoreDisplays();
+        }
+
+        // Tab Navigation Switcher (Bright / Light Theme Aware)
+        function switchTab(tabId) {
+            const tabs = ['overview', 'championship', 'scoring', 'verification', 'members', 'store', 'reports'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`section-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const mobBtn = document.getElementById(`mob-tab-${t}`);
+
+                if (t === tabId) {
+                    sec?.classList.remove('hidden');
+                    btn?.classList.add('bg-amber-400', 'text-slate-950', 'font-bold', 'shadow-sm');
+                    btn?.classList.remove('text-slate-600');
+                    mobBtn?.classList.add('bg-amber-400', 'text-slate-950', 'font-bold', 'shadow-xs');
+                    mobBtn?.classList.remove('text-slate-600');
+                } else {
+                    sec?.classList.add('hidden');
+                    btn?.classList.remove('bg-amber-400', 'text-slate-950', 'font-bold', 'shadow-sm');
+                    btn?.classList.add('text-slate-600');
+                    mobBtn?.classList.remove('bg-amber-400', 'text-slate-950', 'font-bold', 'shadow-xs');
+                    mobBtn?.classList.add('text-slate-600');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Timer Countdown Controls
+        function startTimer() {
+            if (timerInterval) return;
+            const startBtn = document.getElementById('btn-timer-start');
+            if (startBtn) startBtn.innerText = 'Running...';
+            
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    pauseTimer();
+                    showToast('Waktu Pertandingan Kumite Habis! (YAME / SOREMADE)');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            const startBtn = document.getElementById('btn-timer-start');
+            if (startBtn) startBtn.innerText = 'Start';
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = 180;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const s = (timerSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('scoreboard-timer').innerText = `${m}:${s}`;
+        }
+
+        // Live Scoring Controls (Aka vs Ao)
+        async function addScore(corner, point) {
+            if (corner === 'aka') {
+                currentScoreAka += point;
+            } else {
+                currentScoreAo += point;
+            }
+            updateScoreDisplays();
+
+            // Simpan skor real-time ke Supabase backend
+            if (activeMatch && activeMatch.id) {
+                try {
+                    await InkaiAPI.updateMatchScore(activeMatch.id, {
+                        akaScore: currentScoreAka,
+                        aoScore: currentScoreAo,
+                        status: 'LIVE'
+                    });
+                } catch (e) {
+                    console.warn('Gagal sinkron skor ke server:', e);
+                }
+            }
+        }
+
+        function updateScoreDisplays() {
+            const akaDisp = document.getElementById('score-aka-display');
+            if (akaDisp) akaDisp.innerText = currentScoreAka;
+            const aoDisp = document.getElementById('score-ao-display');
+            if (aoDisp) aoDisp.innerText = currentScoreAo;
+        }
+
+        function resetMatchScore() {
+            currentScoreAka = 0;
+            currentScoreAo = 0;
+            updateScoreDisplays();
+            showToast('Skor pertandingan telah direset ke 0 - 0.');
+        }
+
+        async function declareWinner(winnerStr) {
+            pauseTimer();
+            showToast(`Pemenang partai disahkan: ${winnerStr}! Skor disinkronkan ke Database.`);
+            if (activeMatch && activeMatch.id) {
+                try {
+                    await InkaiAPI.updateMatchScore(activeMatch.id, {
+                        akaScore: currentScoreAka,
+                        aoScore: currentScoreAo,
+                        status: 'FINISHED',
+                        winnerName: winnerStr
+                    });
+                } catch (e) {
+                    console.warn(e);
+                }
+            }
+        }
+
+        // Interactive Bracket Helpers
+        function advanceFighter(name, qfId) {
+            const target = document.getElementById(`qf${qfId}-fighter1`);
+            if (target) {
+                target.innerHTML = `<span class="text-rose-800 font-bold">${name}</span><span class="text-slate-900 font-bold">0</span>`;
+                showToast(`${name} melaju ke Perempat Final!`);
+            }
+        }
+
+        function advanceToSemi(name, semiId) {
+            const target = document.getElementById('semi-fighter1');
+            if (target) {
+                target.innerHTML = `<span class="text-rose-900 font-bold text-sm">${name}</span><span class="text-amber-800 font-black">0</span>`;
+                showToast(`${name} berhasil menembus Babak Semifinal!`);
+            }
+        }
+
+        function advanceToFinal(name) {
+            const target = document.getElementById('final-aka');
+            if (target) {
+                target.innerText = name;
+                showToast(`${name} lolos ke Babak Final Perebutan Emas!`);
+            }
+        }
+
+        function generateRandomBracket() {
+            showToast('Bagan turnamen (Seeded Draw) berhasil diacak ulang berdasarkan peringkat WKF.');
+        }
+
+        function printBracketTree() {
+            window.print();
+        }
+
+        // Verification Helpers
+        function approveQueueItem(btn, msg) {
+            const card = btn.closest('.p-5');
+            if (card) {
+                card.style.opacity = '0.5';
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-check-double mr-1"></i> Disetujui';
+                btn.className = 'px-4 py-2 rounded-xl bg-slate-200 text-slate-600 font-bold cursor-not-allowed';
+            }
+            showToast(msg);
+        }
+
+        function previewTransferReceipt(dojo, amount, account) {
+            showToast(`Membuka struk transfer: ${dojo} (${amount}) Rekening: ${account}`);
+        }
+
+        function toggleSuspend(btn) {
+            if (btn.innerText === 'Nonaktifkan') {
+                btn.innerText = 'Aktifkan';
+                btn.className = 'text-xs text-emerald-700 font-semibold hover:underline';
+                showToast('Akun dojo telah dinonaktifkan.');
+            } else {
+                btn.innerText = 'Nonaktifkan';
+                btn.className = 'text-xs text-rose-600 hover:underline';
+                showToast('Akun dojo telah diaktifkan kembali.');
+            }
+        }
+
+        function inputTrackingNumber(orderId) {
+            const resi = prompt(`Masukkan nomor resi ekspedisi untuk ${orderId}:`, 'JNE-99214488');
+            if (resi) {
+                showToast(`Resi ${resi} berhasil disimpan untuk pesanan ${orderId}.`);
+            }
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            }
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            }
+        }
+
+        function handleFormSubmit(e, message) {
+            e.preventDefault();
+            closeModal('modal-add-product');
+            showToast(message);
+        }
+
+        // ==========================================
+        // MANAJEMEN AKUN DOJO (ADMIN BUAT LOGIN)
+        // ==========================================
+        let lastCreatedDojo = null;
+
+        function renderAllDojos() {
+            const tbody = document.getElementById('dojo-table-body');
+            if (!tbody) return;
+
+            const defaultDojos = [
+                {
+                    name: 'K-Majestigers Elite Surabaya',
+                    code: 'KM-SBY-01',
+                    city: 'Surabaya, Jawa Timur',
+                    sensei: 'Sensei Budi Prasetyo (Dan 4)',
+                    email: 'sensei.budi@kmajestigers.com',
+                    totalAthletes: 38,
+                    status: 'AKTIF'
+                },
+                {
+                    name: 'K-Majestigers Jakarta Pusat',
+                    code: 'KM-JKT-02',
+                    city: 'Jakarta Pusat, DKI',
+                    sensei: 'Sensei Hendra Gunawan (Dan 5)',
+                    email: 'sensei.hendra@kmajestigers.com',
+                    totalAthletes: 52,
+                    status: 'AKTIF'
+                }
+            ];
+
+            const customDojos = InkaiAPI.getCustomDojos();
+            const combined = [...customDojos, ...defaultDojos];
+
+            const badge = document.getElementById('dojo-count-badge');
+            if (badge) badge.innerText = `Total ${combined.length + 40} Cabang Aktif`;
+
+            tbody.innerHTML = combined.map(d => `
+                <tr class="hover:bg-amber-50/40 transition-colors">
+                    <td class="py-3.5 px-4">
+                        <span class="font-bold text-slate-900 block">${d.name}</span>
+                        <span class="text-[10px] text-amber-800 font-mono font-bold">${d.code}</span>
+                    </td>
+                    <td class="py-3.5 px-4">${d.city}</td>
+                    <td class="py-3.5 px-4">${d.sensei}</td>
+                    <td class="py-3.5 px-4 font-mono text-[11px] text-amber-800 font-semibold">${d.email || '-'}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">${d.totalAthletes || 0} Atlet</td>
+                    <td class="py-3.5 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${d.status || 'AKTIF'}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-right">
+                        <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function handleCreateDojoSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-dojo-name').value.trim();
+            const code = document.getElementById('new-dojo-code').value.trim();
+            const city = document.getElementById('new-dojo-city').value.trim();
+            const sensei = document.getElementById('new-dojo-sensei').value.trim();
+            const phone = document.getElementById('new-dojo-phone').value.trim();
+            const email = document.getElementById('new-dojo-email').value.trim();
+            const password = document.getElementById('new-dojo-password').value.trim();
+
+            const created = InkaiAPI.createDojoAccount({
+                name,
+                code,
+                city,
+                sensei,
+                phone,
+                email,
+                password
+            });
+
+            lastCreatedDojo = created;
+            closeModal('modal-create-dojo');
+
+            // Isi rincian kredensial ke modal sukses
+            document.getElementById('success-dojo-name').innerText = name;
+            document.getElementById('success-dojo-sensei').innerText = sensei;
+            document.getElementById('success-dojo-email').innerText = email;
+            document.getElementById('success-dojo-pass').innerText = password;
+
+            openModal('modal-dojo-success');
+            renderAllDojos();
+            showToast(`Akun Dojo '${name}' berhasil diterbitkan dan siap login!`);
+            document.getElementById('form-create-dojo').reset();
+        }
+
+        function copyDojoCredentials() {
+            if (!lastCreatedDojo) return;
+            const text = `*KREDENSIAL LOGIN RESMI K-MAJESTIGERS*\n\nDojo: ${lastCreatedDojo.name}\nSensei: ${lastCreatedDojo.sensei}\nKode: ${lastCreatedDojo.code}\n\nEmail Login: ${lastCreatedDojo.email}\nPassword: ${lastCreatedDojo.password}\nPortal Akses: http://localhost:3000/dojo\n\nSilakan langsung masuk tanpa perlu memilih hak akses manual.`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Kredensial login berhasil disalin ke clipboard!');
+            }).catch(() => {
+                showToast('Kredensial siap disalin.');
+            });
+        }
+
+        function shareDojoWhatsApp() {
+            if (!lastCreatedDojo) return;
+            const text = encodeURIComponent(`Halo ${lastCreatedDojo.sensei}, berikut adalah kredensial login resmi kontingen ${lastCreatedDojo.name} untuk Kejuaraan K-Majestigers 2026:\n\nEmail: ${lastCreatedDojo.email}\nPassword: ${lastCreatedDojo.password}\nPortal: http://localhost:3000/dojo\n\nSilakan langsung masuk tanpa perlu memilih hak akses manual.`);
+            const phone = (lastCreatedDojo.phone || '').replace(/[^0-9]/g, '');
+            const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
+            window.open(url, '_blank');
+        }
+
+        function logoutToHome() {
+            InkaiAPI.logout();
+            showToast('Anda telah keluar dari akun Super Admin.');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 800);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-32');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

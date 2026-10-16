@@ -85,13 +85,52 @@
             <nav class="hidden lg:flex items-center space-x-6 text-xs font-semibold uppercase tracking-wider text-gray-600">
                 <a href="#about" class="hover:text-gold transition-colors">Tentang Kami</a>
                 <a href="#academy" class="hover:text-gold transition-colors">Akademi</a>
-                <a href="#championship" class="hover:text-gold transition-colors">Kejuaraan & Brackets</a>
+                <a href="#championship" class="hover:text-gold transition-colors">Kejuaraan &amp; Brackets</a>
                 <a href="#store" class="hover:text-gold transition-colors">Store</a>
                 <a href="#arena" class="hover:text-gold transition-colors text-gold">Kumite Arena</a>
+
+                <!-- Dropdown Portal RBAC -->
+                <div class="relative group">
+                    <button class="hover:text-gold transition-colors flex items-center space-x-1 font-bold text-branddark">
+                        <span class="gold-gradient-text"><i class="fa-solid fa-layer-group mr-1"></i> Portal RBAC</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-gold"></i>
+                    </button>
+                    <div class="hidden group-hover:block absolute left-0 mt-2 w-64 rounded-2xl bg-white border border-gray-200 shadow-2xl p-2 z-50 text-left normal-case">
+                        <div class="px-3 py-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                            Pilih Hak Akses Portal
+                        </div>
+                        <a href="member.html" onclick="InkaiAPI.loginAsDemo('MEMBER')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-user-ninja"></i></span>
+                            <div>
+                                <span class="font-bold text-xs block">1. Anggota / Atlet</span>
+                                <span class="text-[10px] text-gray-500 block">/member/* &amp; Kartu Digital</span>
+                            </div>
+                        </a>
+                        <a href="dojo.html" onclick="InkaiAPI.loginAsDemo('DOJO_MANAGER')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-people-group"></i></span>
+                            <div>
+                                <span class="font-bold text-xs block">2. Kontingen / Dojo</span>
+                                <span class="text-[10px] text-gray-500 block">/dojo/* &amp; Roster Atlet</span>
+                            </div>
+                        </a>
+                        <a href="admin.html" onclick="InkaiAPI.loginAsDemo('ADMIN')" class="flex items-center space-x-3 p-2.5 rounded-xl hover:bg-amber-50 text-branddark transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-crown"></i></span>
+                            <div>
+                                <span class="font-bold text-xs block">3. Admin / Panitia</span>
+                                <span class="text-[10px] text-gray-500 block">/admin/* &amp; Championship Control</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
                 <a href="#contact" class="hover:text-gold transition-colors">Kontak</a>
             </nav>
 
             <div class="flex items-center space-x-3">
+                <div id="backend-status-badge" class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-500 border border-gray-200 transition-all" title="Status koneksi ke backend INKAI (Port 5001)">
+                    <span id="backend-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span id="backend-status-text">Memeriksa API...</span>
+                </div>
                 <div id="auth-nav-container">
                     <button onclick="openAuthModal('login')" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 border gold-border text-gold-dark font-bold text-xs uppercase tracking-wider transition-all">
                         <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk / Daftar
@@ -218,18 +257,22 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 relative z-10 text-xs">
                 <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
-                    <span class="text-gray-400 block mb-1">Tingkatan Sabuk Saat Ini</span>
-                    <span class="text-lg font-black font-heading text-amber-300"><i class="fa-solid fa-medal mr-2"></i> Sabuk Cokelat (Kyu 2)</span>
+                    <span class="text-gray-400 block mb-1">Tingkatan Sabuk</span>
+                    <span id="dash-belt" class="text-base font-black font-heading text-amber-300"><i class="fa-solid fa-medal mr-2"></i> Sabuk Cokelat (Kyu 2)</span>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
-                    <span class="text-gray-400 block mb-1">Status Keanggotaan Dojo</span>
-                    <span class="text-lg font-black font-heading text-emerald-400"><i class="fa-solid fa-circle-check mr-2"></i> Aktif & Terdaftar</span>
+                    <span class="text-gray-400 block mb-1">Nomor Induk Anggota (NIA)</span>
+                    <span id="dash-nia" class="text-base font-black font-heading text-gold-light"><i class="fa-solid fa-id-card mr-2"></i> INA-SBY-8821</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
+                    <span class="text-gray-400 block mb-1">Dojo / Ranting</span>
+                    <span id="dash-dojo" class="text-base font-black font-heading text-emerald-400"><i class="fa-solid fa-circle-check mr-2"></i> K-Majestigers Dojo</span>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
                     <span class="text-gray-400 block mb-1">Turnamen Terdaftar</span>
-                    <span class="text-lg font-black font-heading text-cyan-300"><i class="fa-solid fa-trophy mr-2"></i> K-Majestigers National Cup</span>
+                    <span id="dash-event" class="text-base font-black font-heading text-cyan-300"><i class="fa-solid fa-trophy mr-2"></i> K-Majestigers Cup</span>
                 </div>
             </div>
         </div>
@@ -522,9 +565,9 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             
-            <div id="auth-header" class="mb-6">
+            <div id="auth-header" class="mb-4">
                 <h3 id="auth-modal-title" class="text-2xl font-black font-heading text-branddark mb-1">Masuk ke K-Majestigers</h3>
-                <p id="auth-modal-desc" class="text-xs text-gray-500">Masukkan akun member atau atlet Anda untuk akses panel dashboard kejuaraan.</p>
+                <p id="auth-modal-desc" class="text-xs text-gray-500">Masukkan email atau NIA dan kata sandi Anda. Sistem otomatis mengarahkan ke dashboard yang sesuai (Atlet, Dojo, atau Panitia).</p>
             </div>
 
             <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4 text-xs">
@@ -532,21 +575,60 @@
                     <label class="block text-gray-700 font-semibold mb-1">Nama Lengkap</label>
                     <input type="text" id="auth-name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="Nama lengkap atlet/member">
                 </div>
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-1">Alamat Email</label>
-                    <input type="email" id="auth-email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="nama@email.com">
+                <div id="phone-field-container" class="hidden">
+                    <label class="block text-gray-700 font-semibold mb-1">Nomor WhatsApp / HP</label>
+                    <input type="tel" id="auth-phone" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="Contoh: 081234567890">
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-1">Kata Sandi</label>
-                    <input type="password" id="auth-pass" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="••••••••">
+                    <label id="auth-identifier-label" class="block text-gray-700 font-semibold mb-1">Email atau NIA INKAI</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <input type="text" id="auth-email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="nama@email.com atau NIA INKAI">
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-gray-700 font-semibold">Kata Sandi</label>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <input type="password" id="auth-pass" required class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-10 py-2.5 text-branddark focus:outline-none focus:border-gold font-medium" placeholder="••••••••">
+                        <button type="button" onclick="togglePasswordVisibility('auth-pass', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 focus:outline-none transition-colors" title="Lihat / Sembunyikan Kata Sandi">
+                            <i class="fa-solid fa-eye" id="auth-pass-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <button type="submit" id="auth-submit-btn" class="w-full py-3.5 rounded-xl gold-gradient-bg text-white font-bold uppercase tracking-widest shadow-lg hover:opacity-95 transition-opacity mt-2">
-                    Masuk Sekarang
+                <button type="submit" id="auth-submit-btn" class="w-full py-3.5 rounded-xl gold-gradient-bg text-white font-bold uppercase tracking-widest shadow-lg hover:opacity-95 transition-opacity mt-2 flex items-center justify-center space-x-2">
+                    <span id="auth-btn-spinner" class="hidden animate-spin mr-2"><i class="fa-solid fa-spinner"></i></span>
+                    <span id="auth-btn-text">Masuk Sekarang</span>
                 </button>
             </form>
 
-            <div class="mt-6 text-center text-xs text-gray-500 border-t border-gray-100 pt-4">
+            <!-- Bantuan Cepat Pengujian Demo (Autofill Akun) -->
+            <div id="demo-autofill-box" class="mt-4 pt-3 border-t border-slate-100">
+                <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
+                    <span><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Auto-fill Akun Demo:</span>
+                    <span class="text-[10px] text-slate-400">Klik untuk isi formulir</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+                    <button type="button" onclick="fillDemoAccount('atlet@kmajestigers.com', 'majestigers123')" class="px-2 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold transition-colors">
+                        👦 Atlet/Member
+                    </button>
+                    <button type="button" onclick="fillDemoAccount('sensei.budi@kmajestigers.com', 'majestigers123')" class="px-2 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-semibold transition-colors">
+                        🥋 Kontingen Dojo
+                    </button>
+                    <button type="button" onclick="fillDemoAccount('admin@kmajestigers.com', 'majestigers123')" class="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 font-semibold transition-colors">
+                        👑 Super Admin
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center text-xs text-gray-500 border-t border-gray-100 pt-3">
                 <span id="auth-switch-text">Belum punya akun?</span>
                 <button type="button" onclick="toggleAuthMode()" id="auth-switch-btn" class="text-gold font-bold ml-1 hover:underline">Daftar Akun Baru</button>
             </div>
@@ -591,33 +673,87 @@
         <span id="toast-msg" class="text-xs font-semibold">Pendaftaran berhasil dikirim!</span>
     </div>
 
+    <script src="api.js"></script>
     <script>
         let currentUser = JSON.parse(localStorage.getItem('kmajestigers_user')) || null;
         let isRegisterMode = false;
 
         window.addEventListener('DOMContentLoaded', () => {
             updateAuthUI();
+            initBackendStatusListener();
+            InkaiAPI.checkHealth();
+            initStoreProducts();
         });
+
+        function initBackendStatusListener() {
+            const badge = document.getElementById('backend-status-badge');
+            const dot = document.getElementById('backend-status-dot');
+            const text = document.getElementById('backend-status-text');
+
+            if (!badge || !dot || !text) return;
+
+            InkaiAPI.onStatusChange((isOnline) => {
+                badge.classList.remove('hidden');
+                if (isOnline) {
+                    dot.className = 'w-2 h-2 rounded-full bg-emerald-500 shadow-sm animate-pulse';
+                    text.innerText = 'INKAI API Terhubung (5001)';
+                    badge.className = 'hidden sm:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 transition-all';
+                } else {
+                    dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                    text.innerText = 'Mode Offline (Lokal)';
+                    badge.className = 'hidden sm:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 transition-all';
+                }
+            });
+        }
+
+        async function initStoreProducts() {
+            try {
+                const apiProducts = await InkaiAPI.getProducts();
+                if (apiProducts && apiProducts.length > 0) {
+                    console.log(`[Store] ${apiProducts.length} produk dimuat langsung dari inkai-backend`);
+                }
+            } catch (err) {
+                // Gunakan default store yang sudah ada di HTML
+            }
+        }
 
         function updateAuthUI() {
             const container = document.getElementById('auth-nav-container');
             const dashSection = document.getElementById('member-dashboard-section');
 
             if (currentUser) {
+                const displayName = currentUser.fullName || currentUser.name || 'Member';
+                const displayEmail = currentUser.email || 'atlet@kmajestigers.com';
+                const displayRank = currentUser.currentRank || 'Sabuk Cokelat (Kyu 2)';
+                const displayNia = currentUser.nia || currentUser.memberRegNumber || 'INA-SBY-8821';
+                const displayDojo = currentUser.dojo?.name || currentUser.managedDojoName || 'K-Majestigers Dojo';
+                const role = (currentUser.role || (currentUser.roles && currentUser.roles[0]) || 'MEMBER').toUpperCase();
+                const portalUrl = InkaiAPI.getPortalUrl(role);
+                const roleLabel = role === 'ADMIN' ? 'Admin' : (role === 'DOJO_MANAGER' ? 'Dojo' : 'Atlet');
+
                 container.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="hidden sm:flex flex-col text-right">
-                            <span class="text-xs font-bold text-branddark">${currentUser.name}</span>
-                            <span class="text-[10px] text-gold uppercase font-semibold">Member K-Majestigers</span>
-                        </div>
+                    <div class="flex items-center space-x-2">
+                        <a href="${portalUrl}" class="px-3.5 py-2 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-sm hover:scale-105 transition-all flex items-center space-x-1.5">
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>Portal ${roleLabel}</span>
+                        </a>
                         <button onclick="logoutUser()" class="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider transition-all border border-red-200" title="Keluar">
                             <i class="fa-solid fa-right-from-bracket"></i>
                         </button>
                     </div>
                 `;
                 dashSection.classList.remove('hidden');
-                document.getElementById('dash-name').innerText = currentUser.name;
-                document.getElementById('dash-email').innerText = currentUser.email;
+                document.getElementById('dash-name').innerText = displayName;
+                document.getElementById('dash-email').innerText = displayEmail;
+                
+                const beltEl = document.getElementById('dash-belt');
+                if (beltEl) beltEl.innerHTML = `<i class="fa-solid fa-medal mr-2"></i> ${displayRank}`;
+
+                const niaEl = document.getElementById('dash-nia');
+                if (niaEl) niaEl.innerHTML = `<i class="fa-solid fa-id-card mr-2"></i> ${displayNia}`;
+
+                const dojoEl = document.getElementById('dash-dojo');
+                if (dojoEl) dojoEl.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> ${displayDojo}`;
             } else {
                 container.innerHTML = `
                     <button onclick="openAuthModal('login')" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 border gold-border text-gold-dark font-bold text-xs uppercase tracking-wider transition-all">
@@ -648,53 +784,129 @@
         function renderAuthMode() {
             const title = document.getElementById('auth-modal-title');
             const desc = document.getElementById('auth-modal-desc');
-            const btn = document.getElementById('auth-submit-btn');
+            const btnText = document.getElementById('auth-btn-text');
             const nameContainer = document.getElementById('name-field-container');
+            const phoneContainer = document.getElementById('phone-field-container');
+            const idLabel = document.getElementById('auth-identifier-label');
             const switchText = document.getElementById('auth-switch-text');
             const switchBtn = document.getElementById('auth-switch-btn');
 
             if (isRegisterMode) {
                 title.innerText = 'Daftar Akun Baru';
-                desc.innerText = 'Bergabunglah bersama komunitas eksklusif K-Majestigers Karate Academy.';
-                btn.innerText = 'Daftar Sekarang';
+                desc.innerText = 'Bergabunglah bersama komunitas eksklusif K-Majestigers & Ekosistem INKAI.';
+                btnText.innerText = 'Daftar Sekarang';
                 nameContainer.classList.remove('hidden');
+                phoneContainer.classList.remove('hidden');
+                idLabel.innerText = 'Alamat Email';
                 document.getElementById('auth-name').required = true;
                 switchText.innerText = 'Sudah punya akun?';
                 switchBtn.innerText = 'Masuk di sini';
             } else {
                 title.innerText = 'Masuk ke K-Majestigers';
-                desc.innerText = 'Masukkan akun member atau atlet Anda untuk akses panel dashboard kejuaraan.';
-                btn.innerText = 'Masuk Sekarang';
+                desc.innerText = 'Gunakan akun INKAI (Email atau Nomor NIA) Anda untuk akses dashboard kejuaraan.';
+                btnText.innerText = 'Masuk Sekarang';
                 nameContainer.classList.add('hidden');
+                phoneContainer.classList.add('hidden');
+                idLabel.innerText = 'Email atau NIA INKAI';
                 document.getElementById('auth-name').required = false;
                 switchText.innerText = 'Belum punya akun?';
                 switchBtn.innerText = 'Daftar Akun Baru';
             }
         }
 
-        function handleAuthSubmit(e) {
+        async function handleAuthSubmit(e) {
             e.preventDefault();
-            const email = document.getElementById('auth-email').value;
+            const identifier = document.getElementById('auth-email').value.trim();
             const pass = document.getElementById('auth-pass').value;
-            const name = document.getElementById('auth-name').value || email.split('@')[0];
+            const name = document.getElementById('auth-name').value.trim();
+            const phone = document.getElementById('auth-phone')?.value.trim() || '';
 
-            if (isRegisterMode) {
-                currentUser = { name, email };
-                localStorage.setItem('kmajestigers_user', JSON.stringify(currentUser));
-                showToast(`Akun berhasil dibuat! Selamat datang, ${name}`);
-            } else {
-                currentUser = { name: name.charAt(0).toUpperCase() + name.slice(1), email };
-                localStorage.setItem('kmajestigers_user', JSON.stringify(currentUser));
-                showToast(`Berhasil masuk sebagai ${currentUser.name}`);
+            const spinner = document.getElementById('auth-btn-spinner');
+            const btnText = document.getElementById('auth-btn-text');
+            spinner?.classList.remove('hidden');
+            btnText.innerText = isRegisterMode ? 'Mendaftarkan...' : 'Memverifikasi...';
+
+            try {
+                if (isRegisterMode) {
+                    try {
+                        const res = await InkaiAPI.register({
+                            email: identifier,
+                            password: pass,
+                            fullName: name,
+                            phoneNumber: phone
+                        });
+                        showToast(`Registrasi berhasil! Silakan masuk dengan akun baru Anda.`);
+                        toggleAuthMode();
+                    } catch (apiErr) {
+                        currentUser = InkaiAPI.loginAsDemo('MEMBER');
+                        currentUser.fullName = name;
+                        currentUser.name = name;
+                        currentUser.email = identifier;
+                        InkaiAPI.setCurrentUser(currentUser);
+                        showToast(`Akun lokal dibuat untuk ${name}. Mengalihkan ke Portal Member...`);
+                        closeAuthModal();
+                        setTimeout(() => {
+                            window.location.href = 'member.html';
+                        }, 800);
+                    }
+                } else {
+                    // Login otomatis: Sistem langsung memeriksa peran di database tanpa perlu pilih akses manual
+                    const res = await InkaiAPI.login(identifier, pass);
+                    currentUser = res.user;
+                    const targetPortal = res.targetPortal || InkaiAPI.getPortalUrl(currentUser.primaryRole || currentUser.role);
+                    
+                    const roleLabel = (currentUser.primaryRole === 'ADMIN') ? 'Super Admin / Panitia' :
+                                      (currentUser.primaryRole === 'DOJO_MANAGER') ? 'Sensei / Manajer Dojo' : 'Atlet / Anggota';
+
+                    showToast(`Login berhasil sebagai ${currentUser.fullName || currentUser.name} (${roleLabel})! Mengalihkan...`);
+                    closeAuthModal();
+                    updateAuthUI();
+                    setTimeout(() => {
+                        window.location.href = targetPortal;
+                    }, 800);
+                }
+            } catch (err) {
+                showToast(`Gagal masuk: ${err.message || 'Email atau kata sandi tidak valid'}`);
+            } finally {
+                spinner?.classList.add('hidden');
+                btnText.innerText = isRegisterMode ? 'Daftar Sekarang' : 'Masuk Sekarang';
             }
+        }
 
-            closeAuthModal();
-            updateAuthUI();
+        // Bantuan Pengujian: Isi Cepat Kredensial Demo
+        function fillDemoAccount(email, pass) {
+            const emailInput = document.getElementById('auth-email');
+            const passInput = document.getElementById('auth-pass');
+            if (emailInput) {
+                emailInput.value = email;
+                emailInput.classList.add('ring-2', 'ring-amber-400');
+                setTimeout(() => emailInput.classList.remove('ring-2', 'ring-amber-400'), 1000);
+            }
+            if (passInput) {
+                passInput.value = pass;
+                passInput.classList.add('ring-2', 'ring-amber-400');
+                setTimeout(() => passInput.classList.remove('ring-2', 'ring-amber-400'), 1000);
+            }
+            showToast(`Akun terisi: ${email}. Klik 'Masuk Sekarang' untuk lanjut.`);
+        }
+
+        // Fitur Tampilkan / Sembunyikan Kata Sandi
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash text-amber-600';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye text-slate-400';
+            }
         }
 
         function logoutUser() {
+            InkaiAPI.logout();
             currentUser = null;
-            localStorage.removeItem('kmajestigers_user');
             updateAuthUI();
             showToast('Anda telah keluar dari akun.');
         }
