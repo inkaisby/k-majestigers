@@ -634,16 +634,24 @@
                         <h3 id="scoring-match-title" class="text-lg font-black font-heading text-white">Partai #42 &bull; Kumite Senior Putra -67kg (Babak 16 Besar)</h3>
                     </div>
 
-                    <!-- Digital Countdown Timer -->
+                    <!-- Digital Countdown Timer (Milliseconds & Danger Red Support) -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Match Timer WKF</span>
-                        <div id="scoreboard-timer" class="text-5xl sm:text-6xl font-mono font-black text-amber-400 tracking-wider bg-slate-900 px-6 py-2 rounded-2xl border border-amber-500/40 shadow-inner">
-                            03:00
+                        <div class="flex items-center space-x-2 mb-1.5">
+                            <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Match Timer WKF</span>
+                            <span id="timer-status-indicator" class="hidden px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white animate-pulse shadow-md shadow-rose-600/30">
+                                <i class="fa-solid fa-bell mr-1"></i> ATOSHI BARAKU (10s)
+                            </span>
+                        </div>
+                        <div id="scoreboard-timer-box" class="transition-all duration-300 px-6 py-2.5 rounded-2xl bg-slate-900 border border-amber-500/40 shadow-inner flex items-center justify-center">
+                            <span id="scoreboard-timer" class="text-4xl sm:text-6xl font-mono font-black text-amber-400 tracking-wider">
+                                03:00.00
+                            </span>
                         </div>
                         <div class="flex items-center space-x-2 mt-3">
                             <button onclick="startTimer()" id="btn-timer-start" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase shadow-sm">Start</button>
                             <button onclick="pauseTimer()" class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase shadow-sm">Pause</button>
                             <button onclick="resetTimer()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs uppercase shadow-sm">Reset</button>
+                            <button onclick="setTimerSeconds(10)" class="px-2.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 font-bold text-[10px] uppercase shadow-sm" title="Uji Coba Langsung 10 Detik Terakhir (Danger Red)">10s Test</button>
                         </div>
                     </div>
                 </div>
@@ -1396,7 +1404,9 @@
         let activeMatch = null;
         let currentScoreAka = 3;
         let currentScoreAo = 2;
-        let timerSeconds = 180;
+        const DEFAULT_MATCH_SECONDS = 180;
+        let timerRemainingMs = DEFAULT_MATCH_SECONDS * 1000;
+        let timerLastTick = null;
         let timerInterval = null;
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -1473,40 +1483,97 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Timer Countdown Controls
+        // Timer Countdown Controls (Millisecond Precision & Danger Red for Final 10 Seconds)
         function startTimer() {
             if (timerInterval) return;
             const startBtn = document.getElementById('btn-timer-start');
             if (startBtn) startBtn.innerText = 'Running...';
             
+            timerLastTick = performance.now();
             timerInterval = setInterval(() => {
-                if (timerSeconds > 0) {
-                    timerSeconds--;
+                const now = performance.now();
+                const delta = now - timerLastTick;
+                timerLastTick = now;
+
+                if (timerRemainingMs > 0) {
+                    timerRemainingMs = Math.max(0, timerRemainingMs - delta);
                     updateTimerDisplay();
-                } else {
-                    pauseTimer();
-                    showToast('Waktu Pertandingan Kumite Habis! (YAME / SOREMADE)');
                 }
-            }, 1000);
+
+                if (timerRemainingMs <= 0) {
+                    pauseTimer();
+                    updateTimerDisplay();
+                    showToast('Waktu Pertandingan Kumite Habis! (SOREMADE / YAME)');
+                }
+            }, 30); // ~33fps smooth millisecond update
         }
 
         function pauseTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             const startBtn = document.getElementById('btn-timer-start');
             if (startBtn) startBtn.innerText = 'Start';
         }
 
         function resetTimer() {
             pauseTimer();
-            timerSeconds = 180;
+            timerRemainingMs = DEFAULT_MATCH_SECONDS * 1000;
+            updateTimerDisplay();
+        }
+
+        function setTimerSeconds(sec) {
+            pauseTimer();
+            timerRemainingMs = sec * 1000;
             updateTimerDisplay();
         }
 
         function updateTimerDisplay() {
-            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
-            const s = (timerSeconds % 60).toString().padStart(2, '0');
-            document.getElementById('scoreboard-timer').innerText = `${m}:${s}`;
+            const totalMs = Math.max(0, Math.round(timerRemainingMs));
+            const totalSeconds = Math.floor(totalMs / 1000);
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            const ms = Math.floor((totalMs % 1000) / 10).toString().padStart(2, '0'); // Centiseconds (00-99)
+
+            const timerEl = document.getElementById('scoreboard-timer');
+            const timerBox = document.getElementById('scoreboard-timer-box');
+            const indicator = document.getElementById('timer-status-indicator');
+
+            if (timerEl) {
+                timerEl.innerText = `${m}:${s}.${ms}`;
+            }
+
+            // Mode Danger Merah 10 Detik Terakhir (Atoshi Baraku)
+            const isDangerZone = totalMs <= 10000 && totalMs > 0;
+            const isFinished = totalMs === 0;
+
+            if (timerEl && timerBox) {
+                if (isDangerZone) {
+                    // Warna merah menyala intens (Danger Red)
+                    timerEl.className = 'text-4xl sm:text-6xl font-mono font-black text-rose-500 tracking-wider animate-pulse';
+                    timerBox.className = 'transition-all duration-300 px-6 py-2.5 rounded-2xl bg-rose-950/90 border-2 border-rose-500 shadow-xl shadow-rose-600/40 ring-4 ring-rose-500/30 flex items-center justify-center';
+                    if (indicator) {
+                        indicator.classList.remove('hidden');
+                        indicator.innerHTML = '<i class="fa-solid fa-bell mr-1"></i> ATOSHI BARAKU (10s)';
+                    }
+                } else if (isFinished) {
+                    // Selesai (00:00.00)
+                    timerEl.className = 'text-4xl sm:text-6xl font-mono font-black text-red-600 tracking-wider';
+                    timerBox.className = 'transition-all duration-300 px-6 py-2.5 rounded-2xl bg-red-950 border-2 border-red-600 shadow-2xl flex items-center justify-center';
+                    if (indicator) {
+                        indicator.classList.remove('hidden');
+                        indicator.innerHTML = '<i class="fa-solid fa-flag-checkered mr-1"></i> SOREMADE / YAME';
+                    }
+                } else {
+                    // Waktu Normal (> 10s)
+                    timerEl.className = 'text-4xl sm:text-6xl font-mono font-black text-amber-400 tracking-wider';
+                    timerBox.className = 'transition-all duration-300 px-6 py-2.5 rounded-2xl bg-slate-900 border border-amber-500/40 shadow-inner flex items-center justify-center';
+                    if (indicator) {
+                        indicator.classList.add('hidden');
+                    }
+                }
+            }
         }
 
         // Live Scoring Controls (Aka vs Ao)
