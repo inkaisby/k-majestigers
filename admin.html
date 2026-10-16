@@ -60,6 +60,31 @@
             border-color: rgba(217, 119, 6, 0.4);
             box-shadow: 0 10px 25px -3px rgba(217, 119, 6, 0.08);
         }
+        /* Fullscreen Scoreboard Matras Styling */
+        #scoreboard-fullscreen-container:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            padding: 2rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            border-radius: 0;
+            border: none;
+            background-color: #020617;
+            overflow-y: auto;
+        }
+        #scoreboard-fullscreen-container:-webkit-full-screen {
+            width: 100vw;
+            height: 100vh;
+            padding: 2rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            border-radius: 0;
+            border: none;
+            background-color: #020617;
+            overflow-y: auto;
+        }
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -616,153 +641,348 @@
                     <p class="text-xs text-slate-500">Pengendali skor digital tatami resmi World Karate Federation (WKF Kumite 3:00 Menit).</p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <select class="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs text-slate-800 font-bold shadow-xs">
-                        <option>Matras 2 (Tatami Arena Utama)</option>
-                        <option>Matras 1</option>
-                        <option>Matras 3</option>
-                        <option>Matras 4</option>
+                    <select id="tatami-selector" onchange="updateTatamiNumber(this.value)" class="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs text-slate-800 font-bold shadow-xs">
+                        <option value="1" selected>Matras 1</option>
+                        <option value="2">Matras 2 (Tatami Arena Utama)</option>
+                        <option value="3">Matras 3</option>
+                        <option value="4">Matras 4</option>
                     </select>
+                    <!-- Tombol Panduan Shortcut Keyboard -->
+                    <button type="button" onclick="toggleKeyboardShortcutsModal()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all" title="Panduan Shortcut Keyboard (Tekan ?)">
+                        <i class="fa-solid fa-keyboard text-amber-600"></i>
+                        <span class="hidden sm:inline">Shortcut</span>
+                        <kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-300 text-[10px] text-slate-700 font-mono">?</kbd>
+                    </button>
+                    <!-- Tombol Layar Penuh Fullscreen -->
+                    <button type="button" id="btn-toggle-fullscreen" onclick="toggleScoreboardFullscreen()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 hover:text-amber-300 text-xs font-bold shadow-md flex items-center space-x-2 border border-amber-500/30 transition-all" title="Mode Layar Penuh Matras / Fullscreen (Tekan F)">
+                        <i id="fullscreen-btn-icon" class="fa-solid fa-expand text-amber-400"></i>
+                        <span id="fullscreen-btn-text" class="hidden sm:inline font-bold">Full Screen</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Full Screen Digital Scoreboard Simulator -->
-            <div class="rounded-3xl bg-slate-950 border-4 border-slate-800 p-6 sm:p-10 shadow-2xl relative overflow-hidden space-y-8">
-                <!-- Top Match Info & Timer -->
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-6 text-center sm:text-left">
-                    <div>
-                        <span class="text-xs font-mono text-gray-400 uppercase tracking-widest block">K-MAJESTIGERS NATIONAL OPEN &bull; TATAMI 2</span>
-                        <h3 id="scoring-match-title" class="text-lg font-black font-heading text-white">Partai #42 &bull; Kumite Senior Putra -67kg (Babak 16 Besar)</h3>
-                    </div>
+            <!-- ==============================================
+                 FULL BROADCAST DIGITAL SCOREBOARD (WKF ARENA DISPLAY)
+                 ============================================== -->
+            <div id="scoreboard-fullscreen-container" class="rounded-3xl bg-slate-950 border-4 border-slate-800 p-4 sm:p-7 shadow-2xl relative overflow-hidden space-y-6">
+                <!-- Floating In-Board Fullscreen Button & Shortcuts Helper -->
+                <div class="absolute top-4 right-4 z-30 flex items-center space-x-2">
+                    <button type="button" onclick="toggleKeyboardShortcutsModal()" class="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-amber-400 hover:text-amber-300 border border-slate-700/80 backdrop-blur shadow-lg transition-all" title="Panduan Shortcut Keyboard (Tekan ?)">
+                        <i class="fa-solid fa-keyboard text-xs"></i>
+                    </button>
+                    <button type="button" onclick="toggleScoreboardFullscreen()" class="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-gray-300 hover:text-white border border-slate-700/80 backdrop-blur shadow-lg transition-all" title="Toggle Layar Penuh (Shortcut: F)">
+                        <i id="fullscreen-inner-icon" class="fa-solid fa-expand text-xs"></i>
+                    </button>
+                </div>
 
-                    <!-- Digital Countdown Timer (Milliseconds & Danger Red Support) -->
-                    <div class="flex flex-col items-center">
-                        <div class="flex items-center space-x-2 mb-1.5">
-                            <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Match Timer WKF</span>
-                            <span id="timer-status-indicator" class="hidden px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white animate-pulse shadow-md shadow-rose-600/30">
-                                <i class="fa-solid fa-bell mr-1"></i> ATOSHI BARAKU (10s)
-                            </span>
-                        </div>
-                        <div id="scoreboard-timer-box" class="transition-all duration-300 px-6 py-2.5 rounded-2xl bg-slate-900 border border-amber-500/40 shadow-inner flex items-center justify-center">
-                            <span id="scoreboard-timer" class="text-4xl sm:text-6xl font-mono font-black text-amber-400 tracking-wider">
-                                03:00.00
-                            </span>
-                        </div>
-                        <div class="flex items-center space-x-2 mt-3">
-                            <button onclick="startTimer()" id="btn-timer-start" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase shadow-sm">Start</button>
-                            <button onclick="pauseTimer()" class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase shadow-sm">Pause</button>
-                            <button onclick="resetTimer()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs uppercase shadow-sm">Reset</button>
-                            <button onclick="setTimerSeconds(10)" class="px-2.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 font-bold text-[10px] uppercase shadow-sm" title="Uji Coba Langsung 10 Detik Terakhir (Danger Red)">10s Test</button>
-                        </div>
+                <!-- Top Event / Championship Banner -->
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 text-xs">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="font-mono text-gray-400 uppercase tracking-widest text-[11px] font-bold">K-MAJESTIGERS NATIONAL OPEN CHAMPIONSHIP</span>
+                    </div>
+                    <div class="pr-20 hidden sm:block">
+                        <span id="scoring-match-title" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 font-bold font-mono text-[11px] tracking-wider">
+                            PARTAI #18 &bull; KUMITE PERORANGAN
+                        </span>
                     </div>
                 </div>
 
-                <!-- Aka vs Ao Digital Board -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Corner AKA (Red) -->
-                    <div class="rounded-3xl bg-gradient-to-b from-rose-950/80 to-slate-950 border-4 border-rose-600 p-6 sm:p-8 space-y-6 text-center shadow-xl">
-                        <div class="flex items-center justify-between">
-                            <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-600 text-white">
-                                AKA (MERAH)
-                            </span>
-                            <label class="flex items-center space-x-2 text-xs text-rose-300 cursor-pointer">
-                                <input type="checkbox" id="senshu-aka" class="w-4 h-4 text-rose-600 rounded">
-                                <span class="font-bold">SENSHU</span>
-                            </label>
+                <!-- ==========================================
+                     MAIN SCOREBOARD ARENA: AO (LEFT) vs AKA (RIGHT)
+                     ========================================== -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                    <!-- Vertical Divider Accent with Crest in Center -->
+                    <div class="hidden md:flex absolute inset-y-0 left-1/2 -translate-x-1/2 flex-col items-center justify-center pointer-events-none z-10">
+                        <div class="w-px h-full bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
+                        <div class="w-9 h-9 rounded-full bg-slate-900 border-2 border-amber-500/60 shadow-xl flex items-center justify-center text-amber-400 text-xs font-black my-2">
+                            VS
                         </div>
-
-                        <div>
-                            <h4 id="scoring-aka-name" class="text-2xl font-black font-heading text-white">Ahmad Rayhan Putra</h4>
-                            <span id="scoring-aka-dojo" class="text-xs text-gray-300">K-Majestigers Elite Surabaya</span>
-                        </div>
-
-                        <!-- Score Number -->
-                        <div class="text-8xl font-black font-heading text-rose-500 tracking-tight" id="score-aka-display">
-                            5
-                        </div>
-
-                        <!-- Action Buttons: Yuko, Waza-ari, Ippon -->
-                        <div class="grid grid-cols-3 gap-2 pt-2">
-                            <button onclick="addScore('aka', 1)" class="py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow">
-                                +1 Yuko
-                            </button>
-                            <button onclick="addScore('aka', 2)" class="py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow">
-                                +2 Waza-ari
-                            </button>
-                            <button onclick="addScore('aka', 3)" class="py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow">
-                                +3 Ippon
-                            </button>
-                        </div>
-
-                        <!-- Penalties (Chui & Hansoku) -->
-                        <div class="flex justify-between items-center pt-2 text-xs text-gray-300 border-t border-rose-900/60">
-                            <span>Penalti (Chui):</span>
-                            <div class="space-x-1">
-                                <span class="px-2 py-0.5 rounded bg-rose-950 border border-rose-800 text-[10px] text-rose-300 font-bold">C1</span>
-                                <span class="px-2 py-0.5 rounded bg-rose-950 border border-rose-800 text-[10px] text-rose-300 font-bold">C2</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C3</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C4</span>
-                            </div>
-                        </div>
+                        <div class="w-px h-full bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
                     </div>
 
-                    <!-- Corner AO (Blue) -->
-                    <div class="rounded-3xl bg-gradient-to-b from-blue-950/80 to-slate-950 border-4 border-blue-600 p-6 sm:p-8 space-y-6 text-center shadow-xl">
-                        <div class="flex items-center justify-between">
-                            <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-600 text-white">
+                    <!-- ====================================
+                         CORNER AO (SUDUT BIRU - SEBELAH KIRI)
+                         ==================================== -->
+                    <div class="rounded-3xl bg-gradient-to-b from-blue-950/70 via-slate-950 to-slate-950 border-2 border-blue-600/50 p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden">
+                        <!-- Top Dojo Info with Flag (Left) -->
+                        <div class="flex items-center justify-between border-b border-blue-900/40 pb-3">
+                            <div class="flex items-center space-x-3">
+                                <!-- Indonesian Flag -->
+                                <svg class="w-9 h-6 rounded shadow border border-white/20 flex-shrink-0" viewBox="0 0 3 2">
+                                    <rect width="3" height="1" fill="#e11d48"/>
+                                    <rect y="1" width="3" height="1" fill="#ffffff"/>
+                                </svg>
+                                <div>
+                                    <h4 id="scoring-ao-dojo" class="text-xl sm:text-2xl font-black text-amber-400 tracking-wide font-heading uppercase leading-tight">
+                                        DOJO LAWAN
+                                    </h4>
+                                    <span id="scoring-ao-affil" class="text-[11px] font-bold text-amber-200/70 tracking-widest uppercase block">
+                                        INKANAS JAWA TIMUR
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-600 text-white shadow-md shadow-blue-600/30">
                                 AO (BIRU)
                             </span>
-                            <label class="flex items-center space-x-2 text-xs text-blue-300 cursor-pointer">
-                                <input type="checkbox" id="senshu-ao" class="w-4 h-4 text-blue-600 rounded">
-                                <span class="font-bold">SENSHU</span>
-                            </label>
                         </div>
 
-                        <div>
-                            <h4 id="scoring-ao-name" class="text-2xl font-black font-heading text-white">Satria Wijaya</h4>
-                            <span id="scoring-ao-dojo" class="text-xs text-gray-300">Garuda Karate Club Malang</span>
+                        <!-- Athlete Profile & Photo Center -->
+                        <div class="flex flex-col items-center justify-center text-center space-y-2">
+                            <!-- Athlete Portrait with Corner Indicator -->
+                            <div class="relative">
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-blue-400 via-blue-600 to-cyan-300 shadow-xl shadow-blue-600/40 ring-4 ring-blue-500/20">
+                                    <img id="scoring-ao-photo" src="img/athlete_ao.jpg" alt="Foto Atlet AO" class="w-full h-full rounded-full object-cover">
+                                </div>
+                                <span class="absolute bottom-0 right-0 px-2 py-0.5 rounded-full bg-blue-600 border border-white text-white font-mono text-[9px] font-black shadow-md">
+                                    AO
+                                </span>
+                            </div>
+                            <div>
+                                <h3 id="scoring-ao-name" class="text-2xl sm:text-3xl font-black font-heading text-white drop-shadow-md tracking-wide leading-tight">
+                                    ATLET AO
+                                </h3>
+                                <span class="text-xs text-blue-300/80 font-mono">Kontingen Utama</span>
+                            </div>
                         </div>
 
-                        <!-- Score Number -->
-                        <div class="text-8xl font-black font-heading text-blue-500 tracking-tight" id="score-ao-display">
-                            3
+                        <!-- Compact Centered Blue Score Card (Non-Full Width) -->
+                        <div class="flex justify-center py-1">
+                            <div class="w-52 sm:w-64 h-44 sm:h-52 rounded-3xl bg-gradient-to-b from-blue-600 to-blue-800 border-4 border-blue-400/40 shadow-2xl shadow-blue-600/40 flex items-center justify-center relative overflow-hidden">
+                                <!-- Green Corner Triangle with S Ribbon (Senshu) -->
+                                <div id="senshu-ao-badge" onclick="toggleSenshu('ao')" class="absolute top-0 right-0 w-14 h-14 pointer-events-auto cursor-pointer drop-shadow-lg transition-transform hover:scale-105" title="Senshu AO [Q] - Klik untuk ubah">
+                                    <div class="w-0 h-0 border-t-[56px] border-t-emerald-500 border-l-[56px] border-l-transparent absolute top-0 right-0"></div>
+                                    <span class="absolute top-1.5 right-2 text-white font-black font-sans text-lg leading-none">S</span>
+                                </div>
+
+                                <!-- Big Score Digit -->
+                                <div id="score-ao-display" class="text-8xl sm:text-9xl font-black font-mono text-white tracking-tighter drop-shadow-2xl select-none leading-none">
+                                    3
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Action Buttons: Yuko, Waza-ari, Ippon -->
-                        <div class="grid grid-cols-3 gap-2 pt-2">
-                            <button onclick="addScore('ao', 1)" class="py-2.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow">
-                                +1 Yuko
-                            </button>
-                            <button onclick="addScore('ao', 2)" class="py-2.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow">
-                                +2 Waza-ari
-                            </button>
-                            <button onclick="addScore('ao', 3)" class="py-2.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow">
-                                +3 Ippon
-                            </button>
+                        <!-- Penalty Badges Row: 1C, 2C, 3C, HC, H (Exact match to reference image!) -->
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex items-center justify-between text-[11px] text-gray-400 px-1">
+                                <span class="font-bold uppercase tracking-wider text-blue-300/80"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Penalti (Chui):</span>
+                                <span class="text-[10px] font-mono text-gray-500">Klik untuk ubah</span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button type="button" onclick="setPenalty('ao', 1)" id="ao-pen-1c" class="py-2 rounded-xl text-xs sm:text-sm font-black font-mono tracking-wider transition-all bg-amber-400 text-slate-950 shadow-md shadow-amber-400/40 border border-amber-300" title="1C (Chui 1)">1C</button>
+                                <button type="button" onclick="setPenalty('ao', 2)" id="ao-pen-2c" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="2C (Chui 2)">2C</button>
+                                <button type="button" onclick="setPenalty('ao', 3)" id="ao-pen-3c" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="3C (Chui 3)">3C</button>
+                                <button type="button" onclick="setPenalty('ao', 4)" id="ao-pen-hc" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="HC (Hansoku-Chui)">HC</button>
+                                <button type="button" onclick="setPenalty('ao', 5)" id="ao-pen-h" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="H (Hansoku)">H</button>
+                            </div>
                         </div>
 
-                        <!-- Penalties (Chui & Hansoku) -->
-                        <div class="flex justify-between items-center pt-2 text-xs text-gray-300 border-t border-blue-900/60">
-                            <span>Penalti (Chui):</span>
-                            <div class="space-x-1">
-                                <span class="px-2 py-0.5 rounded bg-blue-950 border border-blue-800 text-[10px] text-blue-300 font-bold">C1</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C2</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C3</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-gray-500">C4</span>
+                        <!-- Action Buttons: Yuko, Waza-ari, Ippon, Koreksi -->
+                        <div class="space-y-2 pt-2 border-t border-blue-900/40">
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="addScore('ao', 1)" class="py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow" title="Shortcut: A">
+                                    +1 Yuko [A]
+                                </button>
+                                <button onclick="addScore('ao', 2)" class="py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow" title="Shortcut: S">
+                                    +2 Waza-ari [S]
+                                </button>
+                                <button onclick="addScore('ao', 3)" class="py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider shadow" title="Shortcut: D">
+                                    +3 Ippon [D]
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <button type="button" onclick="decrementScore('ao')" class="px-3 py-1.5 rounded-lg bg-blue-950/80 hover:bg-blue-900 text-blue-300 font-bold border border-blue-800/40 text-[10px] transition-all flex items-center space-x-1" title="Koreksi Skor AO -1 (Shortcut: Z)">
+                                    <i class="fa-solid fa-minus text-[9px]"></i>
+                                    <span>-1 Koreksi [Z]</span>
+                                </button>
+                                <label class="flex items-center space-x-1.5 text-xs text-blue-300 cursor-pointer" title="Shortcut Senshu: Q">
+                                    <input type="checkbox" id="senshu-ao" onchange="toggleSenshu('ao')" class="w-4 h-4 text-blue-600 rounded">
+                                    <span class="font-bold text-[11px]">SENSHU [Q]</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ====================================
+                         CORNER AKA (SUDUT MERAH - SEBELAH KANAN)
+                         ==================================== -->
+                    <div class="rounded-3xl bg-gradient-to-b from-rose-950/70 via-slate-950 to-slate-950 border-2 border-rose-600/50 p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden">
+                        <!-- Top Dojo Info with Flag (Right) -->
+                        <div class="flex items-center justify-between border-b border-rose-900/40 pb-3">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md shadow-rose-600/30">
+                                AKA (MERAH)
+                            </span>
+                            <div class="flex items-center space-x-3 text-right">
+                                <div>
+                                    <h4 id="scoring-aka-dojo" class="text-xl sm:text-2xl font-black text-amber-400 tracking-wide font-heading uppercase leading-tight">
+                                        DOJO ALFA
+                                    </h4>
+                                    <span id="scoring-aka-affil" class="text-[11px] font-bold text-amber-200/70 tracking-widest uppercase block">
+                                        INKANAS INDONESIA
+                                    </span>
+                                </div>
+                                <!-- Indonesian Flag -->
+                                <svg class="w-9 h-6 rounded shadow border border-white/20 flex-shrink-0" viewBox="0 0 3 2">
+                                    <rect width="3" height="1" fill="#e11d48"/>
+                                    <rect y="1" width="3" height="1" fill="#ffffff"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Athlete Profile & Photo Center -->
+                        <div class="flex flex-col items-center justify-center text-center space-y-2">
+                            <!-- Athlete Portrait with Corner Indicator -->
+                            <div class="relative">
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-rose-400 via-rose-600 to-amber-300 shadow-xl shadow-rose-600/40 ring-4 ring-rose-500/20">
+                                    <img id="scoring-aka-photo" src="img/athlete_aka.jpg" alt="Foto Atlet AKA" class="w-full h-full rounded-full object-cover">
+                                </div>
+                                <span class="absolute bottom-0 right-0 px-2 py-0.5 rounded-full bg-rose-600 border border-white text-white font-mono text-[9px] font-black shadow-md">
+                                    AKA
+                                </span>
+                            </div>
+                            <div>
+                                <h3 id="scoring-aka-name" class="text-2xl sm:text-3xl font-black font-heading text-white drop-shadow-md tracking-wide leading-tight">
+                                    ATLET AKA
+                                </h3>
+                                <span class="text-xs text-rose-300/80 font-mono">Kontingen Utama</span>
+                            </div>
+                        </div>
+
+                        <!-- Compact Centered Red Score Card (Non-Full Width) -->
+                        <div class="flex justify-center py-1">
+                            <div class="w-52 sm:w-64 h-44 sm:h-52 rounded-3xl bg-gradient-to-b from-rose-700 to-rose-900 border-4 border-rose-400/40 shadow-2xl shadow-rose-600/40 flex items-center justify-center relative overflow-hidden">
+                                <!-- Green Corner Triangle with S Ribbon (Senshu) -->
+                                <div id="senshu-aka-badge" onclick="toggleSenshu('aka')" class="hidden absolute top-0 right-0 w-14 h-14 pointer-events-auto cursor-pointer drop-shadow-lg transition-transform hover:scale-105" title="Senshu AKA [P] - Klik untuk ubah">
+                                    <div class="w-0 h-0 border-t-[56px] border-t-emerald-500 border-l-[56px] border-l-transparent absolute top-0 right-0"></div>
+                                    <span class="absolute top-1.5 right-2 text-white font-black font-sans text-lg leading-none">S</span>
+                                </div>
+
+                                <!-- Big Score Digit -->
+                                <div id="score-aka-display" class="text-8xl sm:text-9xl font-black font-mono text-white tracking-tighter drop-shadow-2xl select-none leading-none">
+                                    6
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Penalty Badges Row: 1C, 2C, 3C, HC, H (Exact match to reference image!) -->
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex items-center justify-between text-[11px] text-gray-400 px-1">
+                                <span class="font-bold uppercase tracking-wider text-rose-300/80"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Penalti (Chui):</span>
+                                <span class="text-[10px] font-mono text-gray-500">Klik untuk ubah</span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button type="button" onclick="setPenalty('aka', 1)" id="aka-pen-1c" class="py-2 rounded-xl text-xs sm:text-sm font-black font-mono tracking-wider transition-all bg-amber-400 text-slate-950 shadow-md shadow-amber-400/40 border border-amber-300" title="1C (Chui 1)">1C</button>
+                                <button type="button" onclick="setPenalty('aka', 2)" id="aka-pen-2c" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="2C (Chui 2)">2C</button>
+                                <button type="button" onclick="setPenalty('aka', 3)" id="aka-pen-3c" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="3C (Chui 3)">3C</button>
+                                <button type="button" onclick="setPenalty('aka', 4)" id="aka-pen-hc" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="HC (Hansoku-Chui)">HC</button>
+                                <button type="button" onclick="setPenalty('aka', 5)" id="aka-pen-h" class="py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300" title="H (Hansoku)">H</button>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons: Yuko, Waza-ari, Ippon, Koreksi -->
+                        <div class="space-y-2 pt-2 border-t border-rose-900/40">
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="addScore('aka', 1)" class="py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow" title="Shortcut: J">
+                                    +1 Yuko [J]
+                                </button>
+                                <button onclick="addScore('aka', 2)" class="py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow" title="Shortcut: K">
+                                    +2 Waza-ari [K]
+                                </button>
+                                <button onclick="addScore('aka', 3)" class="py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider shadow" title="Shortcut: L">
+                                    +3 Ippon [L]
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <button type="button" onclick="decrementScore('aka')" class="px-3 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 font-bold border border-rose-800/40 text-[10px] transition-all flex items-center space-x-1" title="Koreksi Skor AKA -1 (Shortcut: M)">
+                                    <i class="fa-solid fa-minus text-[9px]"></i>
+                                    <span>-1 Koreksi [M]</span>
+                                </button>
+                                <label class="flex items-center space-x-1.5 text-xs text-rose-300 cursor-pointer" title="Shortcut Senshu: P">
+                                    <input type="checkbox" id="senshu-aka" onchange="toggleSenshu('aka')" class="w-4 h-4 text-rose-600 rounded">
+                                    <span class="font-bold text-[11px]">SENSHU [P]</span>
+                                </label>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Footer Broadcast Sync Controller -->
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800 text-xs text-gray-400">
-                    <div>
-                        <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-satellite-dish mr-1 animate-pulse"></i> Sinkronisasi Layar GOR DBL Aktif</span>
+                <!-- ==============================================
+                     THE BOTTOM BROADCAST BAR (Exact Reference Image Layout: TATAMI - GIANT TIMER - CATEGORY)
+                     ============================================== -->
+                <div class="rounded-3xl bg-slate-900/90 border-2 border-slate-800 p-5 sm:p-6 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-6 relative">
+                    <!-- Left: TATAMI Box -->
+                    <div class="flex items-center space-x-4 min-w-[180px]">
+                        <div>
+                            <span class="text-xs font-black uppercase tracking-widest text-amber-400 block">TATAMI</span>
+                            <div id="tatami-number-display" class="text-6xl sm:text-7xl font-mono font-black text-white leading-none tracking-tight drop-shadow-md">
+                                1
+                            </div>
+                        </div>
+                        <div class="border-l border-slate-700/80 pl-3.5 space-y-0.5">
+                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 inline-flex items-center">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1"></span> LIVE
+                            </span>
+                            <span id="tatami-label-display" class="text-xs text-gray-300 font-bold block">Matras 1</span>
+                        </div>
                     </div>
-                    <div class="space-x-3">
-                        <button onclick="resetMatchScore()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200">Reset Skor</button>
-                        <button onclick="declareWinner('Ahmad Rayhan Putra (AKA)')" class="px-5 py-2 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider shadow">
-                            Sahkan Pemenang
-                        </button>
+
+                    <!-- Center: GIANT TIMER & CONTROLS -->
+                    <div class="flex flex-col items-center justify-center space-y-3">
+                        <div id="timer-status-indicator" class="hidden px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-600 text-white animate-bounce shadow-lg shadow-red-600/50">
+                            <i class="fa-solid fa-flag-checkered mr-1"></i> SOREMADE / YAME (WAKTU HABIS)
+                        </div>
+
+                        <!-- Massive Digital Clock -->
+                        <div id="scoreboard-timer-box" class="transition-all duration-300 px-8 py-3 rounded-2xl bg-slate-950 border-2 border-amber-500/40 shadow-2xl flex items-center justify-center">
+                            <div class="flex items-start">
+                                <span id="scoreboard-timer" class="text-5xl sm:text-7xl font-mono font-black text-white tracking-wider leading-none">
+                                    01:14
+                                </span>
+                                <sup id="scoreboard-timer-ms" class="text-2xl sm:text-3xl font-mono font-black text-white/90 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5">
+                                    .50
+                                </sup>
+                            </div>
+                        </div>
+
+                        <!-- Timer Control Buttons -->
+                        <div class="flex items-center space-x-2">
+                            <button onclick="startTimer()" id="btn-timer-start" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase shadow-sm flex items-center space-x-1" title="Mulai Timer (Shortcut: Spasi)">
+                                <i class="fa-solid fa-play text-[9px]"></i>
+                                <span>Start</span>
+                            </button>
+                            <button onclick="pauseTimer()" class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase shadow-sm flex items-center space-x-1" title="Jeda Timer (Shortcut: Spasi)">
+                                <i class="fa-solid fa-pause text-[9px]"></i>
+                                <span>Pause</span>
+                            </button>
+                            <button onclick="resetTimer()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs uppercase shadow-sm flex items-center space-x-1" title="Reset Timer (Shortcut: R)">
+                                <i class="fa-solid fa-rotate-left text-[9px]"></i>
+                                <span>Reset</span>
+                            </button>
+                            <button id="btn-timer-10s" onclick="setTimerSeconds(10)" class="px-2.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 font-bold text-[10px] uppercase shadow-sm cursor-pointer" title="Uji Coba Langsung 10 Detik Terakhir (Danger Red)">10s Test</button>
+                        </div>
+
+                        <!-- Duration Selector -->
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs">
+                            <span class="text-[10px] uppercase font-bold text-gray-400 mr-1"><i class="fa-solid fa-stopwatch text-amber-400 mr-1"></i>Durasi:</span>
+                            <button type="button" onclick="setMatchDuration(180)" id="btn-dur-180" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition-all cursor-pointer">3:00 (Senior)</button>
+                            <button type="button" onclick="setMatchDuration(120)" id="btn-dur-120" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition-all cursor-pointer">2:00 (Junior)</button>
+                            <button type="button" onclick="setMatchDuration(90)" id="btn-dur-90" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-400 text-slate-950 shadow-xs transition-all cursor-pointer">1:30 (Anak)</button>
+                            <button type="button" onclick="openCustomTimerPrompt()" id="btn-dur-custom" class="px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-amber-400 hover:bg-slate-700 border border-amber-500/30 transition-all cursor-pointer">Kustom</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: CATEGORY & CLASS (Exact Reference Image Style) -->
+                    <div class="text-center lg:text-right min-w-[200px] space-y-1">
+                        <span class="text-amber-400 font-black text-xl sm:text-2xl uppercase tracking-wider block font-heading leading-tight drop-shadow">
+                            Kumite Perorangan
+                        </span>
+                        <span id="scoring-match-class" class="text-amber-300 font-bold text-sm sm:text-base tracking-wide block">
+                            Pra Pemula Putra -50Kg
+                        </span>
+                        <div class="flex items-center justify-center lg:justify-end space-x-2 pt-2">
+                            <button onclick="resetMatchScore()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-bold transition-all">Reset Skor</button>
+                            <button onclick="declareWinner('DOJO ALFA (AKA)')" class="px-4 py-1.5 rounded-xl gold-gradient-bg text-slate-950 font-black text-xs uppercase tracking-wider shadow">Sahkan</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1388,6 +1608,142 @@
         </div>
     </div>
 
+    <!-- ==============================================
+         MODAL: PANDUAN LENGKAP SHORTCUT KEYBOARD WASIT JURI
+         ============================================== -->
+    <div id="modal-keyboard-shortcuts" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md hidden items-center justify-center z-50 p-4 animate-fadeIn">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 max-w-2xl w-full relative shadow-2xl text-xs space-y-6 text-slate-200">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md">
+                        <i class="fa-solid fa-keyboard"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black font-heading text-white">Panduan Shortcut Keyboard Tatami</h3>
+                        <p class="text-[11px] text-gray-400">Kendalikan Live Scoreboard &amp; Timer tanpa mouse saat memimpin partai kumite.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeKeyboardShortcutsModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-gray-400 hover:text-white flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Grid Kartu Shortcut Berdasarkan Kategori -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Kolom 1: Corner AO (Biru - Tangan Kiri) -->
+                <div class="p-4 rounded-2xl bg-blue-950/40 border border-blue-800/50 space-y-2.5">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-blue-900/40">
+                        <span class="font-bold text-blue-400 flex items-center space-x-1.5 text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>
+                            <span>Sudut AO (Kiri / Biru)</span>
+                        </span>
+                        <span class="text-[10px] text-blue-300/70 font-mono">Tangan Kiri</span>
+                    </div>
+                    <div class="space-y-1.5 font-mono text-[11px]">
+                        <div class="flex items-center justify-between"><span class="text-gray-300">+1 Yuko:</span> <kbd class="px-2 py-0.5 rounded bg-blue-900 border border-blue-700 text-white font-bold">A</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">+2 Waza-ari:</span> <kbd class="px-2 py-0.5 rounded bg-blue-900 border border-blue-700 text-white font-bold">S</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">+3 Ippon:</span> <kbd class="px-2 py-0.5 rounded bg-blue-900 border border-blue-700 text-white font-bold">D</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">-1 Koreksi Skor:</span> <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-blue-300 font-bold">Z</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Toggle Senshu:</span> <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300 font-bold">Q</kbd></div>
+                    </div>
+                </div>
+
+                <!-- Kolom 2: Corner AKA (Merah - Tangan Kanan) -->
+                <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/50 space-y-2.5">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-rose-900/40">
+                        <span class="font-bold text-rose-400 flex items-center space-x-1.5 text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block"></span>
+                            <span>Sudut AKA (Kanan / Merah)</span>
+                        </span>
+                        <span class="text-[10px] text-rose-300/70 font-mono">Tangan Kanan</span>
+                    </div>
+                    <div class="space-y-1.5 font-mono text-[11px]">
+                        <div class="flex items-center justify-between"><span class="text-gray-300">+1 Yuko:</span> <kbd class="px-2 py-0.5 rounded bg-rose-900 border border-rose-700 text-white font-bold">J</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">+2 Waza-ari:</span> <kbd class="px-2 py-0.5 rounded bg-rose-900 border border-rose-700 text-white font-bold">K</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">+3 Ippon:</span> <kbd class="px-2 py-0.5 rounded bg-rose-900 border border-rose-700 text-white font-bold">L</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">-1 Koreksi Skor:</span> <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-rose-300 font-bold">M</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Toggle Senshu:</span> <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300 font-bold">P</kbd></div>
+                    </div>
+                </div>
+
+                <!-- Kolom 3: Match Timer WKF -->
+                <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2.5">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-700/40">
+                        <span class="font-bold text-amber-400 flex items-center space-x-1.5 text-xs">
+                            <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                            <span>Kontrol Timer WKF</span>
+                        </span>
+                    </div>
+                    <div class="space-y-1.5 font-mono text-[11px]">
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Mulai / Jeda (Start/Pause):</span> <kbd class="px-2.5 py-0.5 rounded bg-amber-400 text-slate-950 font-black">SPASI</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Reset Timer ke Awal:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-gray-200 font-bold">R</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Ganti Durasi Siklus:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-gray-200 font-bold">T</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Set 1.5m / 2m / 3m:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-amber-400 font-bold">1 / 2 / 3</kbd></div>
+                    </div>
+                </div>
+
+                <!-- Kolom 4: Layar & Navigasi -->
+                <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2.5">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-700/40">
+                        <span class="font-bold text-indigo-400 flex items-center space-x-1.5 text-xs">
+                            <i class="fa-solid fa-desktop text-indigo-400"></i>
+                            <span>Layar &amp; Panduan</span>
+                        </span>
+                    </div>
+                    <div class="space-y-1.5 font-mono text-[11px]">
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Mode Layar Penuh (Fullscreen):</span> <kbd class="px-2 py-0.5 rounded bg-indigo-600 text-white font-bold">F</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Buka Panduan Shortcut:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-amber-400 font-bold">? atau H</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Tutup Modal / Keluar Fullscreen:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-gray-200 font-bold">ESC</kbd></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="pt-2 flex justify-end">
+                <button type="button" onclick="closeKeyboardShortcutsModal()" class="px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold uppercase tracking-wider transition-all">
+                    Saya Mengerti (Tutup)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         MODAL: PENGATURAN DURASI TIMER KUSTOM
+         ============================================== -->
+    <div id="modal-custom-timer" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md hidden items-center justify-center z-50 p-4 animate-fadeIn">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-2xl text-xs space-y-5 text-slate-200 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-amber-400/20 text-amber-400 border border-amber-400/40 flex items-center justify-center text-xl mx-auto shadow-sm">
+                <i class="fa-solid fa-stopwatch"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-black font-heading text-white">Atur Durasi Pertandingan</h3>
+                <p class="text-gray-400 text-xs">Masukkan durasi menit dan detik yang diinginkan untuk babak ini.</p>
+            </div>
+
+            <div class="flex items-center justify-center space-x-3 py-2">
+                <div class="w-24">
+                    <label class="block text-gray-400 font-semibold mb-1 text-[11px]">Menit</label>
+                    <input type="number" id="custom-timer-min" min="0" max="59" value="3" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-center text-xl font-mono font-bold text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <span class="text-2xl font-bold text-amber-400 mt-5">:</span>
+                <div class="w-24">
+                    <label class="block text-gray-400 font-semibold mb-1 text-[11px]">Detik</label>
+                    <input type="number" id="custom-timer-sec" min="0" max="59" value="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-center text-xl font-mono font-bold text-white focus:outline-none focus:border-amber-400">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="closeCustomTimerModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold transition-all">
+                    Batal
+                </button>
+                <button type="button" onclick="applyCustomTimer()" class="py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold uppercase transition-all shadow-md">
+                    Terapkan
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 transform translate-y-32 transition-transform duration-300 flex items-center space-x-3 text-xs">
         <div class="w-7 h-7 rounded-full gold-gradient-bg flex items-center justify-center text-slate-950 font-bold text-xs">
@@ -1402,10 +1758,14 @@
         // Guard Akses RBAC & Session Live Database
         let currentUser = null;
         let activeMatch = null;
-        let currentScoreAka = 3;
-        let currentScoreAo = 2;
-        const DEFAULT_MATCH_SECONDS = 180;
-        let timerRemainingMs = DEFAULT_MATCH_SECONDS * 1000;
+        let currentScoreAo = 3;
+        let currentScoreAka = 6;
+        let penaltyAo = 1; // 0: None, 1: 1C, 2: 2C, 3: 3C, 4: HC, 5: H
+        let penaltyAka = 1;
+        let senshuAo = true;
+        let senshuAka = false;
+        let DEFAULT_MATCH_SECONDS = 90;
+        let timerRemainingMs = 74500; // 01:14.50 (Sesuai display referensi WKF)
         let timerLastTick = null;
         let timerInterval = null;
 
@@ -1424,37 +1784,66 @@
 
             // Inisialisasi Security & Concurrency Sentinel Listener
             initSecuritySentinelListeners();
+
+            // Inisialisasi tampilan scoreboard WKF (Skor, Penalti, Senshu, Timer)
+            updateScoreDisplays();
+            updatePenaltyDisplays();
+            updateSenshuDisplays();
+            updateTimerDisplay();
+            updateDurationButtons(DEFAULT_MATCH_SECONDS);
+
+            // Inisialisasi shortcut keyboard wasit juri
+            initKeyboardShortcuts();
         });
 
         async function loadLiveAdminData() {
             try {
-                const matches = await InkaiAPI.getMatches();
-                if (matches && matches.length > 0) {
-                    activeMatch = matches[0];
-                    renderActiveMatchScoreboard(activeMatch);
+                if (typeof InkaiAPI !== 'undefined' && typeof InkaiAPI.getMatches === 'function') {
+                    const matches = await InkaiAPI.getMatches();
+                    if (matches && matches.length > 0) {
+                        activeMatch = matches[0];
+                        renderActiveMatchScoreboard(activeMatch);
+                    }
                 }
             } catch (err) {
-                console.error('[AdminPortal] Error loading data from DB:', err);
+                console.warn('[AdminPortal] Notice loading matches from DB:', err);
             }
         }
 
         function renderActiveMatchScoreboard(match) {
             if (!match) return;
             const titleEl = document.getElementById('scoring-match-title');
-            if (titleEl) titleEl.innerText = `Partai #${match.matchNumber} • ${match.category?.name || 'Kumite Senior'} (${match.round || '16 Besar'})`;
+            if (titleEl && match.matchNumber) titleEl.innerText = `Partai #${match.matchNumber} • ${match.category?.name || 'Kumite Perorangan'} (${match.round || 'Pra Pemula Putra -50Kg'})`;
 
-            const akaNameEl = document.getElementById('scoring-aka-name');
-            if (akaNameEl) akaNameEl.innerText = match.akaName;
-            const akaDojoEl = document.getElementById('scoring-aka-dojo');
-            if (akaDojoEl) akaDojoEl.innerText = match.akaDojoName || 'Dojo Terdaftar';
+            if (match.akaName) {
+                const akaNameEl = document.getElementById('scoring-aka-name');
+                if (akaNameEl) akaNameEl.innerText = match.akaName;
+            }
+            if (match.akaDojoName) {
+                const akaDojoEl = document.getElementById('scoring-aka-dojo');
+                if (akaDojoEl) akaDojoEl.innerText = match.akaDojoName;
+            }
 
-            const aoNameEl = document.getElementById('scoring-ao-name');
-            if (aoNameEl) aoNameEl.innerText = match.aoName;
-            const aoDojoEl = document.getElementById('scoring-ao-dojo');
-            if (aoDojoEl) aoDojoEl.innerText = match.aoDojoName || 'Dojo Terdaftar';
+            if (match.akaPhoto) {
+                const akaPhotoEl = document.getElementById('scoring-aka-photo');
+                if (akaPhotoEl) akaPhotoEl.src = match.akaPhoto;
+            }
 
-            currentScoreAka = match.akaScore || 0;
-            currentScoreAo = match.aoScore || 0;
+            if (match.aoName) {
+                const aoNameEl = document.getElementById('scoring-ao-name');
+                if (aoNameEl) aoNameEl.innerText = match.aoName;
+            }
+            if (match.aoDojoName) {
+                const aoDojoEl = document.getElementById('scoring-ao-dojo');
+                if (aoDojoEl) aoDojoEl.innerText = match.aoDojoName;
+            }
+            if (match.aoPhoto) {
+                const aoPhotoEl = document.getElementById('scoring-ao-photo');
+                if (aoPhotoEl) aoPhotoEl.src = match.aoPhoto;
+            }
+
+            if (typeof match.akaScore === 'number' && match.akaScore > 0) currentScoreAka = match.akaScore;
+            if (typeof match.aoScore === 'number' && match.aoScore > 0) currentScoreAo = match.aoScore;
             updateScoreDisplays();
         }
 
@@ -1529,6 +1918,142 @@
             updateTimerDisplay();
         }
 
+        // Pengaturan Durasi Pertandingan (3 Menit, 2 Menit, 1.5 Menit, atau Kustom)
+        function setMatchDuration(sec, showToastMsg = true) {
+            pauseTimer();
+            DEFAULT_MATCH_SECONDS = sec;
+            timerRemainingMs = sec * 1000;
+            updateTimerDisplay();
+            updateDurationButtons(sec);
+            if (showToastMsg) {
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                const durStr = s > 0 ? `${m} Menit ${s} Detik` : `${m} Menit`;
+                showToast(`Durasi pertandingan disetel: ${durStr}`);
+            }
+        }
+
+        function updateDurationButtons(activeSec) {
+            const presets = [180, 120, 90];
+            presets.forEach(sec => {
+                const btn = document.getElementById(`btn-dur-${sec}`);
+                if (btn) {
+                    if (sec === activeSec) {
+                        btn.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-400 text-slate-950 shadow-xs transition-all flex items-center space-x-1 cursor-pointer';
+                    } else {
+                        btn.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition-all flex items-center space-x-1 cursor-pointer';
+                    }
+                }
+            });
+            const customBtn = document.getElementById('btn-dur-custom');
+            if (customBtn) {
+                if (!presets.includes(activeSec)) {
+                    customBtn.className = 'px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-400 text-slate-950 shadow-xs transition-all flex items-center space-x-1 cursor-pointer';
+                } else {
+                    customBtn.className = 'px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-amber-400 hover:bg-slate-700 border border-amber-500/30 transition-all flex items-center space-x-1 cursor-pointer';
+                }
+            }
+        }
+
+        function cycleTimerDuration() {
+            const list = [180, 120, 90, 60];
+            const currentIndex = list.indexOf(DEFAULT_MATCH_SECONDS);
+            const nextSec = (currentIndex >= 0 && currentIndex < list.length - 1) ? list[currentIndex + 1] : list[0];
+            setMatchDuration(nextSec);
+        }
+
+        function openCustomTimerPrompt() {
+            const modal = document.getElementById('modal-custom-timer');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                const minInput = document.getElementById('custom-timer-min');
+                if (minInput) {
+                    minInput.value = Math.floor(DEFAULT_MATCH_SECONDS / 60);
+                    minInput.focus();
+                }
+                const secInput = document.getElementById('custom-timer-sec');
+                if (secInput) secInput.value = DEFAULT_MATCH_SECONDS % 60;
+            }
+        }
+
+        function applyCustomTimer() {
+            const minInput = document.getElementById('custom-timer-min');
+            const secInput = document.getElementById('custom-timer-sec');
+            const mins = Math.max(0, parseInt(minInput?.value || 0, 10));
+            const secs = Math.max(0, Math.min(59, parseInt(secInput?.value || 0, 10)));
+            const totalSecs = (mins * 60) + secs;
+            if (totalSecs <= 0) {
+                showToast('Durasi minimal harus lebih dari 0 detik!');
+                return;
+            }
+            setMatchDuration(totalSecs);
+            closeCustomTimerModal();
+        }
+
+        function closeCustomTimerModal() {
+            const modal = document.getElementById('modal-custom-timer');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Fullscreen Tatami Scoreboard Controller
+        function toggleScoreboardFullscreen() {
+            const container = document.getElementById('scoreboard-fullscreen-container') || document.getElementById('section-scoring');
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(err => {
+                        console.warn('Fullscreen request failed:', err);
+                        showToast('Layar penuh dibatasi oleh browser.');
+                    });
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const isFull = !!document.fullscreenElement;
+            const btnIcon = document.getElementById('fullscreen-btn-icon');
+            const btnText = document.getElementById('fullscreen-btn-text');
+            const innerIcon = document.getElementById('fullscreen-inner-icon');
+            if (isFull) {
+                if (btnIcon) btnIcon.className = 'fa-solid fa-compress text-amber-400';
+                if (btnText) btnText.innerText = 'Exit Fullscreen';
+                if (innerIcon) innerIcon.className = 'fa-solid fa-compress text-sm text-amber-400';
+                showToast('Layar Penuh Matras Aktif (Tekan ESC atau F untuk keluar)');
+            } else {
+                if (btnIcon) btnIcon.className = 'fa-solid fa-expand text-amber-400';
+                if (btnText) btnText.innerText = 'Full Screen';
+                if (innerIcon) innerIcon.className = 'fa-solid fa-expand text-sm text-gray-300';
+            }
+        });
+
+        // Modal Shortcut Keyboard
+        function toggleKeyboardShortcutsModal() {
+            const modal = document.getElementById('modal-keyboard-shortcuts');
+            if (!modal) return;
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function closeKeyboardShortcutsModal() {
+            const modal = document.getElementById('modal-keyboard-shortcuts');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
         function updateTimerDisplay() {
             const totalMs = Math.max(0, Math.round(timerRemainingMs));
             const totalSeconds = Math.floor(totalMs / 1000);
@@ -1537,11 +2062,15 @@
             const ms = Math.floor((totalMs % 1000) / 10).toString().padStart(2, '0'); // Centiseconds (00-99)
 
             const timerEl = document.getElementById('scoreboard-timer');
+            const timerMsEl = document.getElementById('scoreboard-timer-ms');
             const timerBox = document.getElementById('scoreboard-timer-box');
             const indicator = document.getElementById('timer-status-indicator');
 
             if (timerEl) {
-                timerEl.innerText = `${m}:${s}.${ms}`;
+                timerEl.innerText = `${m}:${s}`;
+            }
+            if (timerMsEl) {
+                timerMsEl.innerText = `.${ms}`;
             }
 
             // Mode Danger Merah 10 Detik Terakhir (Atoshi Baraku)
@@ -1550,25 +2079,34 @@
 
             if (timerEl && timerBox) {
                 if (isDangerZone) {
-                    // Warna merah menyala intens (Danger Red)
-                    timerEl.className = 'text-4xl sm:text-6xl font-mono font-black text-rose-500 tracking-wider animate-pulse';
-                    timerBox.className = 'transition-all duration-300 px-6 py-2.5 rounded-2xl bg-rose-950/90 border-2 border-rose-500 shadow-xl shadow-rose-600/40 ring-4 ring-rose-500/30 flex items-center justify-center';
+                    // Warna merah menyala intens (Danger Red 10s)
+                    timerEl.className = 'text-5xl sm:text-7xl font-mono font-black text-rose-500 tracking-wider leading-none animate-pulse';
+                    if (timerMsEl) {
+                        timerMsEl.className = 'text-2xl sm:text-3xl font-mono font-black text-rose-500 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5 animate-pulse';
+                    }
+                    timerBox.className = 'transition-all duration-300 px-8 py-3 rounded-2xl bg-rose-950/90 border-2 border-rose-500 shadow-2xl shadow-rose-600/50 ring-4 ring-rose-500/30 flex items-center justify-center';
                     if (indicator) {
-                        indicator.classList.remove('hidden');
-                        indicator.innerHTML = '<i class="fa-solid fa-bell mr-1"></i> ATOSHI BARAKU (10s)';
+                        indicator.classList.add('hidden');
                     }
                 } else if (isFinished) {
-                    // Selesai (00:00.00)
-                    timerEl.className = 'text-4xl sm:text-6xl font-mono font-black text-red-600 tracking-wider';
-                    timerBox.className = 'transition-all duration-300 px-6 py-2.5 rounded-2xl bg-red-950 border-2 border-red-600 shadow-2xl flex items-center justify-center';
+                    // Waktu Habis (00:00.00) - Timer Berdenyut Intens (Pulsing Red)
+                    timerEl.className = 'text-5xl sm:text-7xl font-mono font-black text-rose-500 tracking-wider leading-none animate-pulse';
+                    if (timerMsEl) {
+                        timerMsEl.className = 'text-2xl sm:text-3xl font-mono font-black text-rose-500 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5 animate-pulse';
+                    }
+                    timerBox.className = 'transition-all duration-300 px-8 py-3 rounded-2xl bg-red-950 border-4 border-red-500 shadow-2xl shadow-red-600/70 ring-8 ring-red-500/50 flex items-center justify-center animate-pulse';
                     if (indicator) {
                         indicator.classList.remove('hidden');
-                        indicator.innerHTML = '<i class="fa-solid fa-flag-checkered mr-1"></i> SOREMADE / YAME';
+                        indicator.className = 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-600 text-white animate-bounce shadow-lg shadow-red-600/50';
+                        indicator.innerHTML = '<i class="fa-solid fa-flag-checkered mr-1"></i> SOREMADE / YAME (WAKTU HABIS)';
                     }
                 } else {
                     // Waktu Normal (> 10s)
-                    timerEl.className = 'text-4xl sm:text-6xl font-mono font-black text-amber-400 tracking-wider';
-                    timerBox.className = 'transition-all duration-300 px-6 py-2.5 rounded-2xl bg-slate-900 border border-amber-500/40 shadow-inner flex items-center justify-center';
+                    timerEl.className = 'text-5xl sm:text-7xl font-mono font-black text-white tracking-wider leading-none drop-shadow-md';
+                    if (timerMsEl) {
+                        timerMsEl.className = 'text-2xl sm:text-3xl font-mono font-black text-white/90 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5';
+                    }
+                    timerBox.className = 'transition-all duration-300 px-8 py-3 rounded-2xl bg-slate-950 border-2 border-amber-500/40 shadow-2xl flex items-center justify-center';
                     if (indicator) {
                         indicator.classList.add('hidden');
                     }
@@ -1576,7 +2114,20 @@
             }
         }
 
-        // Live Scoring Controls (Aka vs Ao)
+        // Tatami Arena Switcher
+        function updateTatamiNumber(val) {
+            const numDisplay = document.getElementById('tatami-number-display');
+            const labelDisplay = document.getElementById('tatami-label-display');
+            const selector = document.getElementById('tatami-selector');
+            if (selector && selector.value !== val) selector.value = val;
+            if (numDisplay) numDisplay.innerText = val;
+            if (labelDisplay) {
+                labelDisplay.innerText = val === '2' ? 'Matras 2 (Arena Utama)' : `Matras ${val}`;
+            }
+            showToast(`Arena beralih ke Tatami ${val}`);
+        }
+
+        // Live Scoring Controls (AO vs AKA)
         async function addScore(corner, point) {
             if (corner === 'aka') {
                 currentScoreAka += point;
@@ -1585,7 +2136,7 @@
             }
             updateScoreDisplays();
 
-            // Simpan skor real-time ke Supabase backend
+            // Simpan skor real-time ke Supabase backend jika ada match aktif
             if (activeMatch && activeMatch.id) {
                 try {
                     await InkaiAPI.updateMatchScore(activeMatch.id, {
@@ -1606,11 +2157,268 @@
             if (aoDisp) aoDisp.innerText = currentScoreAo;
         }
 
+        async function decrementScore(corner) {
+            if (corner === 'aka') {
+                if (currentScoreAka > 0) currentScoreAka--;
+            } else {
+                if (currentScoreAo > 0) currentScoreAo--;
+            }
+            updateScoreDisplays();
+            showToast(`Koreksi Skor: ${corner.toUpperCase()} dikurangi 1.`);
+            if (activeMatch && activeMatch.id) {
+                try {
+                    await InkaiAPI.updateMatchScore(activeMatch.id, {
+                        akaScore: currentScoreAka,
+                        aoScore: currentScoreAo,
+                        status: 'LIVE'
+                    });
+                } catch (e) {
+                    console.warn(e);
+                }
+            }
+        }
+
+        // Senshu (First Unopposed Advantage Ribbon S)
+        function toggleSenshu(corner) {
+            if (corner === 'ao') {
+                senshuAo = !senshuAo;
+                if (senshuAo) senshuAka = false; // Hanya satu sudut yang boleh pegang senshu
+            } else {
+                senshuAka = !senshuAka;
+                if (senshuAka) senshuAo = false;
+            }
+            updateSenshuDisplays();
+            const cornerName = corner === 'ao' ? 'AO (Biru)' : 'AKA (Merah)';
+            const status = (corner === 'ao' ? senshuAo : senshuAka) ? 'AKTIF' : 'NONAKTIF';
+            showToast(`Senshu ${cornerName}: ${status}`);
+        }
+
+        function updateSenshuDisplays() {
+            const aoBadge = document.getElementById('senshu-ao-badge');
+            const akaBadge = document.getElementById('senshu-aka-badge');
+            const aoChk = document.getElementById('senshu-ao');
+            const akaChk = document.getElementById('senshu-aka');
+
+            if (aoBadge) {
+                if (senshuAo) aoBadge.classList.remove('hidden');
+                else aoBadge.classList.add('hidden');
+            }
+            if (aoChk) aoChk.checked = senshuAo;
+
+            if (akaBadge) {
+                if (senshuAka) akaBadge.classList.remove('hidden');
+                else akaBadge.classList.add('hidden');
+            }
+            if (akaChk) akaChk.checked = senshuAka;
+        }
+
+        // Penalty Controls (Chui: 1C, 2C, 3C, HC, H)
+        function setPenalty(corner, level) {
+            if (corner === 'ao') {
+                penaltyAo = (penaltyAo === level) ? level - 1 : level;
+            } else {
+                penaltyAka = (penaltyAka === level) ? level - 1 : level;
+            }
+            updatePenaltyDisplays();
+            const cornerName = corner === 'ao' ? 'AO (Biru)' : 'AKA (Merah)';
+            const names = ['Bersih (0 Penalti)', '1C (Chui 1)', '2C (Chui 2)', '3C (Chui 3)', 'HC (Hansoku-Chui)', 'H (Hansoku Diskualifikasi)'];
+            const val = corner === 'ao' ? penaltyAo : penaltyAka;
+            showToast(`Penalti ${cornerName}: ${names[val]}`);
+        }
+
+        function updatePenaltyDisplays() {
+            const levels = [
+                { id: '1c', val: 1 },
+                { id: '2c', val: 2 },
+                { id: '3c', val: 3 },
+                { id: 'hc', val: 4 },
+                { id: 'h', val: 5 }
+            ];
+
+            ['ao', 'aka'].forEach(corner => {
+                const currentVal = corner === 'ao' ? penaltyAo : penaltyAka;
+                levels.forEach(lvl => {
+                    const btn = document.getElementById(`${corner}-pen-${lvl.id}`);
+                    if (!btn) return;
+                    if (lvl.val <= currentVal) {
+                        if (lvl.val === 5) {
+                            // Hansoku: Rose red danger pulse
+                            btn.className = 'py-2 rounded-xl text-xs sm:text-sm font-black font-mono tracking-wider transition-all bg-rose-600 text-white shadow-lg shadow-rose-600/50 border border-rose-400 animate-pulse';
+                        } else if (lvl.val === 4) {
+                            // Hansoku-Chui: Orange
+                            btn.className = 'py-2 rounded-xl text-xs sm:text-sm font-black font-mono tracking-wider transition-all bg-orange-500 text-white shadow-md shadow-orange-500/40 border border-orange-300';
+                        } else {
+                            // 1C, 2C, 3C: Bright amber gold
+                            btn.className = 'py-2 rounded-xl text-xs sm:text-sm font-black font-mono tracking-wider transition-all bg-amber-400 text-slate-950 shadow-md shadow-amber-400/40 border border-amber-300';
+                        }
+                    } else {
+                        btn.className = 'py-2 rounded-xl text-xs sm:text-sm font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800 hover:border-slate-700 hover:text-gray-300';
+                    }
+                });
+            });
+        }
+
         function resetMatchScore() {
             currentScoreAka = 0;
             currentScoreAo = 0;
+            penaltyAo = 0;
+            penaltyAka = 0;
+            senshuAo = false;
+            senshuAka = false;
             updateScoreDisplays();
-            showToast('Skor pertandingan telah direset ke 0 - 0.');
+            updatePenaltyDisplays();
+            updateSenshuDisplays();
+            showToast('Skor dan penalti pertandingan telah direset ke 0 - 0.');
+        }
+
+        // Global Keyboard Shortcuts Handler untuk Operator Tatami Wasit Juri
+        function initKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                // Abaikan jika user sedang mengetik di input field atau textarea
+                const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+                if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || document.activeElement?.isContentEditable) {
+                    if (e.key === 'Escape') {
+                        closeCustomTimerModal();
+                        closeKeyboardShortcutsModal();
+                    }
+                    return;
+                }
+
+                // Cek status modal
+                const customModal = document.getElementById('modal-custom-timer');
+                const shortcutsModal = document.getElementById('modal-keyboard-shortcuts');
+                const isCustomOpen = customModal && !customModal.classList.contains('hidden');
+                const isShortcutsOpen = shortcutsModal && !shortcutsModal.classList.contains('hidden');
+
+                if (e.key === 'Escape') {
+                    if (isCustomOpen) { closeCustomTimerModal(); e.preventDefault(); return; }
+                    if (isShortcutsOpen) { closeKeyboardShortcutsModal(); e.preventDefault(); return; }
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                        e.preventDefault();
+                        return;
+                    }
+                }
+
+                // Modal bantuan shortcut (? atau H)
+                if (e.key === '?' || e.key === 'h' || e.key === 'H') {
+                    e.preventDefault();
+                    toggleKeyboardShortcutsModal();
+                    return;
+                }
+
+                // Space: Start / Pause Timer WKF
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    if (timerInterval) {
+                        pauseTimer();
+                        showToast('Timer Dijeda (PAUSE)');
+                    } else {
+                        startTimer();
+                        showToast('Timer Dijalankan (START)');
+                    }
+                    return;
+                }
+
+                // F: Toggle Layar Penuh (Fullscreen)
+                if (e.code === 'KeyF') {
+                    e.preventDefault();
+                    toggleScoreboardFullscreen();
+                    return;
+                }
+
+                // R: Reset Timer ke Durasi Default
+                if (e.code === 'KeyR') {
+                    e.preventDefault();
+                    resetTimer();
+                    showToast('Timer Direset ke Awal');
+                    return;
+                }
+
+                // T: Siklus Durasi Pertandingan (Cycle)
+                if (e.code === 'KeyT') {
+                    e.preventDefault();
+                    cycleTimerDuration();
+                    return;
+                }
+
+                // Angka 1, 2, 3: Preset Cepat Durasi
+                if (e.code === 'Digit1') {
+                    e.preventDefault();
+                    setMatchDuration(90);
+                    return;
+                }
+                if (e.code === 'Digit2') {
+                    e.preventDefault();
+                    setMatchDuration(120);
+                    return;
+                }
+                if (e.code === 'Digit3') {
+                    e.preventDefault();
+                    setMatchDuration(180);
+                    return;
+                }
+
+                // Sudut AO (Kiri / Biru - Tangan Kiri: A, S, D, Z, Q):
+                if (e.code === 'KeyA') {
+                    e.preventDefault();
+                    addScore('ao', 1);
+                    showToast('AO +1 Yuko!');
+                    return;
+                }
+                if (e.code === 'KeyS') {
+                    e.preventDefault();
+                    addScore('ao', 2);
+                    showToast('AO +2 Waza-ari!');
+                    return;
+                }
+                if (e.code === 'KeyD') {
+                    e.preventDefault();
+                    addScore('ao', 3);
+                    showToast('AO +3 Ippon!');
+                    return;
+                }
+                if (e.code === 'KeyZ') {
+                    e.preventDefault();
+                    decrementScore('ao');
+                    return;
+                }
+                if (e.code === 'KeyQ') {
+                    e.preventDefault();
+                    toggleSenshu('ao');
+                    return;
+                }
+
+                // Sudut AKA (Kanan / Merah - Tangan Kanan: J, K, L, M, P):
+                if (e.code === 'KeyJ') {
+                    e.preventDefault();
+                    addScore('aka', 1);
+                    showToast('AKA +1 Yuko!');
+                    return;
+                }
+                if (e.code === 'KeyK') {
+                    e.preventDefault();
+                    addScore('aka', 2);
+                    showToast('AKA +2 Waza-ari!');
+                    return;
+                }
+                if (e.code === 'KeyL') {
+                    e.preventDefault();
+                    addScore('aka', 3);
+                    showToast('AKA +3 Ippon!');
+                    return;
+                }
+                if (e.code === 'KeyM') {
+                    e.preventDefault();
+                    decrementScore('aka');
+                    return;
+                }
+                if (e.code === 'KeyP') {
+                    e.preventDefault();
+                    toggleSenshu('aka');
+                    return;
+                }
+            });
         }
 
         async function declareWinner(winnerStr) {
