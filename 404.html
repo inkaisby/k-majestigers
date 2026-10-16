@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Tidak Ditemukan (404) | K-Majestigers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Cinzel', serif; }
+        .gold-gradient-bg { background: linear-gradient(135deg, #dfb347 0%, #b8860b 50%, #8b6508 100%); }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #dfb347 0%, #b8860b 50%, #8b6508 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full text-center space-y-6">
+        <!-- Brand Icon -->
+        <div class="w-20 h-20 mx-auto rounded-3xl gold-gradient-bg flex items-center justify-center text-slate-950 text-4xl shadow-xl shadow-amber-500/20">
+            <i class="fa-solid fa-crown"></i>
+        </div>
+
+        <div class="space-y-2">
+            <span class="text-xs uppercase font-bold tracking-widest text-amber-500">Error 404 &bull; K-Majestigers</span>
+            <h1 class="text-3xl sm:text-4xl font-black font-heading text-white">Halaman Tidak Ditemukan</h1>
+            <p class="text-xs text-slate-400 leading-relaxed">
+                Halaman yang Anda tuju mungkin telah dipindahkan atau tautan belum tersedia. Silakan pilih portal resmi di bawah ini:
+            </p>
+        </div>
+
+        <!-- Portal Navigation Buttons -->
+        <div class="grid grid-cols-1 gap-2.5 text-xs text-left font-semibold">
+            <a href="/" class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-400 flex items-center justify-between text-white transition-all group">
+                <div class="flex items-center space-x-3">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-amber-400 group-hover:text-slate-950 flex items-center justify-center text-amber-400 transition-colors">
+                        <i class="fa-solid fa-house"></i>
+                    </span>
+                    <span>Kembali ke Beranda Utama</span>
+                </div>
+                <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-amber-400"></i>
+            </a>
+
+            <a href="/member" class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-400 flex items-center justify-between text-white transition-all group">
+                <div class="flex items-center space-x-3">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-950 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-user-ninja"></i>
+                    </span>
+                    <span>Portal Atlet &amp; Member (/member)</span>
+                </div>
+                <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-emerald-400"></i>
+            </a>
+
+            <a href="/dojo" class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-400 flex items-center justify-between text-white transition-all group">
+                <div class="flex items-center space-x-3">
+                    <span class="w-8 h-8 rounded-xl bg-amber-950 text-amber-400 flex items-center justify-center">
+                        <i class="fa-solid fa-people-group"></i>
+                    </span>
+                    <span>Portal Pelatih &amp; Dojo (/dojo)</span>
+                </div>
+                <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-amber-400"></i>
+            </a>
+
+            <a href="/admin" class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-rose-400 flex items-center justify-between text-white transition-all group">
+                <div class="flex items-center space-x-3">
+                    <span class="w-8 h-8 rounded-xl bg-rose-950 text-rose-400 flex items-center justify-center">
+                        <i class="fa-solid fa-crown"></i>
+                    </span>
+                    <span>Super Admin &amp; Championship (/admin)</span>
+                </div>
+                <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-rose-400"></i>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
