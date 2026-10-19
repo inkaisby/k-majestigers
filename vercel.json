@@ -6,9 +6,11 @@
     { "source": "/member", "destination": "/member.html" },
     { "source": "/dojo", "destination": "/dojo.html" },
     { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/scoreboard", "destination": "/scoreboard.html" },
     { "source": "/member/(.*)", "destination": "/member.html" },
     { "source": "/dojo/(.*)", "destination": "/dojo.html" },
-    { "source": "/admin/(.*)", "destination": "/admin.html" }
+    { "source": "/admin/(.*)", "destination": "/admin.html" },
+    { "source": "/scoreboard/(.*)", "destination": "/scoreboard.html" }
   ],
   "headers": [
     {

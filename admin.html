@@ -640,21 +640,51 @@
                     </h2>
                     <p class="text-xs text-slate-500">Pengendali skor digital tatami resmi World Karate Federation (WKF Kumite 3:00 Menit).</p>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <select id="tatami-selector" onchange="updateTatamiNumber(this.value)" class="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs text-slate-800 font-bold shadow-xs">
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="text-emerald-800 font-bold font-mono">Sync Live Aktif</span>
+                    </div>
+
+                    <select id="tatami-selector" onchange="updateTatamiNumber(this.value)" class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold shadow-xs">
                         <option value="1" selected>Matras 1</option>
-                        <option value="2">Matras 2 (Tatami Arena Utama)</option>
+                        <option value="2">Matras 2 (Arena Utama)</option>
                         <option value="3">Matras 3</option>
                         <option value="4">Matras 4</option>
                     </select>
+
+                    <!-- Tombol Buka Layar Bersih Penonton (Dual Monitor / Pop-up) -->
+                    <button type="button" onclick="openSpectatorScoreboard()" class="px-3.5 py-2 rounded-xl gold-gradient-bg text-slate-950 font-black text-xs shadow-md hover:opacity-95 flex items-center space-x-1.5 transition-all cursor-pointer" title="Buka Layar Bersih Penonton di Jendela Baru / Monitor Eksternal">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span>Layar Penonton</span>
+                    </button>
+
+                    <!-- Tombol Salin URL OBS Studio Overlay -->
+                    <button type="button" onclick="copyObsOverlayLink()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer" title="Salin URL Browser Source untuk OBS Studio / vMix (Background Transparan)">
+                        <i class="fa-solid fa-video text-rose-600"></i>
+                        <span class="hidden md:inline">Link OBS</span>
+                    </button>
+
+                    <!-- Tombol Bunyikan Sirine / Horn Manual -->
+                    <button type="button" onclick="triggerRemoteHorn()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-800 hover:text-rose-600 border border-slate-300 text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer" title="Bunyikan Sirine WKF di Layar Penonton & Meja Wasit">
+                        <i class="fa-solid fa-bullhorn text-amber-600"></i>
+                        <span class="hidden md:inline">Horn</span>
+                    </button>
+
+                    <!-- Tombol Launcher Pemanggilan Atlet Bersuara -->
+                    <button type="button" onclick="openAthleteAnnouncerModal()" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 text-xs font-black shadow-md flex items-center space-x-1.5 transition-all cursor-pointer ring-2 ring-amber-400/40" title="Launcher Pemanggilan Atlet Bersuara WKF (Panggilan 1, 2, 3)">
+                        <i class="fa-solid fa-microphone-lines text-slate-950 animate-pulse"></i>
+                        <span>Panggil Atlet</span>
+                    </button>
+
                     <!-- Tombol Panduan Shortcut Keyboard -->
-                    <button type="button" onclick="toggleKeyboardShortcutsModal()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all" title="Panduan Shortcut Keyboard (Tekan ?)">
+                    <button type="button" onclick="toggleKeyboardShortcutsModal()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer" title="Panduan Shortcut Keyboard (Tekan ?)">
                         <i class="fa-solid fa-keyboard text-amber-600"></i>
                         <span class="hidden sm:inline">Shortcut</span>
                         <kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-300 text-[10px] text-slate-700 font-mono">?</kbd>
                     </button>
                     <!-- Tombol Layar Penuh Fullscreen -->
-                    <button type="button" id="btn-toggle-fullscreen" onclick="toggleScoreboardFullscreen()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 hover:text-amber-300 text-xs font-bold shadow-md flex items-center space-x-2 border border-amber-500/30 transition-all" title="Mode Layar Penuh Matras / Fullscreen (Tekan F)">
+                    <button type="button" id="btn-toggle-fullscreen" onclick="toggleScoreboardFullscreen()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 hover:text-amber-300 text-xs font-bold shadow-md flex items-center space-x-2 border border-amber-500/30 transition-all cursor-pointer" title="Mode Layar Penuh Matras / Fullscreen (Tekan F)">
                         <i id="fullscreen-btn-icon" class="fa-solid fa-expand text-amber-400"></i>
                         <span id="fullscreen-btn-text" class="hidden sm:inline font-bold">Full Screen</span>
                     </button>
@@ -667,6 +697,9 @@
             <div id="scoreboard-fullscreen-container" class="rounded-3xl bg-slate-950 border-4 border-slate-800 p-4 sm:p-7 shadow-2xl relative overflow-hidden space-y-6">
                 <!-- Floating In-Board Fullscreen Button & Shortcuts Helper -->
                 <div class="absolute top-4 right-4 z-30 flex items-center space-x-2">
+                    <button type="button" onclick="openSpectatorScoreboard()" class="p-2.5 rounded-xl bg-amber-400/90 hover:bg-amber-300 text-slate-950 border border-amber-300 backdrop-blur shadow-lg transition-all font-bold text-xs" title="Buka Layar Bersih Penonton (Dual Monitor)">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </button>
                     <button type="button" onclick="toggleKeyboardShortcutsModal()" class="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-amber-400 hover:text-amber-300 border border-slate-700/80 backdrop-blur shadow-lg transition-all" title="Panduan Shortcut Keyboard (Tekan ?)">
                         <i class="fa-solid fa-keyboard text-xs"></i>
                     </button>
@@ -679,9 +712,9 @@
                 <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 text-xs">
                     <div class="flex items-center space-x-2.5">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                        <span class="font-mono text-gray-400 uppercase tracking-widest text-[11px] font-bold">K-MAJESTIGERS NATIONAL OPEN CHAMPIONSHIP</span>
+                        <span class="font-mono text-gray-400 uppercase tracking-widest text-[11px] font-bold">K-MAJESTIGERS NATIONAL OPEN &bull; <span class="text-amber-400">PANEL OPERATOR WASIT MEJA</span></span>
                     </div>
-                    <div class="pr-20 hidden sm:block">
+                    <div class="pr-28 hidden sm:block">
                         <span id="scoring-match-title" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 font-bold font-mono text-[11px] tracking-wider">
                             PARTAI #18 &bull; KUMITE PERORANGAN
                         </span>
@@ -691,20 +724,11 @@
                 <!-- ==========================================
                      MAIN SCOREBOARD ARENA: AO (LEFT) vs AKA (RIGHT)
                      ========================================== -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-                    <!-- Vertical Divider Accent with Crest in Center -->
-                    <div class="hidden md:flex absolute inset-y-0 left-1/2 -translate-x-1/2 flex-col items-center justify-center pointer-events-none z-10">
-                        <div class="w-px h-full bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
-                        <div class="w-9 h-9 rounded-full bg-slate-900 border-2 border-amber-500/60 shadow-xl flex items-center justify-center text-amber-400 text-xs font-black my-2">
-                            VS
-                        </div>
-                        <div class="w-px h-full bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
-                    </div>
-
+                <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px_1fr] xl:grid-cols-[1fr_340px_1fr] gap-4 sm:gap-6 items-stretch relative">
                     <!-- ====================================
                          CORNER AO (SUDUT BIRU - SEBELAH KIRI)
                          ==================================== -->
-                    <div class="rounded-3xl bg-gradient-to-b from-blue-950/70 via-slate-950 to-slate-950 border-2 border-blue-600/50 p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden">
+                    <div class="order-1 lg:order-1 rounded-3xl bg-gradient-to-b from-blue-950/70 via-slate-950 to-slate-950 border-2 border-blue-600/50 p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
                         <!-- Top Dojo Info with Flag (Left) -->
                         <div class="flex items-center justify-between border-b border-blue-900/40 pb-3">
                             <div class="flex items-center space-x-3">
@@ -743,6 +767,18 @@
                                     ATLET AO
                                 </h3>
                                 <span class="text-xs text-blue-300/80 font-mono">Kontingen Utama</span>
+
+                                <!-- Quick Call Launcher AO (Panggilan 1, 2, 3 Bersuara) -->
+                                <div class="flex items-center space-x-1.5 justify-center pt-2">
+                                    <button type="button" onclick="triggerAthleteCall('ao')" id="btn-quick-call-ao" class="px-3.5 py-1.5 rounded-full bg-blue-900/80 hover:bg-blue-800 text-blue-100 border border-blue-400/50 text-xs font-bold transition-all flex items-center space-x-2 shadow-sm cursor-pointer group" title="Panggil Atlet Sudut Biru AO (Panggilan 1, 2, 3)">
+                                        <i class="fa-solid fa-bullhorn text-amber-400 group-hover:scale-110 transition-transform"></i>
+                                        <span id="quick-call-label-ao">Panggil AO</span>
+                                        <span id="quick-call-badge-ao" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-blue-600 text-white border border-blue-400">Panggilan 1</span>
+                                    </button>
+                                    <button type="button" onclick="resetAthleteCall('ao')" class="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-gray-400 hover:text-white text-xs transition-all cursor-pointer" title="Reset Hitungan Panggilan AO ke Panggilan 1">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -803,10 +839,161 @@
                         </div>
                     </div>
 
+                    <!-- ==============================================
+                         CENTER COLUMN: SATU FRAME MERAH BIRU (MATCH TIMER DI ATAS VS + DOWN TIME)
+                         ============================================== -->
+                    <div class="order-2 lg:order-2 flex flex-col items-center w-full">
+                        <!-- SATU FRAME MERAH-BIRU TERPADU -->
+                        <div class="w-full rounded-3xl bg-slate-900/90 border-t border-b border-slate-700/70 border-l-4 border-l-blue-500 border-r-4 border-r-rose-500 shadow-2xl backdrop-blur-md relative overflow-hidden p-3.5 sm:p-4 space-y-3">
+                            <!-- Dual Color Top Accent Line: Blue (AO) to Gold to Red (AKA) -->
+                            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500"></div>
+
+                            <!-- Header Timer dengan Indikator Sudut Biru (AO) & Merah (AKA) -->
+                            <div class="flex items-center justify-between w-full px-1">
+                                <span class="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-wider text-blue-400">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500 shadow-xs shadow-blue-400 animate-pulse"></span>
+                                    <span>AO</span>
+                                </span>
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider flex items-center">
+                                        <i class="fa-solid fa-stopwatch text-amber-400 mr-1.5"></i> Match Timer WKF
+                                    </span>
+                                    <span class="text-[9px] font-mono font-bold text-amber-400/90 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+                                        WAKTU KUMITE
+                                    </span>
+                                </div>
+                                <span class="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-wider text-rose-400">
+                                    <span>AKA</span>
+                                    <span class="w-2 h-2 rounded-full bg-rose-500 shadow-xs shadow-rose-400 animate-pulse"></span>
+                                </span>
+                            </div>
+
+                            <!-- Indikator Status Waktu Habis (Soremade) -->
+                            <div id="timer-status-indicator" class="hidden px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 animate-bounce shadow-lg shadow-amber-500/50">
+                                <i class="fa-solid fa-flag-checkered mr-1"></i> SOREMADE / YAME (WAKTU HABIS)
+                            </div>
+
+                            <!-- Massive Digital Clock -->
+                            <div id="scoreboard-timer-box" class="transition-all duration-300 w-full py-2 px-4 rounded-2xl bg-slate-950 border-2 border-amber-500/40 shadow-2xl flex items-center justify-center">
+                                <div class="flex items-start">
+                                    <span id="scoreboard-timer" class="text-4xl sm:text-5xl font-mono font-black text-white tracking-wider leading-none">
+                                        01:14
+                                    </span>
+                                    <sup id="scoreboard-timer-ms" class="text-xl sm:text-2xl font-mono font-black text-white/90 ml-1 leading-none tracking-normal select-none relative -top-1">
+                                        .50
+                                    </sup>
+                                </div>
+                            </div>
+
+                            <!-- Timer Controls Row (Start, Pause, Reset, 15s, and Down Time Toggle Button) -->
+                            <div class="flex flex-wrap items-center gap-1.5 w-full justify-center">
+                                <button onclick="startTimer()" id="btn-timer-start" class="flex-1 min-w-[60px] py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] uppercase shadow-sm flex items-center justify-center space-x-1 cursor-pointer transition-all" title="Mulai Timer (Shortcut: Spasi)">
+                                    <i class="fa-solid fa-play text-[8px]"></i>
+                                    <span>Start</span>
+                                </button>
+                                <button onclick="pauseTimer()" class="flex-1 min-w-[60px] py-1.5 px-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] uppercase shadow-sm flex items-center justify-center space-x-1 cursor-pointer transition-all" title="Jeda Timer (Shortcut: Spasi)">
+                                    <i class="fa-solid fa-pause text-[8px]"></i>
+                                    <span>Pause</span>
+                                </button>
+                                <button onclick="resetTimer()" class="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-[11px] uppercase shadow-sm border border-slate-700 flex items-center justify-center space-x-1 cursor-pointer transition-all" title="Reset Timer (Shortcut: R)">
+                                    <i class="fa-solid fa-rotate-left text-[8px]"></i>
+                                    <span>Reset</span>
+                                </button>
+                                <button id="btn-timer-15s" onclick="setTimerSeconds(15)" class="py-1.5 px-2 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 font-bold text-[10px] uppercase shadow-sm cursor-pointer transition-all" title="Uji Coba Langsung 15 Detik Terakhir (Danger Red)">15s</button>
+
+                                <!-- Tombol Down Time di Timer (Muncul jika diperlukan) -->
+                                <button type="button" id="btn-toggle-downtime" onclick="toggleDownTimePanel()" class="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-rose-950/80 text-rose-300 hover:text-white border border-rose-500/40 hover:border-rose-500 font-bold text-[10px] uppercase shadow-sm flex items-center space-x-1 cursor-pointer transition-all" title="Tampilkan / Sembunyikan Panel Down Time KO (Shortcut: O)">
+                                    <i class="fa-solid fa-heart-pulse text-rose-400 animate-pulse text-[9px]"></i>
+                                    <span>Down Time</span>
+                                    <span id="badge-downtime-indicator" class="text-[8px] font-mono px-1 py-0.2 rounded bg-slate-700 text-gray-300 font-bold">OFF</span>
+                                </button>
+                            </div>
+
+                            <!-- Duration Quick Switcher -->
+                            <div class="flex flex-wrap items-center justify-center gap-1 text-[10px] w-full pt-0.5 border-t border-slate-800/80">
+                                <span class="text-[9px] uppercase font-bold text-gray-500 mr-0.5">Durasi:</span>
+                                <button type="button" onclick="setMatchDuration(180)" id="btn-dur-180" class="px-2 py-0.5 rounded-md font-bold bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition-all cursor-pointer">3:00</button>
+                                <button type="button" onclick="setMatchDuration(120)" id="btn-dur-120" class="px-2 py-0.5 rounded-md font-bold bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition-all cursor-pointer">2:00</button>
+                                <button type="button" onclick="setMatchDuration(90)" id="btn-dur-90" class="px-2 py-0.5 rounded-md font-bold bg-amber-400 text-slate-950 shadow-xs transition-all cursor-pointer">1:30</button>
+                                <button type="button" onclick="openCustomTimerPrompt()" id="btn-dur-custom" class="px-1.5 py-0.5 rounded-md font-bold bg-slate-800 text-amber-400 hover:bg-slate-700 border border-amber-500/30 transition-all cursor-pointer" title="Kustom"><i class="fa-solid fa-sliders text-[9px]"></i></button>
+                            </div>
+
+                            <!-- VS BADGE (DI BAWAH TIMER, TETAP DALAM SATU FRAME MERAH BIRU) -->
+                            <div class="flex items-center justify-center w-full py-0.5">
+                                <div class="flex-1 h-0.5 bg-gradient-to-r from-blue-500/70 via-blue-500/30 to-transparent"></div>
+                                <div class="mx-3 relative flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-full p-0.5 bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500 shadow-lg shadow-amber-500/20">
+                                        <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                                            <span class="text-amber-400 font-black text-xs tracking-wider">VS</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 h-0.5 bg-gradient-to-l from-rose-500/70 via-rose-500/30 to-transparent"></div>
+                            </div>
+
+                            <!-- DOWN TIME (KO) PANEL - MUNCUL JIKA DIPERLUKAN (DEFAULT: HIDDEN) -->
+                            <div id="panel-down-time" class="hidden w-full flex-col items-center justify-center space-y-2 p-3 rounded-2xl bg-slate-950/95 border border-rose-500/40 shadow-xl transition-all duration-300">
+                                <div class="flex items-center justify-between w-full px-0.5">
+                                    <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center">
+                                        <i class="fa-solid fa-heart-pulse text-rose-500 mr-1.5 animate-pulse"></i> Down Time (KO)
+                                    </span>
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="text-[9px] font-mono font-bold text-rose-400/90 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                                            WKF 10s RULE
+                                        </span>
+                                        <button type="button" onclick="toggleDownTimePanel(false)" class="text-gray-400 hover:text-white text-xs px-1 hover:bg-slate-800 rounded transition-all cursor-pointer" title="Tutup Panel Down Time">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Target Athlete Down Selection -->
+                                <div class="grid grid-cols-2 gap-1.5 w-full">
+                                    <button type="button" id="ko-target-ao" onclick="setKoTarget('ao')" class="py-1 px-2 rounded-lg text-[10px] font-bold uppercase transition-all bg-blue-600 text-white shadow-sm flex items-center justify-center space-x-1 ring-2 ring-blue-400 cursor-pointer">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                        <span>AO (Biru) KO</span>
+                                    </button>
+                                    <button type="button" id="ko-target-aka" onclick="setKoTarget('aka')" class="py-1 px-2 rounded-lg text-[10px] font-bold uppercase transition-all bg-slate-800 text-gray-400 hover:text-white hover:bg-slate-700 border border-slate-700 flex items-center justify-center space-x-1 cursor-pointer">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        <span>AKA (Merah) KO</span>
+                                    </button>
+                                </div>
+
+                                <!-- KO Countdown Display Box (White integer seconds without milliseconds) -->
+                                <div id="ko-timer-box" class="transition-all duration-300 w-full py-1.5 px-3 rounded-xl bg-slate-900 border-2 border-slate-700 shadow-inner flex flex-col items-center justify-center">
+                                    <div class="flex items-center justify-center">
+                                        <span id="ko-timer-display" class="text-4xl sm:text-5xl font-mono font-black text-white tracking-wider leading-none">
+                                            10
+                                        </span>
+                                    </div>
+                                    <span id="ko-status-badge" class="mt-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-slate-800 text-gray-300">
+                                        SIAP DIHITUNG
+                                    </span>
+                                </div>
+
+                                <!-- KO Control Buttons -->
+                                <div class="flex items-center space-x-1.5 w-full justify-center">
+                                    <button type="button" onclick="startKoTimer()" id="btn-ko-start" class="flex-1 py-1.5 px-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] uppercase shadow-sm flex items-center justify-center space-x-1 cursor-pointer transition-all" title="Mulai Hitung Mundur 10s KO (Shortcut: O)">
+                                        <i class="fa-solid fa-play text-[8px]"></i>
+                                        <span>Mulai 10s</span>
+                                    </button>
+                                    <button type="button" onclick="pauseKoTimer()" class="flex-1 py-1.5 px-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] uppercase shadow-sm flex items-center justify-center space-x-1 cursor-pointer transition-all" title="Jeda Hitungan KO (Shortcut: O)">
+                                        <i class="fa-solid fa-pause text-[8px]"></i>
+                                        <span>Jeda</span>
+                                    </button>
+                                    <button type="button" onclick="resetKoTimer()" class="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-[10px] uppercase shadow-sm border border-slate-700 flex items-center justify-center space-x-1 cursor-pointer transition-all" title="Reset Hitungan KO ke 10 Detik">
+                                        <i class="fa-solid fa-rotate-left text-[8px]"></i>
+                                        <span>Reset</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- ====================================
                          CORNER AKA (SUDUT MERAH - SEBELAH KANAN)
                          ==================================== -->
-                    <div class="rounded-3xl bg-gradient-to-b from-rose-950/70 via-slate-950 to-slate-950 border-2 border-rose-600/50 p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden">
+                    <div class="order-3 lg:order-3 rounded-3xl bg-gradient-to-b from-rose-950/70 via-slate-950 to-slate-950 border-2 border-rose-600/50 p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
                         <!-- Top Dojo Info with Flag (Right) -->
                         <div class="flex items-center justify-between border-b border-rose-900/40 pb-3">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md shadow-rose-600/30">
@@ -845,6 +1032,18 @@
                                     ATLET AKA
                                 </h3>
                                 <span class="text-xs text-rose-300/80 font-mono">Kontingen Utama</span>
+
+                                <!-- Quick Call Launcher AKA (Panggilan 1, 2, 3 Bersuara) -->
+                                <div class="flex items-center space-x-1.5 justify-center pt-2">
+                                    <button type="button" onclick="triggerAthleteCall('aka')" id="btn-quick-call-aka" class="px-3.5 py-1.5 rounded-full bg-rose-900/80 hover:bg-rose-800 text-rose-100 border border-rose-400/50 text-xs font-bold transition-all flex items-center space-x-2 shadow-sm cursor-pointer group" title="Panggil Atlet Sudut Merah AKA (Panggilan 1, 2, 3)">
+                                        <i class="fa-solid fa-bullhorn text-amber-400 group-hover:scale-110 transition-transform"></i>
+                                        <span id="quick-call-label-aka">Panggil AKA</span>
+                                        <span id="quick-call-badge-aka" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-rose-600 text-white border border-rose-400">Panggilan 1</span>
+                                    </button>
+                                    <button type="button" onclick="resetAthleteCall('aka')" class="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-gray-400 hover:text-white text-xs transition-all cursor-pointer" title="Reset Hitungan Panggilan AKA ke Panggilan 1">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -907,7 +1106,7 @@
                 </div>
 
                 <!-- ==============================================
-                     THE BOTTOM BROADCAST BAR (Exact Reference Image Layout: TATAMI - GIANT TIMER - CATEGORY)
+                     THE BOTTOM BROADCAST BAR (TATAMI - ARENA BROADCAST STATUS - CATEGORY & CLASS)
                      ============================================== -->
                 <div class="rounded-3xl bg-slate-900/90 border-2 border-slate-800 p-5 sm:p-6 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-6 relative">
                     <!-- Left: TATAMI Box -->
@@ -926,48 +1125,26 @@
                         </div>
                     </div>
 
-                    <!-- Center: GIANT TIMER & CONTROLS -->
-                    <div class="flex flex-col items-center justify-center space-y-3">
-                        <div id="timer-status-indicator" class="hidden px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-600 text-white animate-bounce shadow-lg shadow-red-600/50">
-                            <i class="fa-solid fa-flag-checkered mr-1"></i> SOREMADE / YAME (WAKTU HABIS)
+                    <!-- Center: ARENA CONTROL & BROADCAST BADGE -->
+                    <div class="flex flex-col items-center justify-center space-y-2 text-center">
+                        <div class="flex items-center space-x-3">
+                            <span class="px-3.5 py-1 rounded-full bg-slate-800/90 text-gray-300 text-xs font-mono font-bold border border-slate-700/80 flex items-center shadow-inner">
+                                <i class="fa-solid fa-trophy text-amber-400 mr-2"></i> Kejuaraan Karate Nasional Inkai
+                            </span>
                         </div>
-
-                        <!-- Massive Digital Clock -->
-                        <div id="scoreboard-timer-box" class="transition-all duration-300 px-8 py-3 rounded-2xl bg-slate-950 border-2 border-amber-500/40 shadow-2xl flex items-center justify-center">
-                            <div class="flex items-start">
-                                <span id="scoreboard-timer" class="text-5xl sm:text-7xl font-mono font-black text-white tracking-wider leading-none">
-                                    01:14
-                                </span>
-                                <sup id="scoreboard-timer-ms" class="text-2xl sm:text-3xl font-mono font-black text-white/90 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5">
-                                    .50
-                                </sup>
-                            </div>
-                        </div>
-
-                        <!-- Timer Control Buttons -->
-                        <div class="flex items-center space-x-2">
-                            <button onclick="startTimer()" id="btn-timer-start" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase shadow-sm flex items-center space-x-1" title="Mulai Timer (Shortcut: Spasi)">
-                                <i class="fa-solid fa-play text-[9px]"></i>
-                                <span>Start</span>
+                        <div class="flex flex-wrap items-center justify-center gap-2 pt-0.5">
+                            <button type="button" onclick="openSpectatorScoreboard()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 text-xs font-bold transition-all flex items-center space-x-1.5 shadow-sm cursor-pointer" title="Buka Jendela Khusus Layar Penonton / TV Matras">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                                <span>Layar Bersih Penonton</span>
                             </button>
-                            <button onclick="pauseTimer()" class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase shadow-sm flex items-center space-x-1" title="Jeda Timer (Shortcut: Spasi)">
-                                <i class="fa-solid fa-pause text-[9px]"></i>
-                                <span>Pause</span>
+                            <button type="button" onclick="toggleKeyboardShortcutsModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 border border-slate-700 text-xs font-bold transition-all flex items-center space-x-1.5 shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-keyboard text-xs"></i>
+                                <span>Shortcut (?)</span>
                             </button>
-                            <button onclick="resetTimer()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs uppercase shadow-sm flex items-center space-x-1" title="Reset Timer (Shortcut: R)">
-                                <i class="fa-solid fa-rotate-left text-[9px]"></i>
-                                <span>Reset</span>
+                            <button type="button" onclick="toggleScoreboardFullscreen()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white border border-slate-700 text-xs font-bold transition-all flex items-center space-x-1.5 shadow-sm cursor-pointer">
+                                <i id="fullscreen-inner-icon" class="fa-solid fa-expand text-xs"></i>
+                                <span>Layar Penuh (F)</span>
                             </button>
-                            <button id="btn-timer-10s" onclick="setTimerSeconds(10)" class="px-2.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 font-bold text-[10px] uppercase shadow-sm cursor-pointer" title="Uji Coba Langsung 10 Detik Terakhir (Danger Red)">10s Test</button>
-                        </div>
-
-                        <!-- Duration Selector -->
-                        <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs">
-                            <span class="text-[10px] uppercase font-bold text-gray-400 mr-1"><i class="fa-solid fa-stopwatch text-amber-400 mr-1"></i>Durasi:</span>
-                            <button type="button" onclick="setMatchDuration(180)" id="btn-dur-180" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition-all cursor-pointer">3:00 (Senior)</button>
-                            <button type="button" onclick="setMatchDuration(120)" id="btn-dur-120" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition-all cursor-pointer">2:00 (Junior)</button>
-                            <button type="button" onclick="setMatchDuration(90)" id="btn-dur-90" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-400 text-slate-950 shadow-xs transition-all cursor-pointer">1:30 (Anak)</button>
-                            <button type="button" onclick="openCustomTimerPrompt()" id="btn-dur-custom" class="px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-amber-400 hover:bg-slate-700 border border-amber-500/30 transition-all cursor-pointer">Kustom</button>
                         </div>
                     </div>
 
@@ -981,7 +1158,10 @@
                         </span>
                         <div class="flex items-center justify-center lg:justify-end space-x-2 pt-2">
                             <button onclick="resetMatchScore()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-bold transition-all">Reset Skor</button>
-                            <button onclick="declareWinner('DOJO ALFA (AKA)')" class="px-4 py-1.5 rounded-xl gold-gradient-bg text-slate-950 font-black text-xs uppercase tracking-wider shadow">Sahkan</button>
+                            <button type="button" onclick="openDeclareWinnerModal()" class="px-4 py-1.5 rounded-xl gold-gradient-bg text-slate-950 font-black text-xs uppercase tracking-wider shadow flex items-center space-x-1.5 cursor-pointer">
+                                <i class="fa-solid fa-trophy"></i>
+                                <span>Sahkan Pemenang</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1680,6 +1860,7 @@
                         <div class="flex items-center justify-between"><span class="text-gray-300">Reset Timer ke Awal:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-gray-200 font-bold">R</kbd></div>
                         <div class="flex items-center justify-between"><span class="text-gray-300">Ganti Durasi Siklus:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-gray-200 font-bold">T</kbd></div>
                         <div class="flex items-center justify-between"><span class="text-gray-300">Set 1.5m / 2m / 3m:</span> <kbd class="px-2 py-0.5 rounded bg-slate-700 text-amber-400 font-bold">1 / 2 / 3</kbd></div>
+                        <div class="flex items-center justify-between"><span class="text-gray-300">Down Time KO 10s:</span> <kbd class="px-2 py-0.5 rounded bg-rose-600 text-white font-bold">O</kbd></div>
                     </div>
                 </div>
 
@@ -1744,6 +1925,196 @@
         </div>
     </div>
 
+    <!-- ==============================================
+         MODAL: LAUNCHER PEMANGGILAN ATLET BERSUARA (WKF ANNOUNCER)
+         ============================================== -->
+    <div id="modal-athlete-announcer" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 animate-fadeIn">
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-5 text-slate-200">
+            <!-- Header Modal -->
+            <div class="flex items-start justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-amber-400/20">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black font-heading text-white">Launcher Pemanggilan Atlet</h3>
+                        <p class="text-gray-400 text-xs">Sistem Pengeras Suara Arena &amp; Penyiar Pertandingan Tatami WKF</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAthleteAnnouncerModal()" class="text-gray-400 hover:text-white text-lg p-1 hover:bg-slate-800 rounded-lg transition-all cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Target Selection Tabs: AO / AKA / KEDUANYA -->
+            <div class="space-y-1.5">
+                <label class="block text-gray-400 font-bold uppercase tracking-wider text-[11px]">Pilih Sasaran Pemanggilan:</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" id="tab-call-ao" onclick="setModalCallTarget('ao')" class="py-2.5 px-2 rounded-xl text-xs font-black transition-all bg-blue-600 text-white shadow-md border-2 border-blue-400 flex flex-col items-center justify-center space-y-0.5 cursor-pointer">
+                        <span>AO (Biru)</span>
+                        <span id="modal-badge-ao" class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-blue-900/80 text-blue-200 font-bold">Panggilan 1</span>
+                    </button>
+                    <button type="button" id="tab-call-aka" onclick="setModalCallTarget('aka')" class="py-2.5 px-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-gray-400 hover:text-white border border-slate-700 flex flex-col items-center justify-center space-y-0.5 cursor-pointer">
+                        <span>AKA (Merah)</span>
+                        <span id="modal-badge-aka" class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-slate-700 text-gray-300 font-bold">Panggilan 1</span>
+                    </button>
+                    <button type="button" id="tab-call-both" onclick="setModalCallTarget('both')" class="py-2.5 px-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-gray-400 hover:text-white border border-slate-700 flex flex-col items-center justify-center space-y-0.5 cursor-pointer">
+                        <span>Kedua Sudut</span>
+                        <span id="modal-badge-both" class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-slate-700 text-gray-300 font-bold">Panggilan 1</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Call Level Selector (Panggilan 1, 2, 3) -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Tahap Panggilan:</label>
+                    <span id="call-stage-desc" class="text-[11px] font-mono font-bold text-amber-400">Panggilan Pertama (Bersiap)</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" id="btn-call-lvl-1" onclick="setModalCallLevel(1)" class="py-2 rounded-xl text-xs font-black bg-amber-400 text-slate-950 shadow-md border border-amber-300 flex items-center justify-center space-x-1 cursor-pointer">
+                        <i class="fa-solid fa-1"></i>
+                        <span>Pertama</span>
+                    </button>
+                    <button type="button" id="btn-call-lvl-2" onclick="setModalCallLevel(2)" class="py-2 rounded-xl text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700 flex items-center justify-center space-x-1 cursor-pointer">
+                        <i class="fa-solid fa-2"></i>
+                        <span>Kedua</span>
+                    </button>
+                    <button type="button" id="btn-call-lvl-3" onclick="setModalCallLevel(3)" class="py-2 rounded-xl text-xs font-bold bg-slate-800 text-gray-400 hover:text-rose-400 border border-slate-700 flex items-center justify-center space-x-1 cursor-pointer">
+                        <i class="fa-solid fa-3"></i>
+                        <span>Ketiga (Kiken)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Spoken Text Preview (Editable) -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Teks Pengumuman Suara (TTS Indonesia):</label>
+                    <button type="button" onclick="refreshModalAnnouncementText()" class="text-[10px] text-amber-400 hover:underline flex items-center space-x-1 cursor-pointer">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Perbarui dari Papan</span>
+                    </button>
+                </div>
+                <div class="relative">
+                    <textarea id="modal-spoken-text" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-3 text-white text-xs font-sans leading-relaxed focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 resize-none shadow-inner" placeholder="Teks yang akan dibacakan oleh sistem audio..."></textarea>
+                    <!-- Audio Wave Speaking Indicator -->
+                    <div id="speaking-wave-indicator" class="hidden absolute bottom-3 right-3 flex items-center space-x-1 bg-amber-400/20 border border-amber-400/40 px-2 py-0.5 rounded-full">
+                        <span class="w-1.5 h-3 bg-amber-400 rounded-full animate-pulse"></span>
+                        <span class="w-1.5 h-5 bg-amber-400 rounded-full animate-bounce"></span>
+                        <span class="w-1.5 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-mono font-bold text-amber-400 ml-1">BERBICARA...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons: BUNYIKAN SUARA PANGGILAN -->
+            <div class="space-y-2 pt-1">
+                <button type="button" id="btn-execute-call" onclick="executeModalCall()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center space-x-2 transition-all cursor-pointer">
+                    <i class="fa-solid fa-volume-high text-base"></i>
+                    <span id="btn-execute-call-text">Bunyikan Panggilan Pertama</span>
+                </button>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="playStadiumChimeOnly()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-[11px] font-bold border border-slate-700 flex items-center justify-center space-x-1.5 transition-all cursor-pointer" title="Bunyikan nada lonceng stadion saja tanpa suara">
+                        <i class="fa-solid fa-bell text-amber-400"></i>
+                        <span>Bel Arena</span>
+                    </button>
+                    <button type="button" onclick="stopSpeechSynthesis()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-rose-950 text-rose-300 hover:text-white text-[11px] font-bold border border-rose-900/50 flex items-center justify-center space-x-1.5 transition-all cursor-pointer" title="Hentikan pengumuman suara seketika">
+                        <i class="fa-solid fa-stop text-rose-500"></i>
+                        <span>Stop Suara</span>
+                    </button>
+                    <button type="button" onclick="resetCurrentModalTargetCall()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-[11px] font-bold border border-slate-700 flex items-center justify-center space-x-1.5 transition-all cursor-pointer" title="Reset hitungan target ini ke Panggilan 1">
+                        <i class="fa-solid fa-rotate-left text-amber-400"></i>
+                        <span>Reset ke 1</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         MODAL: PENGESAHAN PEMENANG RESMI WKF (WINNER CELEBRATION CONTROL)
+         ============================================== -->
+    <div id="modal-declare-winner" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center z-50 p-4 animate-fadeIn">
+        <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-5 text-slate-200">
+            <!-- Header Modal -->
+            <div class="flex items-start justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-amber-400/30">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black font-heading text-white">Sahkan Pemenang Partai</h3>
+                        <p class="text-gray-400 text-xs">Papan Penonton akan Menyatukan Layar &amp; Menyalakan Pesta Kemenangan</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeDeclareWinnerModal()" class="text-gray-400 hover:text-white text-lg p-1 hover:bg-slate-800 rounded-lg transition-all cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Current Match Score Recap Card -->
+            <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4 space-y-3">
+                <div class="flex items-center justify-between text-gray-400 text-[11px] font-bold uppercase tracking-wider">
+                    <span>Posisi Skor Terkini:</span>
+                    <span id="declare-winner-lead-status" class="text-amber-400 font-mono font-black">MEMIMPIN: AKA</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- AO Corner Box -->
+                    <div class="p-3 rounded-xl bg-blue-950/40 border-2 border-blue-600/50 flex flex-col justify-between space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-600 text-white">AO (BIRU)</span>
+                            <span id="declare-score-ao" class="text-2xl font-mono font-black text-white">3</span>
+                        </div>
+                        <div>
+                            <div id="declare-name-ao" class="font-black text-white truncate text-sm">ATLET AO</div>
+                            <div id="declare-dojo-ao" class="text-[10px] text-blue-300 truncate">DOJO LAWAN</div>
+                        </div>
+                    </div>
+
+                    <!-- AKA Corner Box -->
+                    <div class="p-3 rounded-xl bg-rose-950/40 border-2 border-rose-600/50 flex flex-col justify-between space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-600 text-white">AKA (MERAH)</span>
+                            <span id="declare-score-aka" class="text-2xl font-mono font-black text-white">6</span>
+                        </div>
+                        <div>
+                            <div id="declare-name-aka" class="font-black text-white truncate text-sm">ATLET AKA</div>
+                            <div id="declare-dojo-aka" class="text-[10px] text-rose-300 truncate">DOJO ALFA</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direct Corner Winner Selection Buttons -->
+            <div class="space-y-2">
+                <label class="block text-gray-400 font-bold uppercase tracking-wider text-[11px]">Pilih Sudut yang Dinyatakan Juara:</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button type="button" onclick="declareWinnerByCorner('ao')" class="py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2 transition-all cursor-pointer border border-blue-400/40">
+                        <i class="fa-solid fa-crown text-amber-300"></i>
+                        <span>Sahkan Sudut AO (Biru)</span>
+                    </button>
+                    <button type="button" onclick="declareWinnerByCorner('aka')" class="py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-rose-600/30 flex items-center justify-center space-x-2 transition-all cursor-pointer border border-rose-400/40">
+                        <i class="fa-solid fa-crown text-amber-300"></i>
+                        <span>Sahkan Sudut AKA (Merah)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dismiss / Screen Controls -->
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-gray-400">
+                <button type="button" onclick="dismissWinnerCelebration()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-[11px] font-bold border border-slate-700 flex items-center space-x-1.5 transition-all cursor-pointer" title="Kembalikan layar penonton ke tampilan arena normal">
+                    <i class="fa-solid fa-rotate-left text-amber-400"></i>
+                    <span>Tutup Layar Perayaan</span>
+                </button>
+                <button type="button" onclick="closeDeclareWinnerModal()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-bold transition-all cursor-pointer">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 transform translate-y-32 transition-transform duration-300 flex items-center space-x-3 text-xs">
         <div class="w-7 h-7 rounded-full gold-gradient-bg flex items-center justify-center text-slate-950 font-bold text-xs">
@@ -1768,6 +2139,129 @@
         let timerRemainingMs = 74500; // 01:14.50 (Sesuai display referensi WKF)
         let timerLastTick = null;
         let timerInterval = null;
+        let currentTatamiNumber = '1';
+        let scoreboardBroadcastChannel = null;
+
+        // Inisialisasi Kanal Sinkronisasi Real-Time Layar Penonton
+        function initScoreboardBroadcastChannel() {
+            if (scoreboardBroadcastChannel) {
+                try { scoreboardBroadcastChannel.close(); } catch(e){}
+            }
+            if (typeof BroadcastChannel !== 'undefined') {
+                scoreboardBroadcastChannel = new BroadcastChannel(`majestigers_tatami_${currentTatamiNumber}`);
+                scoreboardBroadcastChannel.onmessage = (e) => {
+                    if (e.data && e.data.type === 'REQUEST_CURRENT_STATE') {
+                        broadcastScoreboardState();
+                    }
+                };
+            }
+        }
+
+        // Pancarkan State Scoreboard ke Layar Penonton (0ms BroadcastChannel + Fallback localStorage)
+        function broadcastScoreboardState() {
+            const isPanelKo = !document.getElementById('panel-down-time')?.classList.contains('hidden');
+            const matchTitleText = document.getElementById('scoring-match-title')?.innerText || 'PARTAI #18 • KUMITE PERORANGAN';
+            const aoDojo = document.getElementById('scoring-ao-dojo')?.innerText || 'DOJO LAWAN';
+            const aoAffil = document.getElementById('scoring-ao-affil')?.innerText || 'INKANAS JAWA TIMUR';
+            const aoName = document.getElementById('scoring-ao-name')?.innerText || 'ATLET AO';
+            const aoPhoto = document.getElementById('scoring-ao-photo')?.getAttribute('src') || 'img/athlete_ao.jpg';
+
+            const akaDojo = document.getElementById('scoring-aka-dojo')?.innerText || 'DOJO ALFA';
+            const akaAffil = document.getElementById('scoring-aka-affil')?.innerText || 'INKANAS INDONESIA';
+            const akaName = document.getElementById('scoring-aka-name')?.innerText || 'ATLET AKA';
+            const akaPhoto = document.getElementById('scoring-aka-photo')?.getAttribute('src') || 'img/athlete_aka.jpg';
+
+            const matchClassText = document.getElementById('scoring-match-class')?.innerText || 'Pra Pemula Putra -50Kg';
+
+            const payload = {
+                type: 'STATE_UPDATE',
+                data: {
+                    tatami: currentTatamiNumber,
+                    tatamiLabel: currentTatamiNumber === '2' ? 'Matras 2 (Arena Utama)' : `Matras ${currentTatamiNumber}`,
+                    matchTitle: matchTitleText,
+                    category: 'Kumite Perorangan',
+                    matchClass: matchClassText,
+                    stage: 'BABAK 8 BESAR • PEREMPAT FINAL',
+                    ao: {
+                        name: aoName,
+                        dojo: aoDojo,
+                        affil: aoAffil,
+                        photo: aoPhoto,
+                        score: currentScoreAo,
+                        senshu: senshuAo,
+                        penalty: penaltyAo
+                    },
+                    aka: {
+                        name: akaName,
+                        dojo: akaDojo,
+                        affil: akaAffil,
+                        photo: akaPhoto,
+                        score: currentScoreAka,
+                        senshu: senshuAka,
+                        penalty: penaltyAka
+                    },
+                    timerRemainingMs: timerRemainingMs,
+                    isTimerRunning: !!timerInterval,
+                    ko: {
+                        isActive: isPanelKo,
+                        target: koTargetCorner,
+                        remainingMs: koRemainingMs,
+                        isRunning: !!koInterval
+                    }
+                }
+            };
+
+            // Broadcast via BroadcastChannel (0ms latency antar-tab/window)
+            if (scoreboardBroadcastChannel) {
+                try {
+                    scoreboardBroadcastChannel.postMessage(payload);
+                } catch(err) {}
+            }
+
+            // Fallback via localStorage (cross-window storage event)
+            try {
+                localStorage.setItem(`majestigers_sync_tatami_${currentTatamiNumber}`, JSON.stringify(payload));
+            } catch(e) {}
+        }
+
+        // Buka Layar Penonton di Window Terpisah (Dual-Screen / Extended Monitor Ready)
+        function openSpectatorScoreboard() {
+            const url = `scoreboard.html?tatami=${currentTatamiNumber}`;
+            const specWindow = window.open(url, `MajestigersScoreboard_Tatami_${currentTatamiNumber}`, 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
+            if (specWindow) {
+                specWindow.focus();
+                showToast(`Layar Bersih Penonton (Tatami ${currentTatamiNumber}) berhasil dibuka! Geser ke TV Matras.`);
+                setTimeout(() => {
+                    broadcastScoreboardState();
+                }, 500);
+            } else {
+                showToast('Pop-up diblokir browser! Izinkan pop-up untuk membuka Layar Penonton.');
+            }
+        }
+
+        // Salin Tautan Browser Source untuk OBS Studio / vMix
+        function copyObsOverlayLink() {
+            const baseUrl = window.location.origin + window.location.pathname.replace(/admin(\.html)?$/, '');
+            const obsUrl = `${baseUrl}scoreboard.html?tatami=${currentTatamiNumber}&overlay=1`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(obsUrl).then(() => {
+                    showToast(`Link OBS Overlay Tatami ${currentTatamiNumber} disalin ke clipboard!`);
+                }).catch(() => {
+                    prompt('Salin link browser source OBS berikut:', obsUrl);
+                });
+            } else {
+                prompt('Salin link browser source OBS berikut:', obsUrl);
+            }
+        }
+
+        // Trigger Sirine Suara WKF ke Layar Penonton & Controller
+        function triggerRemoteHorn() {
+            playKoBuzzer();
+            if (scoreboardBroadcastChannel) {
+                scoreboardBroadcastChannel.postMessage({ type: 'TRIGGER_HORN', duration: 1.2, freq: 440 });
+            }
+            showToast('Sirine pertandingan dibunyikan di semua layar tatami!');
+        }
 
         window.addEventListener('DOMContentLoaded', async () => {
             // Guard halaman: Hanya izinkan role ADMIN
@@ -1785,15 +2279,24 @@
             // Inisialisasi Security & Concurrency Sentinel Listener
             initSecuritySentinelListeners();
 
+            // Inisialisasi kanal sync scoreboard
+            initScoreboardBroadcastChannel();
+
             // Inisialisasi tampilan scoreboard WKF (Skor, Penalti, Senshu, Timer)
             updateScoreDisplays();
             updatePenaltyDisplays();
             updateSenshuDisplays();
             updateTimerDisplay();
             updateDurationButtons(DEFAULT_MATCH_SECONDS);
+            updateKoDisplay();
+            broadcastScoreboardState();
 
             // Inisialisasi shortcut keyboard wasit juri
             initKeyboardShortcuts();
+
+            // Inisialisasi Launcher Suara Pemanggilan Atlet
+            initVoiceSynthesis();
+            updateQuickCallButtons();
         });
 
         async function loadLiveAdminData() {
@@ -1845,6 +2348,7 @@
             if (typeof match.akaScore === 'number' && match.akaScore > 0) currentScoreAka = match.akaScore;
             if (typeof match.aoScore === 'number' && match.aoScore > 0) currentScoreAo = match.aoScore;
             updateScoreDisplays();
+            broadcastScoreboardState();
         }
 
         // Tab Navigation Switcher (Bright / Light Theme Aware)
@@ -1872,13 +2376,14 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Timer Countdown Controls (Millisecond Precision & Danger Red for Final 10 Seconds)
+        // Timer Countdown Controls (Millisecond Precision, Danger Red for Final 15 Seconds & Yellow on Stop)
         function startTimer() {
             if (timerInterval) return;
             const startBtn = document.getElementById('btn-timer-start');
             if (startBtn) startBtn.innerText = 'Running...';
             
             timerLastTick = performance.now();
+            let syncCounter = 0;
             timerInterval = setInterval(() => {
                 const now = performance.now();
                 const delta = now - timerLastTick;
@@ -1889,12 +2394,20 @@
                     updateTimerDisplay();
                 }
 
+                syncCounter++;
+                if (syncCounter % 4 === 0) {
+                    broadcastScoreboardState();
+                }
+
                 if (timerRemainingMs <= 0) {
                     pauseTimer();
                     updateTimerDisplay();
+                    triggerRemoteHorn();
+                    broadcastScoreboardState();
                     showToast('Waktu Pertandingan Kumite Habis! (SOREMADE / YAME)');
                 }
             }, 30); // ~33fps smooth millisecond update
+            broadcastScoreboardState();
         }
 
         function pauseTimer() {
@@ -1904,18 +2417,21 @@
             }
             const startBtn = document.getElementById('btn-timer-start');
             if (startBtn) startBtn.innerText = 'Start';
+            broadcastScoreboardState();
         }
 
         function resetTimer() {
             pauseTimer();
             timerRemainingMs = DEFAULT_MATCH_SECONDS * 1000;
             updateTimerDisplay();
+            broadcastScoreboardState();
         }
 
         function setTimerSeconds(sec) {
             pauseTimer();
             timerRemainingMs = sec * 1000;
             updateTimerDisplay();
+            broadcastScoreboardState();
         }
 
         // Pengaturan Durasi Pertandingan (3 Menit, 2 Menit, 1.5 Menit, atau Kustom)
@@ -1925,6 +2441,7 @@
             timerRemainingMs = sec * 1000;
             updateTimerDisplay();
             updateDurationButtons(sec);
+            broadcastScoreboardState();
             if (showToastMsg) {
                 const m = Math.floor(sec / 60);
                 const s = sec % 60;
@@ -2073,40 +2590,42 @@
                 timerMsEl.innerText = `.${ms}`;
             }
 
-            // Mode Danger Merah 10 Detik Terakhir (Atoshi Baraku)
-            const isDangerZone = totalMs <= 10000 && totalMs > 0;
+            // Mode Danger Merah 15 Detik Terakhir (Atoshi Baraku)
+            const isDangerZone = totalMs <= 15000 && totalMs > 0;
             const isFinished = totalMs === 0;
 
             if (timerEl && timerBox) {
                 if (isDangerZone) {
-                    // Warna merah menyala intens (Danger Red 10s)
-                    timerEl.className = 'text-5xl sm:text-7xl font-mono font-black text-rose-500 tracking-wider leading-none animate-pulse';
+                    // Warna merah menyala intens (Danger Red 15s - Atoshi Baraku)
+                    timerEl.className = 'text-4xl sm:text-5xl font-mono font-black text-rose-500 tracking-wider leading-none animate-pulse';
                     if (timerMsEl) {
-                        timerMsEl.className = 'text-2xl sm:text-3xl font-mono font-black text-rose-500 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5 animate-pulse';
+                        timerMsEl.className = 'text-xl sm:text-2xl font-mono font-black text-rose-500 ml-1 leading-none tracking-normal select-none relative -top-1 animate-pulse';
                     }
-                    timerBox.className = 'transition-all duration-300 px-8 py-3 rounded-2xl bg-rose-950/90 border-2 border-rose-500 shadow-2xl shadow-rose-600/50 ring-4 ring-rose-500/30 flex items-center justify-center';
-                    if (indicator) {
-                        indicator.classList.add('hidden');
-                    }
-                } else if (isFinished) {
-                    // Waktu Habis (00:00.00) - Timer Berdenyut Intens (Pulsing Red)
-                    timerEl.className = 'text-5xl sm:text-7xl font-mono font-black text-rose-500 tracking-wider leading-none animate-pulse';
-                    if (timerMsEl) {
-                        timerMsEl.className = 'text-2xl sm:text-3xl font-mono font-black text-rose-500 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5 animate-pulse';
-                    }
-                    timerBox.className = 'transition-all duration-300 px-8 py-3 rounded-2xl bg-red-950 border-4 border-red-500 shadow-2xl shadow-red-600/70 ring-8 ring-red-500/50 flex items-center justify-center animate-pulse';
+                    timerBox.className = 'transition-all duration-300 w-full py-2 px-4 rounded-2xl bg-rose-950/90 border-2 border-rose-500 shadow-2xl shadow-rose-600/50 ring-4 ring-rose-500/30 flex items-center justify-center';
                     if (indicator) {
                         indicator.classList.remove('hidden');
-                        indicator.className = 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-600 text-white animate-bounce shadow-lg shadow-red-600/50';
+                        indicator.className = 'px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white animate-pulse shadow-md shadow-rose-600/50';
+                        indicator.innerHTML = '<i class="fa-solid fa-bell mr-1"></i> ATOSHI BARAKU (15s)';
+                    }
+                } else if (isFinished) {
+                    // Waktu Habis / Timer Berhenti (00:00.00) - Kuning Menyala Elegan (Soremade)
+                    timerEl.className = 'text-4xl sm:text-5xl font-mono font-black text-amber-400 tracking-wider leading-none drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]';
+                    if (timerMsEl) {
+                        timerMsEl.className = 'text-xl sm:text-2xl font-mono font-black text-amber-400 ml-1 leading-none tracking-normal select-none relative -top-1';
+                    }
+                    timerBox.className = 'transition-all duration-300 w-full py-2 px-4 rounded-2xl bg-amber-950/80 border-4 border-amber-400 shadow-2xl shadow-amber-500/40 ring-4 ring-amber-400/30 flex items-center justify-center';
+                    if (indicator) {
+                        indicator.classList.remove('hidden');
+                        indicator.className = 'px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 animate-bounce shadow-lg shadow-amber-500/50 font-bold';
                         indicator.innerHTML = '<i class="fa-solid fa-flag-checkered mr-1"></i> SOREMADE / YAME (WAKTU HABIS)';
                     }
                 } else {
-                    // Waktu Normal (> 10s)
-                    timerEl.className = 'text-5xl sm:text-7xl font-mono font-black text-white tracking-wider leading-none drop-shadow-md';
+                    // Waktu Normal (> 15s)
+                    timerEl.className = 'text-4xl sm:text-5xl font-mono font-black text-white tracking-wider leading-none drop-shadow-md';
                     if (timerMsEl) {
-                        timerMsEl.className = 'text-2xl sm:text-3xl font-mono font-black text-white/90 ml-1.5 leading-none tracking-normal select-none relative -top-1.5 sm:-top-2.5';
+                        timerMsEl.className = 'text-xl sm:text-2xl font-mono font-black text-white/90 ml-1 leading-none tracking-normal select-none relative -top-1';
                     }
-                    timerBox.className = 'transition-all duration-300 px-8 py-3 rounded-2xl bg-slate-950 border-2 border-amber-500/40 shadow-2xl flex items-center justify-center';
+                    timerBox.className = 'transition-all duration-300 w-full py-2 px-4 rounded-2xl bg-slate-950 border-2 border-amber-500/40 shadow-2xl flex items-center justify-center';
                     if (indicator) {
                         indicator.classList.add('hidden');
                     }
@@ -2114,8 +2633,561 @@
             }
         }
 
+        // ==============================================
+        // WKF 10-SECOND RULE: DOWN TIME UNTUK ATLET KO
+        // ==============================================
+        let koTargetCorner = 'ao'; // 'ao' | 'aka'
+        let koRemainingMs = 10000; // 10 detik default
+        let koInterval = null;
+        let koLastTick = null;
+
+        // Toggle Tampilan Panel Down Time KO (Muncul jika diperlukan)
+        function toggleDownTimePanel(forceState = null) {
+            const panel = document.getElementById('panel-down-time');
+            const badge = document.getElementById('badge-downtime-indicator');
+            const btn = document.getElementById('btn-toggle-downtime');
+            if (!panel) return;
+
+            let willShow;
+            if (typeof forceState === 'boolean') {
+                willShow = forceState;
+            } else {
+                willShow = panel.classList.contains('hidden');
+            }
+
+            if (willShow) {
+                panel.classList.remove('hidden');
+                panel.classList.add('flex');
+                if (badge) {
+                    badge.innerText = 'ON';
+                    badge.className = 'text-[8px] font-mono px-1 py-0.2 rounded bg-rose-500 text-white font-black animate-pulse';
+                }
+                if (btn) {
+                    btn.className = 'py-1.5 px-2.5 rounded-lg bg-rose-900/80 text-white border border-rose-400 font-bold text-[10px] uppercase shadow-md shadow-rose-900/40 flex items-center space-x-1 cursor-pointer transition-all';
+                }
+                showToast('Panel Down Time (KO 10s Rule) Ditampilkan');
+            } else {
+                panel.classList.add('hidden');
+                panel.classList.remove('flex');
+                if (badge) {
+                    badge.innerText = 'OFF';
+                    badge.className = 'text-[8px] font-mono px-1 py-0.2 rounded bg-slate-700 text-gray-300 font-bold';
+                }
+                if (btn) {
+                    btn.className = 'py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-rose-950/80 text-rose-300 hover:text-white border border-rose-500/40 hover:border-rose-500 font-bold text-[10px] uppercase shadow-sm flex items-center space-x-1 cursor-pointer transition-all';
+                }
+            }
+            broadcastScoreboardState();
+        }
+
+        function setKoTarget(corner) {
+            koTargetCorner = corner;
+            const btnAo = document.getElementById('ko-target-ao');
+            const btnAka = document.getElementById('ko-target-aka');
+            if (btnAo && btnAka) {
+                if (corner === 'ao') {
+                    btnAo.className = 'py-1 px-2 rounded-lg text-[10px] font-bold uppercase transition-all bg-blue-600 text-white shadow-sm flex items-center justify-center space-x-1 ring-2 ring-blue-400';
+                    btnAka.className = 'py-1 px-2 rounded-lg text-[10px] font-bold uppercase transition-all bg-slate-800 text-gray-400 hover:text-white hover:bg-slate-700 border border-slate-700 flex items-center justify-center space-x-1';
+                } else {
+                    btnAka.className = 'py-1 px-2 rounded-lg text-[10px] font-bold uppercase transition-all bg-rose-600 text-white shadow-sm flex items-center justify-center space-x-1 ring-2 ring-rose-400';
+                    btnAo.className = 'py-1 px-2 rounded-lg text-[10px] font-bold uppercase transition-all bg-slate-800 text-gray-400 hover:text-white hover:bg-slate-700 border border-slate-700 flex items-center justify-center space-x-1';
+                }
+            }
+            showToast(`Down Time KO dialihkan ke Atlet ${corner.toUpperCase()} (${corner === 'ao' ? 'Biru' : 'Merah'})`);
+            updateKoDisplay();
+            broadcastScoreboardState();
+        }
+
+        function startKoTimer() {
+            toggleDownTimePanel(true); // Pastikan panel terbuka jika timer dimulai
+            if (koInterval) return;
+            const startBtn = document.getElementById('btn-ko-start');
+            if (startBtn) startBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[8px]"></i><span>Running</span>';
+
+            koLastTick = performance.now();
+            let koSyncCount = 0;
+            koInterval = setInterval(() => {
+                const now = performance.now();
+                const delta = now - koLastTick;
+                koLastTick = now;
+
+                if (koRemainingMs > 0) {
+                    koRemainingMs = Math.max(0, koRemainingMs - delta);
+                    updateKoDisplay();
+                }
+
+                koSyncCount++;
+                if (koSyncCount % 4 === 0) {
+                    broadcastScoreboardState();
+                }
+
+                if (koRemainingMs <= 0) {
+                    pauseKoTimer();
+                    updateKoDisplay();
+                    const athleteLabel = koTargetCorner === 'ao' ? 'AO (Biru)' : 'AKA (Merah)';
+                    showToast(`⚠️ WAKTU HABIS! Atlet ${athleteLabel} terkena Aturan 10 Detik WKF (UNFIT / KIKEN)!`);
+                    triggerRemoteHorn();
+                    broadcastScoreboardState();
+                }
+            }, 30);
+            updateKoDisplay();
+            broadcastScoreboardState();
+        }
+
+        function pauseKoTimer() {
+            if (koInterval) {
+                clearInterval(koInterval);
+                koInterval = null;
+            }
+            const startBtn = document.getElementById('btn-ko-start');
+            if (startBtn) startBtn.innerHTML = '<i class="fa-solid fa-play text-[8px]"></i><span>Mulai 10s</span>';
+            updateKoDisplay();
+            broadcastScoreboardState();
+        }
+
+        function resetKoTimer(sec = 10) {
+            pauseKoTimer();
+            koRemainingMs = sec * 1000;
+            updateKoDisplay();
+            broadcastScoreboardState();
+            showToast('Down Time KO Direset ke 10 Detik');
+        }
+
+        function updateKoDisplay() {
+            const totalMs = Math.max(0, Math.round(koRemainingMs));
+            const sec = Math.ceil(totalMs / 1000);
+
+            const displayEl = document.getElementById('ko-timer-display');
+            const boxEl = document.getElementById('ko-timer-box');
+            const statusEl = document.getElementById('ko-status-badge');
+
+            if (displayEl) {
+                displayEl.innerText = sec;
+            }
+
+            const isRunning = koInterval !== null;
+            const isExpired = totalMs === 0;
+
+            if (boxEl && statusEl && displayEl) {
+                if (isExpired) {
+                    displayEl.className = 'text-4xl sm:text-5xl font-mono font-black text-white tracking-wider leading-none animate-pulse';
+                    boxEl.className = 'transition-all duration-300 w-full py-2 px-4 rounded-xl bg-slate-900 border-2 border-rose-500 shadow-lg flex flex-col items-center justify-center animate-pulse';
+                    statusEl.className = 'mt-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white animate-bounce shadow-md shadow-rose-600/50';
+                    statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> 10s HABIS (KIKEN / UNFIT)';
+                } else if (isRunning) {
+                    displayEl.className = 'text-4xl sm:text-5xl font-mono font-black text-white tracking-wider leading-none animate-pulse';
+                    boxEl.className = 'transition-all duration-300 w-full py-2 px-4 rounded-xl bg-slate-900 border-2 border-amber-400 shadow-md flex flex-col items-center justify-center';
+                    statusEl.className = 'mt-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 font-bold';
+                    statusEl.innerHTML = `<i class="fa-solid fa-heart-pulse mr-1 animate-pulse"></i> HITUNGAN AKTIF (${koTargetCorner.toUpperCase()})`;
+                } else {
+                    displayEl.className = 'text-4xl sm:text-5xl font-mono font-black text-white tracking-wider leading-none';
+                    boxEl.className = 'transition-all duration-300 w-full py-2 px-4 rounded-xl bg-slate-900 border-2 border-slate-700 shadow-inner flex flex-col items-center justify-center';
+                    statusEl.className = 'mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-slate-800 text-gray-300';
+                    statusEl.innerHTML = 'SIAP DIHITUNG';
+                }
+            }
+        }
+
+        // Web Audio API Synthesizer Buzzer untuk Waktu KO Habis (Bebas dari file eksternal)
+        function playKoBuzzer() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(520, ctx.currentTime);
+                osc.frequency.setValueAtTime(260, ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.35, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.7);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.7);
+            } catch(e) {
+                // Browser auto-play policy fallback
+            }
+        }
+
+        // ==============================================
+        // LAUNCHER PEMANGGILAN ATLET BERSUARA (WKF ANNOUNCER)
+        // ==============================================
+        let athleteCallState = {
+            ao: 1,
+            aka: 1,
+            both: 1
+        };
+        let modalSelectedTarget = 'ao';
+        let modalSelectedLevel = 1;
+        let isAnnouncerSpeaking = false;
+        let indonesianVoice = null;
+
+        function initVoiceSynthesis() {
+            if (!('speechSynthesis' in window)) return;
+            const findIndonesian = () => {
+                const voices = window.speechSynthesis.getVoices();
+                indonesianVoice = voices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id') || v.name.toLowerCase().includes('indonesia'));
+            };
+            findIndonesian();
+            window.speechSynthesis.onvoiceschanged = findIndonesian;
+        }
+
+        function playStadiumChime(callback) {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) {
+                    if (callback) callback();
+                    return;
+                }
+                const ctx = new AudioCtx();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+
+                const now = ctx.currentTime;
+                // Nada 1: 587.33 Hz (D5)
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(587.33, now);
+                gain1.gain.setValueAtTime(0.35, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.35);
+
+                // Nada 2: 880.00 Hz (A5)
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(880, now + 0.22);
+                gain2.gain.setValueAtTime(0.35, now + 0.22);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + 0.22);
+                osc2.stop(now + 0.7);
+
+                setTimeout(() => {
+                    if (callback) callback();
+                }, 750);
+            } catch (e) {
+                if (callback) callback();
+            }
+        }
+
+        function playStadiumChimeOnly() {
+            playStadiumChime();
+            showToast('🔔 Nada Lonceng Arena Dibunyikan');
+        }
+
+        function speakAnnouncement(text, onComplete) {
+            if (!('speechSynthesis' in window)) {
+                showToast('Fitur Text-to-Speech tidak didukung pada browser ini.');
+                if (onComplete) onComplete();
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            if (indonesianVoice) {
+                utterance.voice = indonesianVoice;
+            }
+
+            setAnnouncerSpeakingUI(true);
+
+            utterance.onend = () => {
+                setAnnouncerSpeakingUI(false);
+                if (onComplete) onComplete();
+            };
+            utterance.onerror = () => {
+                setAnnouncerSpeakingUI(false);
+                if (onComplete) onComplete();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopSpeechSynthesis() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            setAnnouncerSpeakingUI(false);
+            showToast('Pengumuman suara dihentikan.');
+        }
+
+        function setAnnouncerSpeakingUI(speaking) {
+            isAnnouncerSpeaking = speaking;
+            const indicator = document.getElementById('speaking-wave-indicator');
+            if (indicator) {
+                if (speaking) {
+                    indicator.classList.remove('hidden');
+                    indicator.classList.add('flex');
+                } else {
+                    indicator.classList.add('hidden');
+                    indicator.classList.remove('flex');
+                }
+            }
+        }
+
+        function getAnnouncementText(corner, callNumber) {
+            const callNames = {
+                1: 'Panggilan pertama',
+                2: 'Panggilan kedua',
+                3: 'Panggilan ketiga dan terakhir'
+            };
+            const callPhrase = callNames[callNumber] || `Panggilan ke ${callNumber}`;
+            const tatamiNum = currentTatamiNumber || '1';
+
+            if (corner === 'both') {
+                const aoDojo = document.getElementById('scoring-ao-dojo')?.innerText.trim() || 'Dojo Singo Edan Malang';
+                const aoAffil = document.getElementById('scoring-ao-affil')?.innerText.trim() || 'INKANAS JAWA TIMUR';
+                const akaDojo = document.getElementById('scoring-aka-dojo')?.innerText.trim() || 'Dojo Alfa';
+                const akaAffil = document.getElementById('scoring-aka-affil')?.innerText.trim() || 'INKANAS INDONESIA';
+                
+                return `${callPhrase}. Sudut biru, ${aoDojo}, ${aoAffil}. Melawan sudut merah, ${akaDojo}, ${akaAffil}. Harap segera memasuki Tatami ${tatamiNum}.`;
+            }
+
+            const isAo = corner === 'ao';
+            const cornerName = isAo ? 'Sudut biru' : 'Sudut merah';
+            const dojoEl = document.getElementById(isAo ? 'scoring-ao-dojo' : 'scoring-aka-dojo');
+            const affilEl = document.getElementById(isAo ? 'scoring-ao-affil' : 'scoring-aka-affil');
+            const nameEl = document.getElementById(isAo ? 'scoring-ao-name' : 'scoring-aka-name');
+
+            const dojo = dojoEl ? dojoEl.innerText.trim() : (isAo ? 'Dojo Singo Edan Malang' : 'Dojo Alfa');
+            const affil = affilEl ? affilEl.innerText.trim() : (isAo ? 'INKANAS JAWA TIMUR' : 'INKANAS INDONESIA');
+            const athleteName = nameEl ? nameEl.innerText.trim() : '';
+
+            let text = `${callPhrase}. ${cornerName}`;
+            if (athleteName && !athleteName.toLowerCase().includes('atlet')) {
+                text += `, ${athleteName}`;
+            }
+            text += `, ${dojo}, ${affil}.`;
+
+            if (callNumber === 1) {
+                text += ` Harap segera bersiap memasuki Tatami ${tatamiNum}.`;
+            } else if (callNumber === 2) {
+                text += ` Harap segera memasuki arena Tatami ${tatamiNum}.`;
+            } else {
+                text += ` Peringatan terakhir, harap segera memasuki Tatami ${tatamiNum} sebelum dinyatakan Kiken!`;
+            }
+
+            return text;
+        }
+
+        // Trigger Panggilan Atlet Cepat (Quick Call) dari Sudut AO atau AKA
+        function triggerAthleteCall(corner) {
+            const currentCall = athleteCallState[corner] || 1;
+            const text = getAnnouncementText(corner, currentCall);
+
+            // Bunyikan nada lonceng stadion kemudian bacakan pengumuman
+            playStadiumChime(() => {
+                speakAnnouncement(text);
+            });
+
+            // Siarkan ke Layar Penonton / TV Matras
+            const isAo = corner === 'ao';
+            const dojo = document.getElementById(isAo ? 'scoring-ao-dojo' : 'scoring-aka-dojo')?.innerText.trim() || '';
+            const affil = document.getElementById(isAo ? 'scoring-ao-affil' : 'scoring-aka-affil')?.innerText.trim() || '';
+            const athlete = document.getElementById(isAo ? 'scoring-ao-name' : 'scoring-aka-name')?.innerText.trim() || '';
+            
+            if (scoreboardBroadcastChannel) {
+                scoreboardBroadcastChannel.postMessage({
+                    type: 'ANNOUNCE_ATHLETE',
+                    corner: corner,
+                    callNumber: currentCall,
+                    mainText: `${dojo} • ${affil}`,
+                    athleteName: athlete,
+                    subText: `Harap segera memasuki arena Tatami ${currentTatamiNumber}`,
+                    fullText: text
+                });
+            }
+
+            const cornerLabel = isAo ? 'Sudut Biru (AO)' : 'Sudut Merah (AKA)';
+            showToast(`📢 ${currentCall === 3 ? '⚠️ Panggilan ke-3 (TERAKHIR)' : `Panggilan ke-${currentCall}`} ${cornerLabel} Disuarakan!`);
+
+            // Siklus panggilan berikutnya: 1 -> 2 -> 3 -> 1
+            const nextCall = (currentCall % 3) + 1;
+            athleteCallState[corner] = nextCall;
+            updateQuickCallButtons();
+        }
+
+        function resetAthleteCall(corner) {
+            athleteCallState[corner] = 1;
+            stopSpeechSynthesis();
+            updateQuickCallButtons();
+            const cornerLabel = corner === 'ao' ? 'AO' : 'AKA';
+            showToast(`Hitungan panggilan ${cornerLabel} direset ke Panggilan 1.`);
+        }
+
+        function updateQuickCallButtons() {
+            // Update AO
+            const callAo = athleteCallState.ao;
+            const badgeAo = document.getElementById('quick-call-badge-ao');
+            const btnAo = document.getElementById('btn-quick-call-ao');
+            if (badgeAo) badgeAo.innerText = `Panggilan ${callAo}${callAo === 3 ? ' (Terakhir)' : ''}`;
+            if (btnAo) {
+                if (callAo === 3) {
+                    btnAo.className = 'px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white border border-rose-300 text-xs font-bold transition-all flex items-center space-x-2 shadow-lg animate-pulse cursor-pointer group';
+                } else if (callAo === 2) {
+                    btnAo.className = 'px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 text-xs font-bold transition-all flex items-center space-x-2 shadow-md cursor-pointer group';
+                } else {
+                    btnAo.className = 'px-3.5 py-1.5 rounded-full bg-blue-900/80 hover:bg-blue-800 text-blue-100 border border-blue-400/50 text-xs font-bold transition-all flex items-center space-x-2 shadow-sm cursor-pointer group';
+                }
+            }
+
+            // Update AKA
+            const callAka = athleteCallState.aka;
+            const badgeAka = document.getElementById('quick-call-badge-aka');
+            const btnAka = document.getElementById('btn-quick-call-aka');
+            if (badgeAka) badgeAka.innerText = `Panggilan ${callAka}${callAka === 3 ? ' (Terakhir)' : ''}`;
+            if (btnAka) {
+                if (callAka === 3) {
+                    btnAka.className = 'px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white border border-rose-300 text-xs font-bold transition-all flex items-center space-x-2 shadow-lg animate-pulse cursor-pointer group';
+                } else if (callAka === 2) {
+                    btnAka.className = 'px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 text-xs font-bold transition-all flex items-center space-x-2 shadow-md cursor-pointer group';
+                } else {
+                    btnAka.className = 'px-3.5 py-1.5 rounded-full bg-rose-900/80 hover:bg-rose-800 text-rose-100 border border-rose-400/50 text-xs font-bold transition-all flex items-center space-x-2 shadow-sm cursor-pointer group';
+                }
+            }
+
+            // Update modal badges
+            const modalBadgeAo = document.getElementById('modal-badge-ao');
+            const modalBadgeAka = document.getElementById('modal-badge-aka');
+            const modalBadgeBoth = document.getElementById('modal-badge-both');
+            if (modalBadgeAo) modalBadgeAo.innerText = `Panggilan ${athleteCallState.ao}`;
+            if (modalBadgeAka) modalBadgeAka.innerText = `Panggilan ${athleteCallState.aka}`;
+            if (modalBadgeBoth) modalBadgeBoth.innerText = `Panggilan ${athleteCallState.both}`;
+        }
+
+        // Modal Launcher Handlers
+        function openAthleteAnnouncerModal() {
+            const modal = document.getElementById('modal-athlete-announcer');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setModalCallTarget(modalSelectedTarget);
+            setModalCallLevel(athleteCallState[modalSelectedTarget] || 1);
+        }
+
+        function closeAthleteAnnouncerModal() {
+            const modal = document.getElementById('modal-athlete-announcer');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function setModalCallTarget(target) {
+            modalSelectedTarget = target;
+            ['ao', 'aka', 'both'].forEach(t => {
+                const btn = document.getElementById(`tab-call-${t}`);
+                if (!btn) return;
+                if (t === target) {
+                    if (t === 'ao') {
+                        btn.className = 'py-2.5 px-2 rounded-xl text-xs font-black transition-all bg-blue-600 text-white shadow-md border-2 border-blue-400 flex flex-col items-center justify-center space-y-0.5 cursor-pointer';
+                    } else if (t === 'aka') {
+                        btn.className = 'py-2.5 px-2 rounded-xl text-xs font-black transition-all bg-rose-600 text-white shadow-md border-2 border-rose-400 flex flex-col items-center justify-center space-y-0.5 cursor-pointer';
+                    } else {
+                        btn.className = 'py-2.5 px-2 rounded-xl text-xs font-black transition-all bg-amber-500 text-slate-950 shadow-md border-2 border-amber-300 flex flex-col items-center justify-center space-y-0.5 cursor-pointer';
+                    }
+                } else {
+                    btn.className = 'py-2.5 px-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-gray-400 hover:text-white border border-slate-700 flex flex-col items-center justify-center space-y-0.5 cursor-pointer';
+                }
+            });
+            setModalCallLevel(athleteCallState[target] || 1);
+        }
+
+        function setModalCallLevel(level) {
+            modalSelectedLevel = level;
+            [1, 2, 3].forEach(lvl => {
+                const btn = document.getElementById(`btn-call-lvl-${lvl}`);
+                if (!btn) return;
+                if (lvl === level) {
+                    if (lvl === 3) {
+                        btn.className = 'py-2 rounded-xl text-xs font-black bg-rose-600 text-white shadow-md border border-rose-400 flex items-center justify-center space-x-1 cursor-pointer animate-pulse';
+                    } else {
+                        btn.className = 'py-2 rounded-xl text-xs font-black bg-amber-400 text-slate-950 shadow-md border border-amber-300 flex items-center justify-center space-x-1 cursor-pointer';
+                    }
+                } else {
+                    btn.className = 'py-2 rounded-xl text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700 flex items-center justify-center space-x-1 cursor-pointer';
+                }
+            });
+
+            const descEl = document.getElementById('call-stage-desc');
+            if (descEl) {
+                if (level === 1) descEl.innerText = 'Panggilan Pertama (Bersiap Masuk)';
+                else if (level === 2) descEl.innerText = 'Panggilan Kedua (Segera Masuk Arena)';
+                else descEl.innerText = '⚠️ Panggilan Ketiga (Peringatan Terakhir / Kiken)';
+            }
+
+            const btnExec = document.getElementById('btn-execute-call-text');
+            if (btnExec) {
+                const names = { 1: 'Panggilan Pertama', 2: 'Panggilan Kedua', 3: 'Panggilan Ketiga (Terakhir)' };
+                btnExec.innerText = `Bunyikan ${names[level] || `Panggilan ${level}`}`;
+            }
+
+            refreshModalAnnouncementText();
+        }
+
+        function refreshModalAnnouncementText() {
+            const textarea = document.getElementById('modal-spoken-text');
+            if (textarea) {
+                textarea.value = getAnnouncementText(modalSelectedTarget, modalSelectedLevel);
+            }
+        }
+
+        function executeModalCall() {
+            const textarea = document.getElementById('modal-spoken-text');
+            const text = textarea ? textarea.value.trim() : getAnnouncementText(modalSelectedTarget, modalSelectedLevel);
+
+            playStadiumChime(() => {
+                speakAnnouncement(text);
+            });
+
+            // Siarkan ke Layar Penonton
+            const isAo = modalSelectedTarget === 'ao';
+            const isAka = modalSelectedTarget === 'aka';
+            const dojo = isAo ? (document.getElementById('scoring-ao-dojo')?.innerText || '') : (isAka ? (document.getElementById('scoring-aka-dojo')?.innerText || '') : 'AO & AKA');
+            const affil = isAo ? (document.getElementById('scoring-ao-affil')?.innerText || '') : (isAka ? (document.getElementById('scoring-aka-affil')?.innerText || '') : '');
+            
+            if (scoreboardBroadcastChannel) {
+                scoreboardBroadcastChannel.postMessage({
+                    type: 'ANNOUNCE_ATHLETE',
+                    corner: modalSelectedTarget,
+                    callNumber: modalSelectedLevel,
+                    mainText: `${dojo} ${affil ? '• ' + affil : ''}`,
+                    subText: `Harap segera memasuki arena Tatami ${currentTatamiNumber}`,
+                    fullText: text
+                });
+            }
+
+            showToast(`📢 Panggilan ke-${modalSelectedLevel} berhasil disuarakan!`);
+
+            // Tingkatkan level panggilan berikutnya
+            const nextLvl = (modalSelectedLevel % 3) + 1;
+            athleteCallState[modalSelectedTarget] = nextLvl;
+            updateQuickCallButtons();
+            setModalCallLevel(nextLvl);
+        }
+
+        function resetCurrentModalTargetCall() {
+            athleteCallState[modalSelectedTarget] = 1;
+            setModalCallLevel(1);
+            stopSpeechSynthesis();
+            updateQuickCallButtons();
+            showToast(`Hitungan panggilan target ${modalSelectedTarget.toUpperCase()} direset ke 1.`);
+        }
+
         // Tatami Arena Switcher
         function updateTatamiNumber(val) {
+            currentTatamiNumber = val;
             const numDisplay = document.getElementById('tatami-number-display');
             const labelDisplay = document.getElementById('tatami-label-display');
             const selector = document.getElementById('tatami-selector');
@@ -2124,6 +3196,8 @@
             if (labelDisplay) {
                 labelDisplay.innerText = val === '2' ? 'Matras 2 (Arena Utama)' : `Matras ${val}`;
             }
+            initScoreboardBroadcastChannel();
+            broadcastScoreboardState();
             showToast(`Arena beralih ke Tatami ${val}`);
         }
 
@@ -2135,6 +3209,7 @@
                 currentScoreAo += point;
             }
             updateScoreDisplays();
+            broadcastScoreboardState();
 
             // Simpan skor real-time ke Supabase backend jika ada match aktif
             if (activeMatch && activeMatch.id) {
@@ -2164,6 +3239,7 @@
                 if (currentScoreAo > 0) currentScoreAo--;
             }
             updateScoreDisplays();
+            broadcastScoreboardState();
             showToast(`Koreksi Skor: ${corner.toUpperCase()} dikurangi 1.`);
             if (activeMatch && activeMatch.id) {
                 try {
@@ -2188,6 +3264,7 @@
                 if (senshuAka) senshuAo = false;
             }
             updateSenshuDisplays();
+            broadcastScoreboardState();
             const cornerName = corner === 'ao' ? 'AO (Biru)' : 'AKA (Merah)';
             const status = (corner === 'ao' ? senshuAo : senshuAka) ? 'AKTIF' : 'NONAKTIF';
             showToast(`Senshu ${cornerName}: ${status}`);
@@ -2220,6 +3297,7 @@
                 penaltyAka = (penaltyAka === level) ? level - 1 : level;
             }
             updatePenaltyDisplays();
+            broadcastScoreboardState();
             const cornerName = corner === 'ao' ? 'AO (Biru)' : 'AKA (Merah)';
             const names = ['Bersih (0 Penalti)', '1C (Chui 1)', '2C (Chui 2)', '3C (Chui 3)', 'HC (Hansoku-Chui)', 'H (Hansoku Diskualifikasi)'];
             const val = corner === 'ao' ? penaltyAo : penaltyAka;
@@ -2268,6 +3346,7 @@
             updateScoreDisplays();
             updatePenaltyDisplays();
             updateSenshuDisplays();
+            broadcastScoreboardState();
             showToast('Skor dan penalti pertandingan telah direset ke 0 - 0.');
         }
 
@@ -2316,6 +3395,19 @@
                     } else {
                         startTimer();
                         showToast('Timer Dijalankan (START)');
+                    }
+                    return;
+                }
+
+                // O: Toggle Mulai / Jeda Hitungan KO Down Time (10s Rule)
+                if (e.code === 'KeyO') {
+                    e.preventDefault();
+                    if (koInterval) {
+                        pauseKoTimer();
+                        showToast('Down Time KO Dijeda');
+                    } else {
+                        startKoTimer();
+                        showToast('Down Time KO Dijalankan (10s)');
                     }
                     return;
                 }
@@ -2421,21 +3513,149 @@
             });
         }
 
-        async function declareWinner(winnerStr) {
+        function openDeclareWinnerModal() {
+            const modal = document.getElementById('modal-declare-winner');
+            if (!modal) return;
+
+            const scoreAoEl = document.getElementById('declare-score-ao');
+            const scoreAkaEl = document.getElementById('declare-score-aka');
+            const nameAoEl = document.getElementById('declare-name-ao');
+            const nameAkaEl = document.getElementById('declare-name-aka');
+            const dojoAoEl = document.getElementById('declare-dojo-ao');
+            const dojoAkaEl = document.getElementById('declare-dojo-aka');
+            const leadStatusEl = document.getElementById('declare-winner-lead-status');
+
+            const nameAo = document.getElementById('scoring-ao-name')?.innerText || 'ATLET AO';
+            const nameAka = document.getElementById('scoring-aka-name')?.innerText || 'ATLET AKA';
+            const dojoAo = document.getElementById('scoring-ao-dojo')?.innerText || 'DOJO LAWAN';
+            const dojoAka = document.getElementById('scoring-aka-dojo')?.innerText || 'DOJO ALFA';
+
+            if (scoreAoEl) scoreAoEl.innerText = currentScoreAo;
+            if (scoreAkaEl) scoreAkaEl.innerText = currentScoreAka;
+            if (nameAoEl) nameAoEl.innerText = nameAo;
+            if (nameAkaEl) nameAkaEl.innerText = nameAka;
+            if (dojoAoEl) dojoAoEl.innerText = dojoAo;
+            if (dojoAkaEl) dojoAkaEl.innerText = dojoAka;
+
+            if (leadStatusEl) {
+                if (currentScoreAo > currentScoreAka) {
+                    leadStatusEl.innerText = `MEMIMPIN: AO (BIRU) +${currentScoreAo - currentScoreAka}`;
+                    leadStatusEl.className = 'text-blue-400 font-mono font-black';
+                } else if (currentScoreAka > currentScoreAo) {
+                    leadStatusEl.innerText = `MEMIMPIN: AKA (MERAH) +${currentScoreAka - currentScoreAo}`;
+                    leadStatusEl.className = 'text-rose-400 font-mono font-black';
+                } else {
+                    if (senshuAo) {
+                        leadStatusEl.innerText = 'SKOR SERI - KEUNGGULAN SENSHU AO';
+                        leadStatusEl.className = 'text-blue-400 font-mono font-black';
+                    } else if (senshuAka) {
+                        leadStatusEl.innerText = 'SKOR SERI - KEUNGGULAN SENSHU AKA';
+                        leadStatusEl.className = 'text-rose-400 font-mono font-black';
+                    } else {
+                        leadStatusEl.innerText = 'SKOR SERI - KEPUTUSAN WASIT (HANTEI)';
+                        leadStatusEl.className = 'text-amber-400 font-mono font-black';
+                    }
+                }
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeclareWinnerModal() {
+            const modal = document.getElementById('modal-declare-winner');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        async function declareWinnerByCorner(corner) {
             pauseTimer();
-            showToast(`Pemenang partai disahkan: ${winnerStr}! Skor disinkronkan ke Database.`);
+            const isAo = corner === 'ao';
+            const name = isAo 
+                ? (document.getElementById('scoring-ao-name')?.innerText || 'ATLET AO') 
+                : (document.getElementById('scoring-aka-name')?.innerText || 'ATLET AKA');
+            const dojo = isAo 
+                ? (document.getElementById('scoring-ao-dojo')?.innerText || 'DOJO LAWAN') 
+                : (document.getElementById('scoring-aka-dojo')?.innerText || 'DOJO ALFA');
+            const affil = isAo 
+                ? (document.getElementById('scoring-ao-affil')?.innerText || 'INKANAS JAWA TIMUR') 
+                : (document.getElementById('scoring-aka-affil')?.innerText || 'INKANAS INDONESIA');
+            const photo = isAo 
+                ? (document.getElementById('scoring-ao-photo')?.getAttribute('src') || 'img/athlete_ao.jpg') 
+                : (document.getElementById('scoring-aka-photo')?.getAttribute('src') || 'img/athlete_aka.jpg');
+            const senshu = isAo ? senshuAo : senshuAka;
+            const matchTitle = document.getElementById('scoring-match-title')?.innerText || 'PARTAI #18 • KUMITE PERORANGAN';
+            const matchClass = document.getElementById('scoring-match-class')?.innerText || 'Pra Pemula Putra -50Kg';
+
+            const payload = {
+                type: 'DECLARE_WINNER',
+                corner: corner,
+                winnerName: name,
+                winnerDojo: dojo,
+                winnerAffil: affil,
+                winnerPhoto: photo,
+                scoreAo: currentScoreAo,
+                scoreAka: currentScoreAka,
+                hasSenshu: senshu,
+                matchTitle: matchTitle,
+                matchClass: matchClass,
+                tatami: currentTatamiNumber,
+                winnerStr: `${name} (${dojo} - ${corner.toUpperCase()})`,
+                summary: `Skor Akhir: AO ${currentScoreAo} - ${currentScoreAka} AKA`
+            };
+
+            // Kirim pesan ke Layar Penonton via BroadcastChannel
+            if (scoreboardBroadcastChannel) {
+                try {
+                    scoreboardBroadcastChannel.postMessage(payload);
+                } catch(e) {}
+            }
+
+            // Simpan ke localStorage untuk memicu storage event cross-window
+            try {
+                localStorage.setItem(`majestigers_winner_event_${currentTatamiNumber}`, JSON.stringify({ ...payload, timestamp: Date.now() }));
+                const currentSync = JSON.parse(localStorage.getItem(`majestigers_sync_tatami_${currentTatamiNumber}`) || '{}');
+                if (currentSync.data) {
+                    currentSync.data.winner = payload;
+                    localStorage.setItem(`majestigers_sync_tatami_${currentTatamiNumber}`, JSON.stringify(currentSync));
+                }
+            } catch(e) {}
+
+            broadcastScoreboardState();
+            closeDeclareWinnerModal();
+            showToast(`🏆 Pemenang ${corner.toUpperCase()} (${name}) disahkan! Layar penonton merayakan kemenangan.`);
+
             if (activeMatch && activeMatch.id) {
                 try {
                     await InkaiAPI.updateMatchScore(activeMatch.id, {
                         akaScore: currentScoreAka,
                         aoScore: currentScoreAo,
                         status: 'FINISHED',
-                        winnerName: winnerStr
+                        winnerName: name,
+                        winnerCorner: corner.toUpperCase()
                     });
                 } catch (e) {
                     console.warn(e);
                 }
             }
+        }
+
+        function dismissWinnerCelebration() {
+            if (scoreboardBroadcastChannel) {
+                try {
+                    scoreboardBroadcastChannel.postMessage({ type: 'DISMISS_WINNER' });
+                } catch(e) {}
+            }
+            closeDeclareWinnerModal();
+            showToast('Layar perayaan ditutup, kembali ke tampilan arena scoreboard.');
+        }
+
+        async function declareWinner(winnerStr) {
+            const isAka = winnerStr && winnerStr.toUpperCase().includes('AKA');
+            const corner = isAka ? 'aka' : (currentScoreAka > currentScoreAo ? 'aka' : 'ao');
+            return declareWinnerByCorner(corner);
         }
 
         // Interactive Bracket Helpers

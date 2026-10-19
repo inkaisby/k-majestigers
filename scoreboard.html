@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Scoreboard Tatami WKF | K-Majestigers</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        branddark: '#020617',
+                        gold: '#f59e0b',
+                        'gold-light': '#fbbf24',
+                        'gold-dark': '#b45309',
+                    },
+                    fontFamily: {
+                        heading: ['Cinzel', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Courier New', 'monospace', 'ui-monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .font-heading {
+            font-family: 'Cinzel', serif;
+        }
+        /* Mode OBS Browser Source Transparent Overlay */
+        body.mode-overlay {
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+        body.mode-overlay #scoreboard-main-container {
+            background-color: rgba(2, 6, 23, 0.92);
+            backdrop-filter: blur(8px);
+        }
+        /* Auto-hide floating toolbar on idle */
+        #floating-toolbar {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #floating-toolbar.idle-hidden {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+        }
+        /* Glowing digit shadows */
+        .digit-glow-ao {
+            text-shadow: 0 0 35px rgba(59, 130, 246, 0.7), 0 0 70px rgba(37, 99, 235, 0.4);
+        }
+        .digit-glow-aka {
+            text-shadow: 0 0 35px rgba(239, 68, 68, 0.7), 0 0 70px rgba(220, 38, 38, 0.4);
+        }
+        .timer-glow-normal {
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+        }
+        .timer-glow-danger {
+            text-shadow: 0 0 35px rgba(244, 63, 94, 0.9), 0 0 70px rgba(225, 29, 72, 0.6);
+        }
+        .timer-glow-finished {
+            text-shadow: 0 0 35px rgba(245, 158, 11, 0.9), 0 0 70px rgba(217, 119, 6, 0.6);
+        }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spinSlow 40s linear infinite;
+        }
+        @keyframes auraPulse {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04); }
+        }
+        .animate-aura {
+            animation: auraPulse 3.5s ease-in-out infinite;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between relative selection:bg-amber-400 selection:text-black">
+
+    <!-- FLOATING SUBTLE TOOLBAR (Auto-hides after 3 seconds of mouse inactivity) -->
+    <aside aria-label="Scoreboard Controls" id="floating-toolbar" class="fixed top-4 right-4 z-50 flex items-center space-x-2 bg-slate-900/90 border border-slate-700/80 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-2xl transition-all">
+        <!-- Live Sync Status Indicator -->
+        <div class="flex items-center space-x-1.5 px-2 py-1 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] font-mono">
+            <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span id="sync-text" class="text-emerald-400 font-bold">SYNC ONLINE</span>
+        </div>
+
+        <!-- Tatami Selector -->
+        <select id="tatami-switcher" onchange="changeTatami(this.value)" class="bg-slate-950 border border-slate-700 text-amber-400 rounded-xl px-2.5 py-1 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-amber-400">
+            <option value="1">Matras 1</option>
+            <option value="2">Matras 2 (Arena Utama)</option>
+            <option value="3">Matras 3</option>
+            <option value="4">Matras 4</option>
+        </select>
+
+        <!-- Audio Horn / Buzzer Toggle -->
+        <button type="button" onclick="toggleAudioMute()" id="btn-audio-mute" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs transition-all" title="Audio Sirine WKF (Klik untuk Aktif/Bisu)">
+            <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+        </button>
+
+        <!-- Fullscreen Toggle Button -->
+        <button type="button" onclick="toggleFullscreen()" class="p-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all" title="Layar Penuh (F11 / Tekan F)">
+            <i id="fullscreen-icon" class="fa-solid fa-expand"></i>
+        </button>
+    </aside>
+
+    <!-- MAIN SCOREBOARD SCREEN CONTAINER (Widescreen 16:9 Optimized) -->
+    <main id="scoreboard-main-container" class="flex-1 w-full h-full flex flex-col justify-between p-3 sm:p-6 lg:p-8 bg-gradient-to-b from-slate-950 via-[#030816] to-[#020617] relative overflow-hidden">
+        
+        <!-- TOP EVENT & HEADER BROADCAST BANNER -->
+        <header class="flex items-center justify-between border-b-2 border-slate-800/80 pb-3 sm:pb-4 px-2 pr-52 sm:pr-60">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 text-lg sm:text-xl font-bold shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-lg font-black tracking-wider text-white font-heading uppercase flex items-center gap-2">
+                        <span>K-MAJESTIGERS</span>
+                        <span class="text-amber-400">NATIONAL OPEN CHAMPIONSHIP</span>
+                    </h1>
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-widest uppercase block">
+                        Official World Karate Federation (WKF) Rules Kumite
+                    </span>
+                </div>
+            </div>
+
+            <!-- Current Match & Tatami Info Badge -->
+            <div class="flex items-center space-x-3 text-right">
+                <div class="hidden md:block">
+                    <span id="display-match-title" class="px-4 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 text-amber-400 font-bold font-mono text-xs sm:text-sm tracking-wider shadow-inner">
+                        PARTAI #18 &bull; KUMITE PERORANGAN
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="text-[11px] sm:text-xs font-black uppercase tracking-widest text-emerald-400">LIVE ARENA</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==============================================================
+             MAIN 3-COLUMN ARENA: AO (LEFT) - TIMER/KO (CENTER) - AKA (RIGHT)
+             ============================================================== -->
+        <!-- ==============================================================
+             UNIFIED SOLID ARENA MASTER FRAME: AO (LEFT) + TIMER (CENTER) + AKA (RIGHT)
+             Struktur menyatu sempurna tanpa celah (Zero-Gap Monolithic Arena Console)
+             ============================================================== -->
+        <div class="flex-1 rounded-[2.5rem] bg-slate-950 border-4 border-slate-800 shadow-2xl shadow-black/80 my-2 sm:my-3 relative overflow-hidden flex flex-col">
+            
+            <!-- Continuous Stadium Accent Top Line: Blue (AO) to Gold to Red (AKA) -->
+            <div class="w-full h-2 bg-gradient-to-r from-blue-600 via-amber-400 to-rose-600 flex-shrink-0"></div>
+
+            <!-- Unified 3-Segment Grid (Zero Gap, Flush Dividing Borders) -->
+            <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_360px_1fr] xl:grid-cols-[1fr_420px_1fr] items-stretch h-full relative">
+                
+                <!-- ==============================================
+                     SUDUT AO (BIRU - SEBELAH KIRI, MENEMPEL ERAT KE TENGAH)
+                     ============================================== -->
+                <section aria-label="Sudut AO Biru" class="bg-gradient-to-br from-blue-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between border-b lg:border-b-0 lg:border-r-2 border-blue-500/30">
+                    <!-- Corner Glow Accent -->
+                    <div class="absolute -top-20 -left-20 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <!-- Top Dojo Info with Flag -->
+                    <div class="flex items-center justify-between border-b-2 border-blue-900/50 pb-3 relative z-10">
+                        <div class="flex items-center space-x-3.5">
+                            <!-- Indonesian Flag -->
+                            <svg class="w-10 h-7 sm:w-12 sm:h-8 rounded-md shadow-md border border-white/20 flex-shrink-0" viewBox="0 0 3 2">
+                                <rect width="3" height="1" fill="#e11d48"/>
+                                <rect y="1" width="3" height="1" fill="#ffffff"/>
+                            </svg>
+                            <div>
+                                <h2 id="display-ao-dojo" class="text-xl sm:text-3xl font-black text-amber-400 tracking-wide font-heading uppercase leading-tight drop-shadow">
+                                    DOJO LAWAN
+                                </h2>
+                                <span id="display-ao-affil" class="text-xs sm:text-sm font-bold text-blue-200/80 tracking-widest uppercase block">
+                                    INKANAS JAWA TIMUR
+                                </span>
+                            </div>
+                        </div>
+                        <span class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-blue-600 text-white shadow-lg shadow-blue-600/40 border border-blue-400/40">
+                            AO (BIRU)
+                        </span>
+                    </div>
+
+                    <!-- Athlete Profile & Photo Center -->
+                    <div class="flex flex-col items-center justify-center text-center space-y-2 sm:space-y-3 my-2 relative z-10">
+                        <div class="relative">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full p-1.5 bg-gradient-to-tr from-blue-400 via-blue-600 to-cyan-300 shadow-2xl shadow-blue-600/50 ring-4 ring-blue-500/30">
+                                <img id="display-ao-photo" src="img/athlete_ao.jpg" alt="Foto Atlet AO" class="w-full h-full rounded-full object-cover">
+                            </div>
+                            <span class="absolute bottom-0 right-0 px-3 py-0.5 rounded-full bg-blue-600 border-2 border-white text-white font-mono text-xs font-black shadow-lg">
+                                AO
+                            </span>
+                        </div>
+                        <div>
+                            <h3 id="display-ao-name" class="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-white drop-shadow-lg tracking-wide leading-tight">
+                                ATLET AO
+                            </h3>
+                            <span id="display-ao-sub" class="text-xs sm:text-sm text-blue-300/90 font-mono font-bold">Kontingen Utama</span>
+                        </div>
+                    </div>
+
+                    <!-- Massive Blue Score Display -->
+                    <div class="flex justify-center py-1 sm:py-2 relative z-10">
+                        <div class="w-56 sm:w-68 lg:w-76 h-40 sm:h-52 lg:h-56 rounded-3xl bg-gradient-to-b from-blue-600 via-blue-700 to-blue-900 border-4 border-blue-400/50 shadow-2xl shadow-blue-600/50 flex items-center justify-center relative overflow-hidden">
+                            <!-- Senshu Ribbon S (Top Right Triangle) -->
+                            <div id="display-senshu-ao" class="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 drop-shadow-xl transition-all duration-300">
+                                <div class="w-0 h-0 border-t-[64px] sm:border-t-[80px] border-t-emerald-500 border-l-[64px] sm:border-l-[80px] border-l-transparent absolute top-0 right-0"></div>
+                                <span class="absolute top-2 sm:top-2.5 right-2.5 sm:right-3.5 text-white font-black font-sans text-xl sm:text-2xl leading-none">S</span>
+                            </div>
+
+                            <!-- Big Score Digit -->
+                            <div id="display-score-ao" class="text-8xl sm:text-9xl lg:text-[9.5rem] font-black font-mono text-white tracking-tighter digit-glow-ao select-none leading-none">
+                                3
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Penalty Badges Row: 1C, 2C, 3C, HC, H -->
+                    <div class="space-y-1.5 pt-2 border-t-2 border-blue-900/40 relative z-10">
+                        <div class="flex items-center justify-between text-xs text-blue-300 font-bold px-1 uppercase tracking-wider">
+                            <span><i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-400"></i>Penalti (Chui):</span>
+                            <span id="display-ao-pen-text" class="font-mono text-amber-400 font-bold">1C Aktif</span>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2 sm:gap-2.5">
+                            <div id="ao-disp-pen-1c" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-black font-mono tracking-wider transition-all bg-amber-400 text-slate-950 shadow-lg shadow-amber-400/40 border-2 border-amber-300">1C</div>
+                            <div id="ao-disp-pen-2c" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">2C</div>
+                            <div id="ao-disp-pen-3c" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">3C</div>
+                            <div id="ao-disp-pen-hc" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">HC</div>
+                            <div id="ao-disp-pen-h"  class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">H</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==============================================
+                     CENTER COLUMN: TIMER WKF + STATUS + DOWN TIME (CORE MENEMPEL ERAT DI TENGAH)
+                     ============================================== -->
+                <section aria-label="Pusat Timer dan Status WKF" class="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 p-4 sm:p-5 flex flex-col justify-between items-center relative overflow-hidden border-b lg:border-b-0 lg:border-r-2 border-rose-500/30">
+                    
+                    <!-- Top subtle indicator header -->
+                    <div class="flex items-center justify-between w-full px-2 pt-1 border-b border-slate-800/80 pb-2">
+                        <span class="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-blue-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm animate-pulse"></span>
+                            <span>AO</span>
+                        </span>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-xs uppercase font-extrabold text-amber-400 tracking-wider flex items-center">
+                                <i class="fa-solid fa-stopwatch mr-1.5"></i> WKF TIMER
+                            </span>
+                        </div>
+                        <span class="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-rose-400">
+                            <span>AKA</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm animate-pulse"></span>
+                        </span>
+                    </div>
+
+                    <!-- Dynamic Status Banner (Soremade, Atoshi Baraku 15s, etc.) -->
+                    <div id="timer-status-banner" class="hidden px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-amber-400 text-slate-950 animate-bounce shadow-xl shadow-amber-500/50 my-1">
+                        <i class="fa-solid fa-flag-checkered mr-1.5"></i> SOREMADE / YAME (WAKTU HABIS)
+                    </div>
+
+                    <!-- Massive Digital Clock Display (Flush & Centered) -->
+                    <div id="display-timer-box" class="transition-all duration-300 w-full py-3.5 sm:py-5 px-3 rounded-2xl bg-slate-950 border-4 border-amber-500/50 shadow-2xl flex items-center justify-center overflow-hidden my-2">
+                        <div class="flex items-baseline justify-center">
+                            <span id="display-timer" class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-mono font-black text-white tracking-tight leading-none timer-glow-normal">
+                                01:14
+                            </span>
+                            <span id="display-timer-ms" class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-white/90 ml-1 leading-none tracking-normal select-none">
+                                .50
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- VS CREST BADGE -->
+                    <div class="flex items-center justify-center w-full py-1">
+                        <div class="flex-1 h-0.5 bg-gradient-to-r from-blue-500 via-blue-500/40 to-transparent"></div>
+                        <div class="mx-3 relative flex items-center justify-center">
+                            <div class="w-11 h-11 rounded-full p-0.5 bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500 shadow-xl shadow-amber-500/30">
+                                <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                                    <span class="text-amber-400 font-black text-xs tracking-wider">VS</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1 h-0.5 bg-gradient-to-l from-rose-500 via-rose-500/40 to-transparent"></div>
+                    </div>
+
+                    <!-- DOWN TIME (KO 10s) PANEL (Tanpa kotak merah, angka detik putih besar) -->
+                    <div id="display-ko-panel" class="hidden w-full flex-col items-center justify-center py-2 sm:py-3 transition-all duration-300 animate-fadeIn my-1 relative">
+                        <div class="flex items-center justify-center space-x-2.5 mb-1">
+                            <span class="text-xs uppercase font-extrabold text-amber-400 tracking-wider flex items-center">
+                                <i class="fa-solid fa-heart-pulse text-rose-500 mr-1.5 animate-pulse"></i> DOWN TIME (KO)
+                            </span>
+                            <span id="display-ko-target" class="text-[10px] font-mono font-black text-white bg-blue-600 px-2.5 py-0.5 rounded-full uppercase shadow">
+                                TARGET: AO
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <span id="display-ko-number" class="text-7xl sm:text-8xl lg:text-9xl font-mono font-black text-white tracking-tight leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.7)] select-none">
+                                10
+                            </span>
+                        </div>
+                        <span id="display-ko-badge" class="mt-1 px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest text-slate-300 bg-slate-900/90 border border-slate-800">
+                            HITUNGAN 10 DETIK WASIT
+                        </span>
+                    </div>
+
+                    <!-- Match Class Category Display -->
+                    <div class="text-center w-full pt-2 border-t border-slate-800/80">
+                        <span id="display-category" class="text-amber-400 font-black text-base sm:text-lg uppercase tracking-wider block font-heading leading-tight drop-shadow">
+                            Kumite Perorangan
+                        </span>
+                        <span id="display-class" class="text-amber-200/90 font-bold text-xs sm:text-sm tracking-wide block">
+                            Pra Pemula Putra -50Kg
+                        </span>
+                    </div>
+                </section>
+
+                <!-- ==============================================
+                     SUDUT AKA (MERAH - SEBELAH KANAN, MENEMPEL ERAT KE TENGAH)
+                     ============================================== -->
+                <section aria-label="Sudut AKA Merah" class="bg-gradient-to-bl from-rose-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between">
+                    <!-- Corner Glow Accent -->
+                    <div class="absolute -top-20 -right-20 w-64 h-64 bg-rose-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <!-- Top Dojo Info with Flag -->
+                    <div class="flex items-center justify-between border-b-2 border-rose-900/50 pb-3 relative z-10">
+                        <span class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg shadow-rose-600/40 border border-rose-400/40">
+                            AKA (MERAH)
+                        </span>
+                        <div class="flex items-center space-x-3.5 text-right">
+                            <div>
+                                <h2 id="display-aka-dojo" class="text-xl sm:text-3xl font-black text-amber-400 tracking-wide font-heading uppercase leading-tight drop-shadow">
+                                    DOJO ALFA
+                                </h2>
+                                <span id="display-aka-affil" class="text-xs sm:text-sm font-bold text-rose-200/80 tracking-widest uppercase block">
+                                    INKANAS INDONESIA
+                                </span>
+                            </div>
+                            <!-- Indonesian Flag -->
+                            <svg class="w-10 h-7 sm:w-12 sm:h-8 rounded-md shadow-md border border-white/20 flex-shrink-0" viewBox="0 0 3 2">
+                                <rect width="3" height="1" fill="#e11d48"/>
+                                <rect y="1" width="3" height="1" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Athlete Profile & Photo Center -->
+                    <div class="flex flex-col items-center justify-center text-center space-y-2 sm:space-y-3 my-2 relative z-10">
+                        <div class="relative">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full p-1.5 bg-gradient-to-tr from-rose-400 via-rose-600 to-amber-300 shadow-2xl shadow-rose-600/50 ring-4 ring-rose-500/30">
+                                <img id="display-aka-photo" src="img/athlete_aka.jpg" alt="Foto Atlet AKA" class="w-full h-full rounded-full object-cover">
+                            </div>
+                            <span class="absolute bottom-0 right-0 px-3 py-0.5 rounded-full bg-rose-600 border-2 border-white text-white font-mono text-xs font-black shadow-lg">
+                                AKA
+                            </span>
+                        </div>
+                        <div>
+                            <h3 id="display-aka-name" class="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-white drop-shadow-lg tracking-wide leading-tight">
+                                ATLET AKA
+                            </h3>
+                            <span id="display-aka-sub" class="text-xs sm:text-sm text-rose-300/90 font-mono font-bold">Kontingen Utama</span>
+                        </div>
+                    </div>
+
+                    <!-- Massive Red Score Display -->
+                    <div class="flex justify-center py-1 sm:py-2 relative z-10">
+                        <div class="w-56 sm:w-68 lg:w-76 h-40 sm:h-52 lg:h-56 rounded-3xl bg-gradient-to-b from-rose-600 via-rose-700 to-rose-900 border-4 border-rose-400/50 shadow-2xl shadow-rose-600/50 flex items-center justify-center relative overflow-hidden">
+                            <!-- Senshu Ribbon S (Top Right Triangle) -->
+                            <div id="display-senshu-aka" class="hidden absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 drop-shadow-xl transition-all duration-300">
+                                <div class="w-0 h-0 border-t-[64px] sm:border-t-[80px] border-t-emerald-500 border-l-[64px] sm:border-l-[80px] border-l-transparent absolute top-0 right-0"></div>
+                                <span class="absolute top-2 sm:top-2.5 right-2.5 sm:right-3.5 text-white font-black font-sans text-xl sm:text-2xl leading-none">S</span>
+                            </div>
+
+                            <!-- Big Score Digit -->
+                            <div id="display-score-aka" class="text-8xl sm:text-9xl lg:text-[9.5rem] font-black font-mono text-white tracking-tighter digit-glow-aka select-none leading-none">
+                                6
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Penalty Badges Row: 1C, 2C, 3C, HC, H -->
+                    <div class="space-y-1.5 pt-2 border-t-2 border-rose-900/40 relative z-10">
+                        <div class="flex items-center justify-between text-xs text-rose-300 font-bold px-1 uppercase tracking-wider">
+                            <span><i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-400"></i>Penalti (Chui):</span>
+                            <span id="display-aka-pen-text" class="font-mono text-amber-400 font-bold">1C Aktif</span>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2 sm:gap-2.5">
+                            <div id="aka-disp-pen-1c" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-black font-mono tracking-wider transition-all bg-amber-400 text-slate-950 shadow-lg shadow-amber-400/40 border-2 border-amber-300">1C</div>
+                            <div id="aka-disp-pen-2c" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">2C</div>
+                            <div id="aka-disp-pen-3c" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">3C</div>
+                            <div id="aka-disp-pen-hc" class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">HC</div>
+                            <div id="aka-disp-pen-h"  class="py-2 sm:py-2.5 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800">H</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- ==============================================================
+             BOTTOM BROADCAST STATUS BAR
+             ============================================================== -->
+        <footer class="rounded-3xl bg-slate-900/90 border-2 border-slate-800 px-6 py-3.5 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 relative">
+            <!-- Left: TATAMI Box -->
+            <div class="flex items-center space-x-4">
+                <div>
+                    <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-amber-400 block">TATAMI</span>
+                    <div id="display-tatami-number" class="text-4xl sm:text-6xl font-mono font-black text-white leading-none tracking-tight drop-shadow-md">
+                        1
+                    </div>
+                </div>
+                <div class="border-l border-slate-700/80 pl-3.5 space-y-0.5">
+                    <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 inline-flex items-center">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1.5"></span> LIVE SCOREBOARD
+                    </span>
+                    <span id="display-tatami-label" class="text-xs sm:text-sm text-gray-300 font-bold block">Matras 1</span>
+                </div>
+            </div>
+
+            <!-- Center: Stage & Category Info -->
+            <div class="text-center">
+                <span class="px-4 py-1 rounded-full bg-slate-800/90 text-gray-300 text-xs sm:text-sm font-mono font-bold border border-slate-700/80 inline-flex items-center shadow-inner">
+                    <i class="fa-solid fa-trophy text-amber-400 mr-2"></i>
+                    <span id="display-stage-info">BABAK 8 BESAR &bull; PEREMPAT FINAL</span>
+                </span>
+            </div>
+
+            <!-- Right: Federation & Real-time Clock -->
+            <div class="text-center sm:text-right space-y-0.5">
+                <span class="text-[11px] text-gray-400 font-bold tracking-wider uppercase block">
+                    WKF &bull; PB FORKI &bull; INKAI
+                </span>
+                <span id="arena-clock" class="text-xs font-mono font-bold text-amber-400 block">
+                    10:00:00 WIB
+                </span>
+            </div>
+        </footer>
+
+        <!-- ==============================================================
+             FULL-SCREEN CHAMPION CELEBRATION STAGE ("LAYAR JADI SATU")
+             Merayakan Kemenangan Atlet secara Meriah & Menyeluruh
+             ============================================================== -->
+        <div id="winner-celebration-screen" class="hidden fixed inset-0 z-50 bg-[#020617] flex flex-col justify-between p-4 sm:p-8 lg:p-10 select-none overflow-hidden transition-all duration-700 animate-fadeIn">
+            <!-- Dynamic Background Glow & Rotating Sunburst Rays -->
+            <div id="celebration-backdrop" class="absolute inset-0 bg-[#020617] -z-20 transition-all duration-700"></div>
+            
+            <!-- Rotating Golden Sunburst Light Rays -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none -z-10 opacity-30">
+                <div class="w-[200vw] h-[200vw] rounded-full bg-[repeating-conic-gradient(from_0deg,_rgba(251,191,36,0.15)_0deg_15deg,_transparent_15deg_30deg)] animate-spin-slow"></div>
+            </div>
+
+            <!-- Full-Screen Particle Confetti Canvas -->
+            <canvas id="celebration-canvas" class="absolute inset-0 pointer-events-none z-10"></canvas>
+
+            <!-- TOP HEADER CELEBRATION BAR -->
+            <div class="relative z-20 flex items-center justify-between w-full border-b border-white/10 pb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg shadow-amber-500/30">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs sm:text-sm font-black tracking-widest text-white uppercase font-heading block">
+                            K-MAJESTIGERS <span class="text-amber-400">CHAMPIONSHIP</span>
+                        </span>
+                        <span class="text-[10px] sm:text-xs text-amber-300/80 font-mono font-bold tracking-wider uppercase block">
+                            HASIL AKHIR RESMI WKF KUMITE &bull; TATAMI <span id="celebration-tatami-num">1</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Center Trophy Ribbon -->
+                <div class="hidden md:flex items-center space-x-2 px-5 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-widest shadow-xl shadow-amber-400/30 animate-pulse">
+                    <i class="fa-solid fa-award"></i>
+                    <span>PEMENANG DISAHKAN &bull; OFFICIAL WINNER</span>
+                </div>
+
+                <!-- Dismiss Button -->
+                <button type="button" onclick="closeWinnerCelebration()" class="px-4 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-gray-300 hover:text-white border border-slate-700 text-xs font-bold transition-all flex items-center space-x-2 shadow-lg cursor-pointer pointer-events-auto">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali ke Arena</span>
+                </button>
+            </div>
+
+            <!-- MAIN CENTER HERO CELEBRATION ("LAYAR JADI SATU") -->
+            <div class="relative z-20 flex-1 flex flex-col items-center justify-center text-center my-auto py-4 space-y-4 sm:space-y-6">
+                <!-- Floating Golden Crown & Laurel Athlete Portrait -->
+                <div class="relative">
+                    <!-- Floating Crown -->
+                    <div class="absolute -top-7 sm:-top-9 inset-x-0 flex justify-center text-amber-400 text-4xl sm:text-5xl drop-shadow-[0_0_20px_rgba(251,191,36,0.8)] animate-bounce z-20">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+
+                    <!-- Glowing Circular Champion Photo with Laurel Ring -->
+                    <div id="celebration-photo-ring" class="w-32 h-32 sm:w-44 sm:h-44 lg:w-52 lg:h-52 rounded-full p-2 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-600 shadow-2xl shadow-amber-500/60 ring-8 ring-amber-400/30 relative">
+                        <img id="celebration-athlete-photo" src="img/athlete_aka.jpg" alt="Foto Sang Juara" class="w-full h-full rounded-full object-cover">
+                        <!-- Corner Ribbon -->
+                        <span id="celebration-corner-badge" class="absolute -bottom-2 inset-x-0 mx-auto w-max px-4 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-rose-600 text-white shadow-xl border-2 border-white">
+                            AKA (MERAH) JUARA
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Winner Titles & Identity -->
+                <div class="space-y-1 sm:space-y-2 max-w-4xl px-4">
+                    <span class="text-xs sm:text-sm font-black uppercase tracking-[0.3em] text-amber-300 font-mono drop-shadow">
+                        SELAMAT KEPADA SANG JUARA
+                    </span>
+                    <h1 id="celebration-athlete-name" class="text-4xl sm:text-6xl lg:text-7xl font-black font-heading text-white tracking-wide uppercase drop-shadow-[0_0_35px_rgba(255,255,255,0.8)] leading-tight">
+                        DIMAS ARYA PRATAMA
+                    </h1>
+                    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
+                        <h2 id="celebration-athlete-dojo" class="text-2xl sm:text-4xl font-black text-amber-400 uppercase tracking-wider font-heading drop-shadow">
+                            DOJO ALFA
+                        </h2>
+                        <span class="text-white/40 hidden sm:inline">&bull;</span>
+                        <span id="celebration-athlete-affil" class="text-base sm:text-2xl font-bold text-blue-200/90 tracking-widest uppercase">
+                            INKANAS INDONESIA
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Match Category & Class Badge -->
+                <div class="pt-1">
+                    <span id="celebration-match-info" class="px-5 py-2 rounded-full bg-slate-900/90 border-2 border-amber-500/40 text-amber-300 font-mono text-xs sm:text-sm font-bold tracking-widest uppercase shadow-xl inline-flex items-center space-x-2">
+                        <i class="fa-solid fa-trophy text-amber-400"></i>
+                        <span>PARTAI #18 &bull; KUMITE PERORANGAN &bull; PRA PEMULA PUTRA -50KG</span>
+                    </span>
+                </div>
+
+                <!-- Final Stadium Score Showcase Box -->
+                <div class="pt-2">
+                    <div class="inline-flex items-center space-x-6 sm:space-x-10 py-3.5 px-8 sm:px-12 rounded-3xl bg-slate-950/90 border-3 border-amber-400 shadow-[0_0_40px_rgba(251,191,36,0.3)] backdrop-blur-md">
+                        <div class="text-center">
+                            <span class="text-[10px] sm:text-xs font-black text-blue-400 uppercase tracking-widest block">AO (BIRU)</span>
+                            <span id="celebration-score-ao" class="text-4xl sm:text-6xl font-black font-mono text-white leading-none">3</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest">SKOR AKHIR</span>
+                            <span class="text-2xl sm:text-3xl font-black text-amber-400 leading-none my-0.5">-</span>
+                            <span id="celebration-senshu-badge" class="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-500 text-white font-mono">SENSHU</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-[10px] sm:text-xs font-black text-rose-400 uppercase tracking-widest block">AKA (MERAH)</span>
+                            <span id="celebration-score-aka" class="text-4xl sm:text-6xl font-black font-mono text-white leading-none">6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER CELEBRATION BAR -->
+            <div class="relative z-20 flex flex-col sm:flex-row items-center justify-between w-full pt-3 border-t border-white/10 text-gray-400 text-xs gap-3">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="font-mono text-amber-400 font-bold uppercase tracking-wider">OFFICIAL WINNER DECLARED BY REFEREE</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button type="button" onclick="playVictoryFanfare()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer pointer-events-auto">
+                        <i class="fa-solid fa-volume-high"></i>
+                        <span>Ulangi Fanfare Suara</span>
+                    </button>
+                    <button type="button" onclick="closeWinnerCelebration()" class="px-4 py-1.5 rounded-xl gold-gradient-bg text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer pointer-events-auto">
+                        Tutup &bull; Selesai
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ATHLETE CALL ANNOUNCEMENT OVERLAY BANNER (Muncul otomatis saat wasit memanggil atlet) -->
+        <div id="spectator-announcement-banner" class="hidden fixed top-6 inset-x-0 z-50 flex justify-center px-4 pointer-events-none transition-all duration-300 animate-fadeIn">
+            <div class="max-w-2xl w-full rounded-3xl bg-slate-900/95 border-4 border-amber-400 p-4 sm:p-5 shadow-2xl flex items-center space-x-4 backdrop-blur-md">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg shadow-amber-500/30 flex-shrink-0">
+                    <i class="fa-solid fa-bullhorn animate-pulse"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center space-x-2">
+                        <span id="spectator-announcement-badge" class="px-3 py-0.5 rounded-full text-xs font-mono font-black uppercase tracking-wider bg-blue-600 text-white shadow">
+                            PANGGILAN PERTAMA
+                        </span>
+                        <span id="spectator-announcement-corner" class="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                            SUDUT AO (BIRU)
+                        </span>
+                    </div>
+                    <h3 id="spectator-announcement-title" class="text-xl sm:text-2xl font-black text-white font-heading truncate mt-1">
+                        Dojo Singo Edan Malang • INKANAS JAWA TIMUR
+                    </h3>
+                    <p id="spectator-announcement-sub" class="text-xs sm:text-sm text-gray-300 font-bold">
+                        Harap segera memasuki arena Tatami 1
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCRIPT LOGIC: BROADCAST CHANNEL SYNC, LOCALSTORAGE FALLBACK & UI ENGINE -->
+    <script>
+        // Ambil parameter dari URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentTatami = urlParams.get('tatami') || '1';
+        const isOverlayMode = urlParams.get('overlay') === '1' || urlParams.get('transparent') === '1';
+
+        // Terapkan mode transparan jika diakses via OBS Studio Browser Source
+        if (isOverlayMode) {
+            document.body.classList.add('mode-overlay');
+        }
+
+        // Setup dropdown matras selector
+        const switcher = document.getElementById('tatami-switcher');
+        if (switcher) switcher.value = currentTatami;
+
+        // State Scoreboard Lokal
+        let state = {
+            tatami: currentTatami,
+            tatamiLabel: currentTatami === '2' ? 'Matras 2 (Arena Utama)' : `Matras ${currentTatami}`,
+            matchTitle: 'PARTAI #18 • KUMITE PERORANGAN',
+            category: 'Kumite Perorangan',
+            matchClass: 'Pra Pemula Putra -50Kg',
+            stage: 'BABAK 8 BESAR • PEREMPAT FINAL',
+            ao: {
+                name: 'ATLET AO',
+                dojo: 'DOJO LAWAN',
+                affil: 'INKANAS JAWA TIMUR',
+                photo: 'img/athlete_ao.jpg',
+                score: 3,
+                senshu: true,
+                penalty: 1
+            },
+            aka: {
+                name: 'ATLET AKA',
+                dojo: 'DOJO ALFA',
+                affil: 'INKANAS INDONESIA',
+                photo: 'img/athlete_aka.jpg',
+                score: 6,
+                senshu: false,
+                penalty: 1
+            },
+            timerRemainingMs: 74500,
+            isTimerRunning: false,
+            ko: {
+                isActive: false,
+                target: 'ao',
+                remainingMs: 10000,
+                isRunning: false
+            },
+            winner: null
+        };
+
+        // Inisialisasi Audio Synthesizer (Buzzer Sirine WKF)
+        let isAudioMuted = false;
+        function toggleAudioMute() {
+            isAudioMuted = !isAudioMuted;
+            const icon = document.getElementById('audio-icon');
+            if (icon) {
+                icon.className = isAudioMuted ? 'fa-solid fa-volume-xmark text-rose-400' : 'fa-solid fa-volume-high text-amber-400';
+            }
+        }
+
+        function playHornSound(duration = 1.0, freq = 380) {
+            if (isAudioMuted) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.4, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {
+                // Ignore autoplay policies
+            }
+        }
+
+        function playStadiumChime(callback) {
+            if (isAudioMuted) {
+                if (callback) callback();
+                return;
+            }
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) { if (callback) callback(); return; }
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(587.33, now);
+                gain1.gain.setValueAtTime(0.35, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.35);
+
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(880, now + 0.22);
+                gain2.gain.setValueAtTime(0.35, now + 0.22);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + 0.22);
+                osc2.stop(now + 0.7);
+
+                setTimeout(() => { if (callback) callback(); }, 750);
+            } catch (e) {
+                if (callback) callback();
+            }
+        }
+
+        let announcementTimer = null;
+        function displaySpectatorAnnouncement(data) {
+            const banner = document.getElementById('spectator-announcement-banner');
+            const badge = document.getElementById('spectator-announcement-badge');
+            const cornerEl = document.getElementById('spectator-announcement-corner');
+            const title = document.getElementById('spectator-announcement-title');
+            const sub = document.getElementById('spectator-announcement-sub');
+            if (!banner) return;
+
+            const callNum = data.callNumber || 1;
+            const names = { 1: 'PANGGILAN PERTAMA', 2: 'PANGGILAN KEDUA', 3: 'PANGGILAN KETIGA (TERAKHIR)' };
+            if (badge) {
+                badge.innerText = names[callNum] || `PANGGILAN KE-${callNum}`;
+                badge.className = callNum === 3 
+                    ? 'px-3 py-0.5 rounded-full text-xs font-mono font-black uppercase tracking-wider bg-rose-600 text-white shadow animate-pulse'
+                    : (data.corner === 'aka' ? 'px-3 py-0.5 rounded-full text-xs font-mono font-black uppercase tracking-wider bg-rose-600 text-white shadow' : 'px-3 py-0.5 rounded-full text-xs font-mono font-black uppercase tracking-wider bg-blue-600 text-white shadow');
+            }
+
+            if (cornerEl) {
+                if (data.corner === 'ao') {
+                    cornerEl.innerText = 'SUDUT AO (BIRU)';
+                    cornerEl.className = 'text-xs font-bold text-blue-400 uppercase tracking-wider';
+                } else if (data.corner === 'aka') {
+                    cornerEl.innerText = 'SUDUT AKA (MERAH)';
+                    cornerEl.className = 'text-xs font-bold text-rose-400 uppercase tracking-wider';
+                } else {
+                    cornerEl.innerText = 'KEDUA SUDUT (PARTAI INI)';
+                    cornerEl.className = 'text-xs font-bold text-amber-400 uppercase tracking-wider';
+                }
+            }
+
+            if (title) title.innerText = data.mainText || 'Pengumuman Atlet';
+            if (sub) sub.innerText = data.subText || `Harap segera memasuki arena Tatami ${currentTatami}`;
+
+            banner.classList.remove('hidden');
+            banner.classList.add('flex');
+
+            playStadiumChime();
+
+            if (announcementTimer) clearTimeout(announcementTimer);
+            announcementTimer = setTimeout(() => {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }, 8500);
+        }
+
+        // ==============================================================
+        // SINKRONISASI REAL-TIME: BROADCAST CHANNEL & LOCALSTORAGE
+        // ==============================================================
+        let broadcastChannel = null;
+
+        function initSyncChannel() {
+            if (broadcastChannel) {
+                try { broadcastChannel.close(); } catch(e){}
+            }
+
+            const channelName = `majestigers_tatami_${currentTatami}`;
+            if (typeof BroadcastChannel !== 'undefined') {
+                broadcastChannel = new BroadcastChannel(channelName);
+                broadcastChannel.onmessage = (event) => {
+                    handleSyncMessage(event.data);
+                };
+            }
+
+            // Fallback listener: window storage event
+            window.addEventListener('storage', (e) => {
+                if (e.key === `majestigers_sync_tatami_${currentTatami}` && e.newValue) {
+                    try {
+                        const parsed = JSON.parse(e.newValue);
+                        handleSyncMessage(parsed);
+                    } catch (err) {}
+                }
+                if (e.key === `majestigers_winner_event_${currentTatami}` && e.newValue) {
+                    try {
+                        const parsed = JSON.parse(e.newValue);
+                        displayWinnerCelebration(parsed);
+                    } catch (err) {}
+                }
+                if (e.key === `majestigers_dismiss_event_${currentTatami}`) {
+                    closeWinnerCelebration();
+                }
+            });
+
+            // Request status terkini ke Controller
+            requestCurrentState();
+        }
+
+        function requestCurrentState() {
+            if (broadcastChannel) {
+                broadcastChannel.postMessage({ type: 'REQUEST_CURRENT_STATE', tatami: currentTatami });
+            }
+            // Muat dari localStorage jika ada cache
+            try {
+                const saved = localStorage.getItem(`majestigers_sync_tatami_${currentTatami}`);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    applyState(parsed);
+                }
+                const savedWinner = localStorage.getItem(`majestigers_winner_event_${currentTatami}`);
+                if (savedWinner) {
+                    const parsedWinner = JSON.parse(savedWinner);
+                    if (parsedWinner && (Date.now() - (parsedWinner.timestamp || 0)) < 300000) {
+                        displayWinnerCelebration(parsedWinner);
+                    }
+                }
+            } catch (err) {}
+        }
+
+        function handleSyncMessage(payload) {
+            if (!payload) return;
+            if (payload.type === 'STATE_UPDATE' || payload.type === 'SYNC_ALL') {
+                applyState(payload.data);
+                indicateSyncPulse();
+            } else if (payload.type === 'TRIGGER_HORN') {
+                playHornSound(payload.duration || 1.2, payload.freq || 420);
+            } else if (payload.type === 'ANNOUNCE_ATHLETE') {
+                displaySpectatorAnnouncement(payload);
+            } else if (payload.type === 'DECLARE_WINNER') {
+                displayWinnerCelebration(payload);
+            } else if (payload.type === 'DISMISS_WINNER') {
+                closeWinnerCelebration();
+            }
+        }
+
+        function indicateSyncPulse() {
+            const dot = document.getElementById('sync-dot');
+            if (dot) {
+                dot.classList.remove('bg-emerald-500');
+                dot.classList.add('bg-amber-400');
+                setTimeout(() => {
+                    dot.classList.remove('bg-amber-400');
+                    dot.classList.add('bg-emerald-500');
+                }, 400);
+            }
+        }
+
+        function applyState(newState) {
+            if (!newState) return;
+            state = { ...state, ...newState };
+            renderAllDisplays();
+        }
+
+        // ==============================================================
+        // RENDER LOGIC KE TAMPILAN DOM
+        // ==============================================================
+        function renderAllDisplays() {
+            // Tatami & Match Info
+            const numEl = document.getElementById('display-tatami-number');
+            const lblEl = document.getElementById('display-tatami-label');
+            const titleEl = document.getElementById('display-match-title');
+            const catEl = document.getElementById('display-category');
+            const classEl = document.getElementById('display-class');
+            const stageEl = document.getElementById('display-stage-info');
+
+            if (numEl) numEl.innerText = state.tatami || currentTatami;
+            if (lblEl) lblEl.innerText = state.tatamiLabel || (state.tatami === '2' ? 'Matras 2 (Arena Utama)' : `Matras ${state.tatami}`);
+            if (titleEl && state.matchTitle) titleEl.innerText = state.matchTitle;
+            if (catEl && state.category) catEl.innerText = state.category;
+            if (classEl && state.matchClass) classEl.innerText = state.matchClass;
+            if (stageEl && state.stage) stageEl.innerText = state.stage;
+
+            // AO Corner
+            const aoScore = document.getElementById('display-score-ao');
+            const aoName = document.getElementById('display-ao-name');
+            const aoDojo = document.getElementById('display-ao-dojo');
+            const aoAffil = document.getElementById('display-ao-affil');
+            const aoPhoto = document.getElementById('display-ao-photo');
+            const aoSenshu = document.getElementById('display-senshu-ao');
+
+            if (aoScore) aoScore.innerText = state.ao.score;
+            if (aoName) aoName.innerText = state.ao.name;
+            if (aoDojo) aoDojo.innerText = state.ao.dojo;
+            if (aoAffil) aoAffil.innerText = state.ao.affil;
+            if (aoPhoto && state.ao.photo) aoPhoto.src = state.ao.photo;
+            if (aoSenshu) {
+                if (state.ao.senshu) aoSenshu.classList.remove('hidden');
+                else aoSenshu.classList.add('hidden');
+            }
+
+            // AKA Corner
+            const akaScore = document.getElementById('display-score-aka');
+            const akaName = document.getElementById('display-aka-name');
+            const akaDojo = document.getElementById('display-aka-dojo');
+            const akaAffil = document.getElementById('display-aka-affil');
+            const akaPhoto = document.getElementById('display-aka-photo');
+            const akaSenshu = document.getElementById('display-senshu-aka');
+
+            if (akaScore) akaScore.innerText = state.aka.score;
+            if (akaName) akaName.innerText = state.aka.name;
+            if (akaDojo) akaDojo.innerText = state.aka.dojo;
+            if (akaAffil) akaAffil.innerText = state.aka.affil;
+            if (akaPhoto && state.aka.photo) akaPhoto.src = state.aka.photo;
+            if (akaSenshu) {
+                if (state.aka.senshu) akaSenshu.classList.remove('hidden');
+                else akaSenshu.classList.add('hidden');
+            }
+
+            // Penalty Badges
+            renderPenalty('ao', state.ao.penalty);
+            renderPenalty('aka', state.aka.penalty);
+
+            // Timer Display
+            renderTimer();
+
+            // Down Time KO Display
+            renderKoPanel();
+        }
+
+        function renderPenalty(corner, level) {
+            const levels = ['1c', '2c', '3c', 'hc', 'h'];
+            const names = ['Bersih (0)', '1C Aktif', '2C Aktif', '3C Aktif', 'HC (Hansoku-Chui)', 'H (Hansoku Diskualifikasi)'];
+            const textEl = document.getElementById(`display-${corner}-pen-text`);
+            if (textEl) textEl.innerText = names[level] || 'Bersih';
+
+            levels.forEach((lvl, idx) => {
+                const badge = document.getElementById(`${corner}-disp-pen-${lvl}`);
+                if (!badge) return;
+                const val = idx + 1;
+                if (val <= level) {
+                    if (val === 5) {
+                        badge.className = 'py-2.5 sm:py-3 rounded-2xl text-center text-sm sm:text-base font-black font-mono tracking-wider transition-all bg-rose-600 text-white shadow-lg shadow-rose-600/50 border-2 border-rose-400 animate-pulse';
+                    } else if (val === 4) {
+                        badge.className = 'py-2.5 sm:py-3 rounded-2xl text-center text-sm sm:text-base font-black font-mono tracking-wider transition-all bg-orange-500 text-white shadow-md shadow-orange-500/40 border-2 border-orange-300';
+                    } else {
+                        badge.className = 'py-2.5 sm:py-3 rounded-2xl text-center text-sm sm:text-base font-black font-mono tracking-wider transition-all bg-amber-400 text-slate-950 shadow-lg shadow-amber-400/40 border-2 border-amber-300';
+                    }
+                } else {
+                    badge.className = 'py-2.5 sm:py-3 rounded-2xl text-center text-sm sm:text-base font-bold font-mono tracking-wider transition-all bg-slate-900/90 text-gray-500 border border-slate-800';
+                }
+            });
+        }
+
+        function renderTimer() {
+            const totalMs = Math.max(0, state.timerRemainingMs || 0);
+            const totalSeconds = Math.floor(totalMs / 1000);
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            const ms = Math.floor((totalMs % 1000) / 10).toString().padStart(2, '0');
+
+            const timerEl = document.getElementById('display-timer');
+            const msEl = document.getElementById('display-timer-ms');
+            const boxEl = document.getElementById('display-timer-box');
+            const bannerEl = document.getElementById('timer-status-banner');
+
+            if (timerEl) timerEl.innerText = `${m}:${s}`;
+            if (msEl) msEl.innerText = `.${ms}`;
+
+            const isDangerZone = totalMs <= 15000 && totalMs > 0;
+            const isFinished = totalMs === 0;
+
+            if (timerEl && boxEl) {
+                if (isDangerZone) {
+                    timerEl.className = 'text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-mono font-black text-rose-500 tracking-tight leading-none timer-glow-danger animate-pulse';
+                    if (msEl) msEl.className = 'text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-rose-500 ml-1 leading-none tracking-normal select-none animate-pulse';
+                    boxEl.className = 'transition-all duration-300 w-full py-3 sm:py-5 px-3 rounded-3xl bg-rose-950/90 border-4 border-rose-500 shadow-2xl shadow-rose-600/60 ring-4 ring-rose-500/30 flex items-center justify-center overflow-hidden';
+                    if (bannerEl) {
+                        bannerEl.classList.remove('hidden');
+                        bannerEl.className = 'px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-rose-600 text-white animate-pulse shadow-xl shadow-rose-600/50';
+                        bannerEl.innerHTML = '<i class="fa-solid fa-bell mr-1.5"></i> ATOSHI BARAKU (15s)';
+                    }
+                } else if (isFinished) {
+                    timerEl.className = 'text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-mono font-black text-amber-400 tracking-tight leading-none timer-glow-finished';
+                    if (msEl) msEl.className = 'text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-amber-400 ml-1 leading-none tracking-normal select-none';
+                    boxEl.className = 'transition-all duration-300 w-full py-3 sm:py-5 px-3 rounded-3xl bg-amber-950/80 border-4 border-amber-400 shadow-2xl shadow-amber-500/40 ring-4 ring-amber-400/30 flex items-center justify-center overflow-hidden';
+                    if (bannerEl) {
+                        bannerEl.classList.remove('hidden');
+                        bannerEl.className = 'px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-amber-400 text-slate-950 animate-bounce shadow-xl shadow-amber-500/50 font-bold';
+                        bannerEl.innerHTML = '<i class="fa-solid fa-flag-checkered mr-1.5"></i> SOREMADE / YAME (WAKTU HABIS)';
+                    }
+                } else {
+                    timerEl.className = 'text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-mono font-black text-white tracking-tight leading-none timer-glow-normal';
+                    if (msEl) msEl.className = 'text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-white/90 ml-1 leading-none tracking-normal select-none';
+                    boxEl.className = 'transition-all duration-300 w-full py-3 sm:py-5 px-3 rounded-3xl bg-slate-950 border-4 border-amber-500/50 shadow-2xl flex items-center justify-center overflow-hidden';
+                    if (bannerEl) {
+                        bannerEl.classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        function renderKoPanel() {
+            const panel = document.getElementById('display-ko-panel');
+            const targetEl = document.getElementById('display-ko-target');
+            const numberEl = document.getElementById('display-ko-number');
+            const badgeEl = document.getElementById('display-ko-badge');
+            if (!panel) return;
+
+            if (state.ko && state.ko.isActive) {
+                panel.classList.remove('hidden');
+                panel.classList.add('flex');
+                if (targetEl) {
+                    targetEl.innerText = `TARGET: ${state.ko.target.toUpperCase()}`;
+                    targetEl.className = state.ko.target === 'ao' 
+                        ? 'text-[10px] font-mono font-black text-white bg-blue-600 px-2.5 py-0.5 rounded-full uppercase shadow'
+                        : 'text-[10px] font-mono font-black text-white bg-rose-600 px-2.5 py-0.5 rounded-full uppercase shadow';
+                }
+                if (numberEl) {
+                    const totalMs = Math.max(0, state.ko.remainingMs);
+                    const sec = Math.ceil(totalMs / 1000);
+                    numberEl.innerText = sec;
+
+                    if (totalMs === 0) {
+                        numberEl.className = 'text-7xl sm:text-8xl lg:text-9xl font-mono font-black text-white tracking-tight leading-none drop-shadow-[0_0_35px_rgba(255,255,255,0.9)] animate-bounce select-none';
+                        if (badgeEl) {
+                            badgeEl.className = 'mt-1 px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest text-white bg-rose-600 animate-pulse';
+                            badgeEl.innerText = '10s HABIS (KIKEN / UNFIT)';
+                        }
+                    } else {
+                        numberEl.className = 'text-7xl sm:text-8xl lg:text-9xl font-mono font-black text-white tracking-tight leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.7)] select-none' + (state.ko.isRunning ? ' animate-pulse' : '');
+                        if (badgeEl) {
+                            badgeEl.className = 'mt-1 px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest text-slate-300 bg-slate-900/90 border border-slate-800';
+                            badgeEl.innerText = state.ko.isRunning ? 'HITUNGAN 10 DETIK AKTIF' : 'HITUNGAN 10 DETIK WASIT';
+                        }
+                    }
+                }
+            } else {
+                panel.classList.add('hidden');
+                panel.classList.remove('flex');
+            }
+        }
+
+        // ==============================================================
+        // SISTEM PERAYAAN KEMENANGAN ("LAYAR JADI SATU" & CONFETTI CELEBRATION)
+        // ==============================================================
+        let confettiAnimationId = null;
+        let confettiParticles = [];
+
+        function startConfetti() {
+            const canvas = document.getElementById('celebration-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            resize();
+            window.removeEventListener('resize', resize);
+            window.addEventListener('resize', resize);
+
+            // 180 partikel warna-warni dinamis
+            const colors = [
+                '#f59e0b', '#fbbf24', '#fef08a', // Emas
+                '#ef4444', '#dc2626', '#f87171', // Merah
+                '#3b82f6', '#2563eb', '#60a5fa', // Biru
+                '#10b981', '#34d399',             // Hijau
+                '#ffffff', '#f1f5f9'              // Putih
+            ];
+
+            confettiParticles = [];
+            const particleCount = 180;
+            for (let i = 0; i < particleCount; i++) {
+                confettiParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 10 + 6,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: Math.random() * 3 + 2.5,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 6,
+                    wobble: Math.random() * Math.PI * 2,
+                    wobbleSpeed: Math.random() * 0.08 + 0.03,
+                    shape: Math.random() > 0.4 ? 'rect' : 'circle'
+                });
+            }
+
+            if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
+
+            function updateAndDraw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                confettiParticles.forEach(p => {
+                    p.y += p.vy;
+                    p.x += Math.sin(p.wobble) * 2 + p.vx;
+                    p.wobble += p.wobbleSpeed;
+                    p.rotation += p.rotationSpeed;
+
+                    if (p.y > canvas.height + 20) {
+                        p.y = -20;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+
+                    if (p.shape === 'rect') {
+                        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+                    } else {
+                        ctx.beginPath();
+                        ctx.arc(0, 0, p.size / 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                });
+
+                confettiAnimationId = requestAnimationFrame(updateAndDraw);
+            }
+
+            updateAndDraw();
+        }
+
+        function stopConfetti() {
+            if (confettiAnimationId) {
+                cancelAnimationFrame(confettiAnimationId);
+                confettiAnimationId = null;
+            }
+            const canvas = document.getElementById('celebration-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Fanfare Kemenangan Web Audio API Brass Horn 6-Notes
+        function playVictoryFanfare() {
+            if (isAudioMuted) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+
+                // Triumphant Fanfare Sequence: C4 -> E4 -> G4 -> C5 -> G4 -> Triad C5+E5+G5
+                const notes = [
+                    { freq: 261.63, start: 0.0,  dur: 0.22, vol: 0.35 },
+                    { freq: 329.63, start: 0.22, dur: 0.22, vol: 0.35 },
+                    { freq: 392.00, start: 0.44, dur: 0.22, vol: 0.40 },
+                    { freq: 523.25, start: 0.66, dur: 0.35, vol: 0.45 },
+                    { freq: 392.00, start: 1.01, dur: 0.20, vol: 0.38 },
+                    { freq: 523.25, start: 1.25, dur: 1.60, vol: 0.45 },
+                    { freq: 659.25, start: 1.25, dur: 1.60, vol: 0.35 },
+                    { freq: 783.99, start: 1.25, dur: 1.60, vol: 0.30 },
+                ];
+
+                notes.forEach(n => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(n.freq, now + n.start);
+
+                    gain.gain.setValueAtTime(0.001, now + n.start);
+                    gain.gain.exponentialRampToValueAtTime(n.vol, now + n.start + 0.04);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + n.start + n.dur);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + n.start);
+                    osc.stop(now + n.start + n.dur);
+                });
+
+                // Sirine Stadion Pelengkap Kemeriahan
+                setTimeout(() => {
+                    playHornSound(1.4, 480);
+                }, 1300);
+            } catch(e) {
+                console.warn('Fanfare error:', e);
+            }
+        }
+
+        function displayWinnerCelebration(data) {
+            const screen = document.getElementById('winner-celebration-screen');
+            if (!screen) return;
+
+            // Pastikan data pemenang terisi lengkap
+            const corner = (data.corner || (state.aka.score > state.ao.score ? 'aka' : 'ao')).toLowerCase();
+            const athleteData = corner === 'ao' ? state.ao : state.aka;
+
+            const name = data.winnerName || athleteData.name || (corner === 'ao' ? 'ATLET AO' : 'ATLET AKA');
+            const dojo = data.winnerDojo || athleteData.dojo || (corner === 'ao' ? 'DOJO LAWAN' : 'DOJO ALFA');
+            const affil = data.winnerAffil || athleteData.affil || (corner === 'ao' ? 'INKANAS JAWA TIMUR' : 'INKANAS INDONESIA');
+            const photo = data.winnerPhoto || athleteData.photo || (corner === 'ao' ? 'img/athlete_ao.jpg' : 'img/athlete_aka.jpg');
+            const scoreAo = data.scoreAo !== undefined ? data.scoreAo : state.ao.score;
+            const scoreAka = data.scoreAka !== undefined ? data.scoreAka : state.aka.score;
+            const hasSenshu = data.hasSenshu !== undefined ? data.hasSenshu : (corner === 'ao' ? state.ao.senshu : state.aka.senshu);
+            const tatamiNum = data.tatami || state.tatami || currentTatami;
+
+            // Update DOM Elements
+            const nameEl = document.getElementById('celebration-athlete-name');
+            const dojoEl = document.getElementById('celebration-athlete-dojo');
+            const affilEl = document.getElementById('celebration-athlete-affil');
+            const photoEl = document.getElementById('celebration-athlete-photo');
+            const cornerBadge = document.getElementById('celebration-corner-badge');
+            const photoRing = document.getElementById('celebration-photo-ring');
+            const backdrop = document.getElementById('celebration-backdrop');
+            const scoreAoEl = document.getElementById('celebration-score-ao');
+            const scoreAkaEl = document.getElementById('celebration-score-aka');
+            const senshuBadge = document.getElementById('celebration-senshu-badge');
+            const tatamiEl = document.getElementById('celebration-tatami-num');
+            const matchInfoEl = document.getElementById('celebration-match-info');
+
+            if (nameEl) nameEl.innerText = name;
+            if (dojoEl) dojoEl.innerText = dojo;
+            if (affilEl) affilEl.innerText = affil;
+            if (photoEl) photoEl.src = photo;
+            if (scoreAoEl) scoreAoEl.innerText = scoreAo;
+            if (scoreAkaEl) scoreAkaEl.innerText = scoreAka;
+            if (tatamiEl) tatamiEl.innerText = tatamiNum;
+
+            if (matchInfoEl) {
+                const title = data.matchTitle || state.matchTitle || 'PARTAI #18 • KUMITE PERORANGAN';
+                const mClass = data.matchClass || state.matchClass || 'Pra Pemula Putra -50Kg';
+                matchInfoEl.innerHTML = `<i class="fa-solid fa-trophy text-amber-400"></i><span>${title} &bull; ${mClass}</span>`;
+            }
+
+            if (cornerBadge) {
+                if (corner === 'ao') {
+                    cornerBadge.innerText = 'AO (BIRU) JUARA';
+                    cornerBadge.className = 'absolute -bottom-2 inset-x-0 mx-auto w-max px-5 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-blue-600 text-white shadow-xl border-2 border-white';
+                } else {
+                    cornerBadge.innerText = 'AKA (MERAH) JUARA';
+                    cornerBadge.className = 'absolute -bottom-2 inset-x-0 mx-auto w-max px-5 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-rose-600 text-white shadow-xl border-2 border-white';
+                }
+            }
+
+            if (photoRing) {
+                photoRing.className = corner === 'ao'
+                    ? 'w-32 h-32 sm:w-44 sm:h-44 lg:w-52 lg:h-52 rounded-full p-2 bg-gradient-to-tr from-blue-500 via-cyan-300 to-amber-400 shadow-2xl shadow-blue-500/60 ring-8 ring-blue-500/30 relative animate-aura'
+                    : 'w-32 h-32 sm:w-44 sm:h-44 lg:w-52 lg:h-52 rounded-full p-2 bg-gradient-to-tr from-rose-500 via-amber-300 to-amber-500 shadow-2xl shadow-rose-500/60 ring-8 ring-rose-500/30 relative animate-aura';
+            }
+
+            if (backdrop) {
+                backdrop.className = 'absolute inset-0 -z-20 transition-all duration-700';
+                backdrop.style.background = corner === 'ao'
+                    ? 'radial-gradient(circle at 50% 45%, rgba(30, 64, 175, 0.55) 0%, rgba(15, 23, 42, 0.95) 55%, #020617 100%)'
+                    : 'radial-gradient(circle at 50% 45%, rgba(225, 29, 72, 0.55) 0%, rgba(15, 23, 42, 0.95) 55%, #020617 100%)';
+            }
+
+            if (senshuBadge) {
+                if (hasSenshu) {
+                    senshuBadge.classList.remove('hidden');
+                    senshuBadge.innerText = 'SENSHU ' + (corner === 'ao' ? 'AO' : 'AKA');
+                } else {
+                    senshuBadge.classList.add('hidden');
+                }
+            }
+
+            // Tampilkan Layar Penuh Perayaan ("Layar Jadi Satu")
+            screen.classList.remove('hidden');
+            screen.classList.add('flex');
+
+            // Jalankan animasi Confetti dan Bunyikan Fanfare Kemenangan
+            startConfetti();
+            playVictoryFanfare();
+        }
+
+        function closeWinnerCelebration() {
+            const screen = document.getElementById('winner-celebration-screen');
+            if (screen) {
+                screen.classList.add('hidden');
+                screen.classList.remove('flex');
+            }
+            stopConfetti();
+            try {
+                localStorage.removeItem(`majestigers_winner_event_${currentTatami}`);
+            } catch(e) {}
+        }
+
+        // ==============================================================
+        // UTILITIES: ARENA CLOCK, FULLSCREEN & IDLE TOOLBAR
+        // ==============================================================
+        function startArenaClock() {
+            const clockEl = document.getElementById('arena-clock');
+            setInterval(() => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+                if (clockEl) clockEl.innerText = timeStr;
+            }, 1000);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreen-icon');
+            if (icon) {
+                icon.className = document.fullscreenElement ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+            }
+        });
+
+        // Shortcut keyboard F untuk Fullscreen
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        // Auto-hide floating toolbar saat kursor tidak bergerak selama 3 detik
+        let idleTimer = null;
+        function resetIdleTimer() {
+            const toolbar = document.getElementById('floating-toolbar');
+            if (toolbar) toolbar.classList.remove('idle-hidden');
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                if (toolbar) toolbar.classList.add('idle-hidden');
+            }, 3000);
+        }
+        window.addEventListener('mousemove', resetIdleTimer);
+        window.addEventListener('mousedown', resetIdleTimer);
+        window.addEventListener('touchstart', resetIdleTimer);
+
+        function changeTatami(val) {
+            currentTatami = val;
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('tatami', val);
+            window.history.replaceState(null, '', newUrl.toString());
+            initSyncChannel();
+        }
+
+        // Inisialisasi awal saat load
+        window.addEventListener('DOMContentLoaded', () => {
+            startArenaClock();
+            initSyncChannel();
+            renderAllDisplays();
+            resetIdleTimer();
+        });
+    </script>
+</body>
+</html>
