@@ -168,13 +168,32 @@ Untuk menjamin keamanan, efisiensi operasional, dan privasi data antara atlet, p
 * **FR-3.2 Pendaftaran Kontingen & Verifikasi Berkas**:
   * Formulir pendaftaran atlet individu dan regu kontingen.
   * Upload surat kesehatan dokter, akta kelahiran (verifikasi usia), dan bukti pembayaran.
-* **FR-3.3 Bracket Generator Otomatis (Single Elimination / Repechage)**:
-  * Generator bagan otomatis dengan algoritma seeding untuk mencegah bentrok sesama atlet satu dojo di babak awal.
-  * Visualisasi bagan pertandingan bertahap (Penyisihan, Perempat Final, Semifinal, Bronze Match, Final).
-* **FR-3.4 Live Scoreboard & Status Matras (Tatami Display)**:
-  * Update skor real-time untuk kubu Aka (Merah) dan Ao (Biru).
-  * Papan status laga: *Upcoming*, *In-Progress (Live)*, dan *Completed*.
-  * Tampilan ringkas nomor partai pertandingan yang sedang bertarung di masing-masing matras.
+* **FR-3.3 Multi-Pool & Adaptive Bracket Engine WKF**:
+  * Generator bagan otomatis dengan algoritma seeded draw WKF untuk memisahkan atlet unggulan (*seeded*).
+  * Dukungan sistem hierarki Multi-Pool (Pool A, Pool B, dsb.) menuju Grand Final Antar Juara Pool (Emas, Perak, Perunggu Bersama).
+  * Skala peserta adaptif: 4 (Semifinal), 8 (Perempat Final), 12 (16 Besar + 4 BYE), 16 (16 Besar Penuh), serta slot kustom.
+  * Aturan Babak Lanjutan: Slot semifinal dan final dikosongkan secara default, dan baru terisi otomatis saat pemenang babak sebelumnya disahkan.
+  * Drag-and-Drop HTML5 Native: Penukaran posisi atlet antar-slot atau penarikan dari Bank Peserta (*Roster Tray*) secara instan.
+* **FR-3.4 Dynamic SVG Connecting Lines (Garis Penghubung Bagan)**:
+  * Garis penghubung antar-babak digambar dinamis berbasis koordinat SVG orthogonal dengan lengkungan Bézier halus (*smooth radius*).
+  * Responsif terhadap resize browser, scrolling horizontal, dan pembaruan struktur pool.
+  * Jalur konektor emas khusus dari babak final pool menuju box penobatan piala Juara 1 Pool.
+* **FR-3.5 Standard F4 / Folio Landscape Print Engine (330mm x 215mm)**:
+  * Lembar cetak bagan resmi siap cetak format F4 Landscape (*Folio* 330mm x 215mm) dengan margin 8mm presisi WKF.
+  * Sub-engine SVG konektor khusus cetak memastikan seluruh garis cabang dan jalur juara tercetak tajam dan rapi di kertas fisik.
+  * Dual-mode printing: tab baru instan dan fallback *hidden iframe* untuk mengantisipasi blokir pop-up browser.
+* **FR-3.6 Detail Perolehan Nilai & Kronologi Per Menit (Match Breakdown Modal)**:
+  * Modal interaktif yang terbuka saat kartu pertandingan di bagan diklik.
+  * Rekapitulasi poin WKF: Yuko (+1), Waza-ari (+2), Ippon (+3), status Senshu, dan rincian penalti kategori WKF (1C, 2C, 3C, HC, H).
+  * Garis waktu kronologis (*event timeline*) per menit pertandingan (Menit 1, 2, 3) dengan rekam waktu *countdown* presisi (03:00 ke 00:00).
+  * Status pertandingan tegas: `BELUM DIMULAI` (abu-abu), `SEDANG BERLANGSUNG` (amber), dan `SELESAI` (hijau emerald).
+* **FR-3.7 Integrasi Dua Arah Bagan Turnamen & Live Scoreboard (Bi-Directional Real-Time Sync)**:
+  * Tombol *Scoreboard* pada setiap kartu pertandingan memuat partai langsung ke meja wasit juri dengan data atlet, dojo, nomor partai, dan kelas tanding.
+  * *Banner Sinkronisasi Aktif*: Menyajikan status laga live, skor terkini AKA vs AO, dan tombol navigasi balik.
+  * *Otomasi Senshu WKF*: Poin perdana tanpa balas otomatis mendapatkan Senshu tanpa perlu intervensi wasit manual.
+  * *Pengesahan Pemenang & Auto-Advance*: Pengesahan pemenang di scoreboard mengunci skor, menandai mahkota 👑, dan meneruskan atlet pemenang ke slot babak berikutnya di bagan (atau mahkota Juara 1 Pool / Grand Champion).
+  * *Konsistensi Reset Skor*: Fitur reset di scoreboard membersihkan skor, mengosongkan riwayat menit, dan membatalkan status kelolosan babak berikutnya jika partai di-reset.
+  * *Smart Return Navigation*: Tombol "Kembali ke Bagan" otomatis mengaktifkan pool yang sesuai dan melakukan *smooth scroll* dengan *highlight ring* ke kartu partai yang bersangkutan.
 
 ### Modul 4: K-Majestigers Official E-Commerce Store
 * **FR-4.1 Katalog Produk WKF Standard**:

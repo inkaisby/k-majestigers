@@ -90,4 +90,70 @@ npm start
 - **Portal Kontingen / Dojo**: [http://localhost:3000/dojo.html](http://localhost:3000/dojo.html)
 - **Portal Admin / Panitia**: [http://localhost:3000/admin.html](http://localhost:3000/admin.html)
 
+---
+
+## 🚀 Panduan Deployment: Vercel & Supabase
+
+### 1. File Konfigurasi yang Tersedia
+- **[`.env.example`](file:///d:/website/majestigers/.env.example)**: Template lengkap variabel database Supabase, API keys, JWT secret, dan CORS origin.
+- **[`env-config.js`](file:///d:/website/majestigers/env-config.js)**: Runtime environment helper yang otomatis mendeteksi apakah aplikasi sedang berjalan di Localhost atau di domain HTTPS Vercel (anti *Mixed Content*).
+- **[`vercel.json`](file:///d:/website/majestigers/vercel.json)**: Aturan routing clean URLs, rewrites, dan security headers.
+
+### 2. Konfigurasi di Supabase Dashboard
+1. Buka [Supabase Dashboard](https://supabase.com/dashboard) &rarr; Masuk ke project **`majestigers`** (`ecmafwuuuviesytcnorv`).
+2. **Project Settings &rarr; Database**:
+   - Salin **Connection String (Transaction Pooler - Port 6543)** untuk `DATABASE_URL`.
+   - Salin **Direct Connection (Port 5432)** untuk `DIRECT_URL`.
+3. **Authentication &rarr; URL Configuration**:
+   - Atur **Site URL**: `https://[nama-project-anda].vercel.app`
+   - Tambahkan **Redirect URLs**:
+     - `https://[nama-project-anda].vercel.app/**`
+     - `http://localhost:3000/**`
+
+### 3. Deploy Frontend ke Vercel
+Deploy dapat dilakukan langsung via Git (GitHub/GitLab) atau Vercel CLI:
+```bash
+# Via Vercel CLI di folder root website:
+npx vercel
+```
+Di Vercel Project Settings &rarr; **Environment Variables**, Anda dapat menambahkan (opsional jika menggunakan custom backend domain):
+- `API_URL` = `https://api.domain-anda.com/api`
+
+---
+
+## 🏆 Fitur Unggulan: WKF Tournament Engine & Live Scoreboard Bi-Directional Integration
+
+Portal Admin (`admin.html`) dilengkapi dengan mesin turnamen karate berstandar World Karate Federation (WKF) yang terintegrasi secara dua arah (*bi-directional real-time sync*) dengan Live Scoreboard Tatami:
+
+### 1. Bagan Turnamen Adaptif & Multi-Pool (Pool A, Pool B & Grand Final)
+- **Multi-Pool Hierarchy**: Mendukung pembagian atlet ke Pool A, Pool B, dsb., hingga babak Grand Final Antar Juara Pool (Perebutan Medali Emas, Perak, dan Perunggu Bersama).
+- **Format Gugur Tunggal WKF (Single Elimination)**: Skala peserta dinamis (4 Semifinal, 8 Perempat Final, 12 Besar + 4 BYE, 16 Besar Penuh, hingga kustom).
+- **Aturan Babak Lanjutan (Semifinal & Final)**: Slot babak berikutnya dikosongkan secara default, dan baru terisi otomatis saat pemenang babak sebelumnya disahkan.
+- **HTML5 Native Drag-and-Drop**: Atlet dapat ditukar posisi antar-slot atau ditarik dari *Bank Peserta (Roster Tray)* langsung ke bagan.
+
+### 2. Garis Penghubung Bagan SVG Dinamis (Dynamic Connecting Lines)
+- **SVG Path Orthogonal & Bézier Curvature**: Garis penghubung antar-babak digambar dinamis menggunakan koordinat bounding box kartu pertandingan.
+- **Responsif & Cross-Resolution**: Garis otomatis diperbarui saat jendela di-resize atau terjadi perubahan peserta.
+- **Jalur Juara Emas**: Jalur konektor emas khusus yang menghubungkan babak final pool ke box piala Juara 1 Pool.
+
+### 3. Cetak Bagan Resmi Standar F4 / Folio Landscape (330mm x 215mm)
+- **Format Standar WKF**: Desain cetak horizontal presisi untuk lembar F4/Folio (330mm x 215mm) dengan margin 8mm.
+- **Konektor Cetak Presisi**: Dilengkapi engine kalkulasi SVG terpisah khusus mode cetak untuk memastikan garis penghubung tercetak sempurna di atas kertas.
+- **Reliable Print Engine**: Dilengkapi mekanisme pembukaan tab baru serta *hidden iframe fallback* jika pop-up browser terblokir.
+
+### 4. Modal Detail Perolehan Poin & Kronologi Menit Pertandingan
+- **Akses Langsung**: Mengklik kartu pertandingan di bagan membuka modal rincian statistik WKF.
+- **Rincian Nilai WKF**: Perolehan poin Yuko (+1), Waza-ari (+2), Ippon (+3), status Senshu, dan daftar sanksi pelanggaran (1C, 2C, 3C, HC, H / Hansoku).
+- **Kronologi Garis Waktu Per Menit**: Catatan peristiwa per menit (Menit 1, Menit 2, Menit 3) dengan rekam waktu *countdown* (03:00 ke 00:00).
+- **Status Partai Jelas**: Indikator status tegas (`BELUM DIMULAI`, `SEDANG BERLANGSUNG`, atau `SELESAI`).
+
+### 5. Integrasi Penuh Scoreboard & Penyimpanan Otomatis
+- **Tombol Scoreboard di Tiap Partai**: Membuka partai langsung ke panel wasit juri dengan nama atlet, dojo, nomor partai, dan kelas tanding.
+- **Banner Sinkronisasi Aktif**: Menampilkan nomor partai, pool, skor real-time, status laga, dan tombol cepat "Kembali ke Bagan".
+- **Otomasi Senshu WKF**: Poin pertama tanpa balas otomatis mendapatkan Senshu tanpa perlu klik manual.
+- **Pengesahan Pemenang & Auto-Advance**: Mengesahkan pemenang di scoreboard otomatis mengunci skor akhir, memberikan mahkota 👑, dan meloloskan pemenang ke babak berikutnya di bagan.
+- **Konsistensi Reset Skor**: Tombol reset di scoreboard membersihkan skor, riwayat, dan membatalkan kelolosan di babak selanjutnya jika pertandingan di-reset.
+- **Smart Return Navigation**: Tombol "Kembali ke Bagan" otomatis mengaktifkan pool yang sesuai dan melakukan *smooth scroll* dengan *highlight ring* ke kartu partai yang bersangkutan.
+
+
 

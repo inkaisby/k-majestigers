@@ -114,6 +114,18 @@
             <option value="4">Matras 4</option>
         </select>
 
+        <!-- Tukar Sisi Posisi Layar (AO ⇄ AKA) -->
+        <button type="button" onclick="toggleSwapSides()" id="btn-swap-sides" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 hover:text-amber-400 border border-slate-700 text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Tukar Posisi Layar AO & AKA Kiri-Kanan (Shortcut: X)">
+            <i class="fa-solid fa-right-left text-amber-400"></i>
+            <span id="swap-sides-label">Sisi: AO | AKA</span>
+        </button>
+
+        <!-- Tukar Atlet Sudut AO & AKA -->
+        <button type="button" onclick="swapAthletes()" id="btn-swap-athletes" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 hover:text-amber-400 border border-slate-700 text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Tukar Atlet & Data Sudut AO dan AKA (Shortcut: W)">
+            <i class="fa-solid fa-user-group text-blue-400"></i>
+            <span class="hidden sm:inline">Tukar Atlet</span>
+        </button>
+
         <!-- Audio Horn / Buzzer Toggle -->
         <button type="button" onclick="toggleAudioMute()" id="btn-audio-mute" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs transition-all" title="Audio Sirine WKF (Klik untuk Aktif/Bisu)">
             <i id="audio-icon" class="fa-solid fa-volume-high"></i>
@@ -169,15 +181,15 @@
         <div class="flex-1 rounded-[2.5rem] bg-slate-950 border-4 border-slate-800 shadow-2xl shadow-black/80 my-2 sm:my-3 relative overflow-hidden flex flex-col">
             
             <!-- Continuous Stadium Accent Top Line: Blue (AO) to Gold to Red (AKA) -->
-            <div class="w-full h-2 bg-gradient-to-r from-blue-600 via-amber-400 to-rose-600 flex-shrink-0"></div>
+            <div id="stadium-accent-line" class="w-full h-2 bg-gradient-to-r from-blue-600 via-amber-400 to-rose-600 flex-shrink-0"></div>
 
             <!-- Unified 3-Segment Grid (Zero Gap, Flush Dividing Borders) -->
-            <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_360px_1fr] xl:grid-cols-[1fr_420px_1fr] items-stretch h-full relative">
+            <div id="arena-grid" class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_360px_1fr] xl:grid-cols-[1fr_420px_1fr] items-stretch h-full relative">
                 
                 <!-- ==============================================
                      SUDUT AO (BIRU - SEBELAH KIRI, MENEMPEL ERAT KE TENGAH)
                      ============================================== -->
-                <section aria-label="Sudut AO Biru" class="bg-gradient-to-br from-blue-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between border-b lg:border-b-0 lg:border-r-2 border-blue-500/30">
+                <section id="section-corner-ao" aria-label="Sudut AO Biru" class="bg-gradient-to-br from-blue-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between border-b lg:border-b-0 lg:border-r-2 border-blue-500/30">
                     <!-- Corner Glow Accent -->
                     <div class="absolute -top-20 -left-20 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -256,11 +268,11 @@
                 <!-- ==============================================
                      CENTER COLUMN: TIMER WKF + STATUS + DOWN TIME (CORE MENEMPEL ERAT DI TENGAH)
                      ============================================== -->
-                <section aria-label="Pusat Timer dan Status WKF" class="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 p-4 sm:p-5 flex flex-col justify-between items-center relative overflow-hidden border-b lg:border-b-0 lg:border-r-2 border-rose-500/30">
+                <section id="section-center-timer" aria-label="Pusat Timer dan Status WKF" class="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 p-4 sm:p-5 flex flex-col justify-between items-center relative overflow-hidden border-b lg:border-b-0 lg:border-r-2 border-rose-500/30">
                     
                     <!-- Top subtle indicator header -->
                     <div class="flex items-center justify-between w-full px-2 pt-1 border-b border-slate-800/80 pb-2">
-                        <span class="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-blue-400">
+                        <span id="center-indicator-left" class="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-blue-400">
                             <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm animate-pulse"></span>
                             <span>AO</span>
                         </span>
@@ -269,7 +281,7 @@
                                 <i class="fa-solid fa-stopwatch mr-1.5"></i> WKF TIMER
                             </span>
                         </div>
-                        <span class="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-rose-400">
+                        <span id="center-indicator-right" class="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-rose-400">
                             <span>AKA</span>
                             <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm animate-pulse"></span>
                         </span>
@@ -294,15 +306,15 @@
 
                     <!-- VS CREST BADGE -->
                     <div class="flex items-center justify-center w-full py-1">
-                        <div class="flex-1 h-0.5 bg-gradient-to-r from-blue-500 via-blue-500/40 to-transparent"></div>
+                        <div id="vs-line-left" class="flex-1 h-0.5 bg-gradient-to-r from-blue-500 via-blue-500/40 to-transparent"></div>
                         <div class="mx-3 relative flex items-center justify-center">
-                            <div class="w-11 h-11 rounded-full p-0.5 bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500 shadow-xl shadow-amber-500/30">
+                            <div id="vs-crest-ring" class="w-11 h-11 rounded-full p-0.5 bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500 shadow-xl shadow-amber-500/30">
                                 <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
                                     <span class="text-amber-400 font-black text-xs tracking-wider">VS</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex-1 h-0.5 bg-gradient-to-l from-rose-500 via-rose-500/40 to-transparent"></div>
+                        <div id="vs-line-right" class="flex-1 h-0.5 bg-gradient-to-l from-rose-500 via-rose-500/40 to-transparent"></div>
                     </div>
 
                     <!-- DOWN TIME (KO 10s) PANEL (Tanpa kotak merah, angka detik putih besar) -->
@@ -339,7 +351,7 @@
                 <!-- ==============================================
                      SUDUT AKA (MERAH - SEBELAH KANAN, MENEMPEL ERAT KE TENGAH)
                      ============================================== -->
-                <section aria-label="Sudut AKA Merah" class="bg-gradient-to-bl from-rose-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between">
+                <section id="section-corner-aka" aria-label="Sudut AKA Merah" class="bg-gradient-to-bl from-rose-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between">
                     <!-- Corner Glow Accent -->
                     <div class="absolute -top-20 -right-20 w-64 h-64 bg-rose-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -661,6 +673,7 @@
                 remainingMs: 10000,
                 isRunning: false
             },
+            isLayoutSwapped: false,
             winner: null
         };
 
@@ -847,6 +860,12 @@
             if (payload.type === 'STATE_UPDATE' || payload.type === 'SYNC_ALL') {
                 applyState(payload.data);
                 indicateSyncPulse();
+            } else if (payload.type === 'SWAP_LAYOUT') {
+                toggleSwapSides(payload.isSwapped);
+                indicateSyncPulse();
+            } else if (payload.type === 'SWAP_ATHLETES') {
+                swapAthletes(false);
+                indicateSyncPulse();
             } else if (payload.type === 'TRIGGER_HORN') {
                 playHornSound(payload.duration || 1.2, payload.freq || 420);
             } else if (payload.type === 'ANNOUNCE_ATHLETE') {
@@ -873,6 +892,10 @@
         function applyState(newState) {
             if (!newState) return;
             state = { ...state, ...newState };
+            if (typeof newState.isLayoutSwapped === 'boolean') {
+                state.isLayoutSwapped = newState.isLayoutSwapped;
+                renderLayoutOrder();
+            }
             renderAllDisplays();
         }
 
@@ -1322,11 +1345,133 @@
             }
         });
 
-        // Shortcut keyboard F untuk Fullscreen
+        // ==============================================================
+        // TUKAR POSISI LAYAR (AO ⇄ AKA) & TUKAR ATLET
+        // ==============================================================
+        function toggleSwapSides(forced = null) {
+            if (typeof forced === 'boolean') {
+                state.isLayoutSwapped = forced;
+            } else {
+                state.isLayoutSwapped = !state.isLayoutSwapped;
+            }
+            renderLayoutOrder();
+            try {
+                localStorage.setItem(`majestigers_layout_swapped_${currentTatami}`, state.isLayoutSwapped ? '1' : '0');
+            } catch(e) {}
+        }
+
+        function renderLayoutOrder() {
+            const isSwapped = !!state.isLayoutSwapped;
+            const aoSection = document.getElementById('section-corner-ao');
+            const akaSection = document.getElementById('section-corner-aka');
+            const timerSection = document.getElementById('section-center-timer');
+            const topAccent = document.getElementById('stadium-accent-line');
+            const swapLabel = document.getElementById('swap-sides-label');
+            const swapBtn = document.getElementById('btn-swap-sides');
+            const indLeft = document.getElementById('center-indicator-left');
+            const indRight = document.getElementById('center-indicator-right');
+            const vsLineLeft = document.getElementById('vs-line-left');
+            const vsLineRight = document.getElementById('vs-line-right');
+            const vsCrestRing = document.getElementById('vs-crest-ring');
+
+            if (!aoSection || !akaSection || !timerSection) return;
+
+            if (isSwapped) {
+                // AKA di Kiri (order 1), Timer di Tengah (order 2), AO di Kanan (order 3)
+                akaSection.style.order = '1';
+                akaSection.className = 'bg-gradient-to-bl from-rose-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between border-b lg:border-b-0 lg:border-r-2 border-rose-500/30';
+
+                timerSection.style.order = '2';
+                timerSection.className = 'bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 p-4 sm:p-5 flex flex-col justify-between items-center relative overflow-hidden border-b lg:border-b-0 lg:border-r-2 border-blue-500/30';
+
+                aoSection.style.order = '3';
+                aoSection.className = 'bg-gradient-to-br from-blue-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between';
+
+                if (topAccent) topAccent.className = 'w-full h-2 bg-gradient-to-r from-rose-600 via-amber-400 to-blue-600 flex-shrink-0';
+                if (swapLabel) swapLabel.innerText = 'Sisi: AKA | AO';
+                if (swapBtn) {
+                    swapBtn.classList.add('border-amber-400', 'text-amber-300', 'bg-slate-800/90');
+                    swapBtn.classList.remove('text-gray-200');
+                }
+
+                if (indLeft) {
+                    indLeft.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm animate-pulse"></span><span>AKA</span>';
+                    indLeft.className = 'flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-rose-400';
+                }
+                if (indRight) {
+                    indRight.innerHTML = '<span>AO</span><span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm animate-pulse"></span>';
+                    indRight.className = 'flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-blue-400';
+                }
+                if (vsLineLeft) vsLineLeft.className = 'flex-1 h-0.5 bg-gradient-to-r from-rose-500 via-rose-500/40 to-transparent';
+                if (vsLineRight) vsLineRight.className = 'flex-1 h-0.5 bg-gradient-to-l from-blue-500 via-blue-500/40 to-transparent';
+                if (vsCrestRing) vsCrestRing.className = 'w-11 h-11 rounded-full p-0.5 bg-gradient-to-r from-rose-500 via-amber-400 to-blue-500 shadow-xl shadow-amber-500/30';
+            } else {
+                // Standar WKF: AO di Kiri (order 1), Timer di Tengah (order 2), AKA di Kanan (order 3)
+                aoSection.style.order = '1';
+                aoSection.className = 'bg-gradient-to-br from-blue-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between border-b lg:border-b-0 lg:border-r-2 border-blue-500/30';
+
+                timerSection.style.order = '2';
+                timerSection.className = 'bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 p-4 sm:p-5 flex flex-col justify-between items-center relative overflow-hidden border-b lg:border-b-0 lg:border-r-2 border-rose-500/30';
+
+                akaSection.style.order = '3';
+                akaSection.className = 'bg-gradient-to-bl from-rose-950/80 via-slate-950 to-slate-950 p-4 sm:p-6 lg:p-7 relative overflow-hidden flex flex-col justify-between';
+
+                if (topAccent) topAccent.className = 'w-full h-2 bg-gradient-to-r from-blue-600 via-amber-400 to-rose-600 flex-shrink-0';
+                if (swapLabel) swapLabel.innerText = 'Sisi: AO | AKA';
+                if (swapBtn) {
+                    swapBtn.classList.remove('border-amber-400', 'text-amber-300');
+                    swapBtn.classList.add('text-gray-200');
+                }
+
+                if (indLeft) {
+                    indLeft.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm animate-pulse"></span><span>AO</span>';
+                    indLeft.className = 'flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-blue-400';
+                }
+                if (indRight) {
+                    indRight.innerHTML = '<span>AKA</span><span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm animate-pulse"></span>';
+                    indRight.className = 'flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-rose-400';
+                }
+                if (vsLineLeft) vsLineLeft.className = 'flex-1 h-0.5 bg-gradient-to-r from-blue-500 via-blue-500/40 to-transparent';
+                if (vsLineRight) vsLineRight.className = 'flex-1 h-0.5 bg-gradient-to-l from-rose-500 via-rose-500/40 to-transparent';
+                if (vsCrestRing) vsCrestRing.className = 'w-11 h-11 rounded-full p-0.5 bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500 shadow-xl shadow-amber-500/30';
+            }
+        }
+
+        function swapAthletes(shouldBroadcast = true) {
+            const tempAo = { ...state.ao };
+            state.ao = { ...state.aka };
+            state.aka = tempAo;
+
+            renderAllDisplays();
+
+            try {
+                localStorage.setItem(`majestigers_sync_tatami_${currentTatami}`, JSON.stringify({
+                    type: 'STATE_UPDATE',
+                    data: state
+                }));
+            } catch(e) {}
+
+            if (shouldBroadcast && broadcastChannel) {
+                try {
+                    broadcastChannel.postMessage({
+                        type: 'STATE_UPDATE',
+                        data: state
+                    });
+                } catch(e) {}
+            }
+        }
+
+        // Shortcut keyboard: F (Fullscreen), X (Tukar Sisi Posisi Layar), W (Tukar Atlet)
         window.addEventListener('keydown', (e) => {
             if (e.key === 'f' || e.key === 'F') {
                 e.preventDefault();
                 toggleFullscreen();
+            } else if (e.key === 'x' || e.key === 'X') {
+                e.preventDefault();
+                toggleSwapSides();
+            } else if (e.key === 'w' || e.key === 'W') {
+                e.preventDefault();
+                swapAthletes();
             }
         });
 
@@ -1354,6 +1499,17 @@
 
         // Inisialisasi awal saat load
         window.addEventListener('DOMContentLoaded', () => {
+            // Cek preferensi layout dari URL (?swap=1) atau localStorage
+            const urlSwap = urlParams.get('swap');
+            if (urlSwap === '1') {
+                state.isLayoutSwapped = true;
+            } else {
+                try {
+                    const savedLayout = localStorage.getItem(`majestigers_layout_swapped_${currentTatami}`);
+                    if (savedLayout === '1') state.isLayoutSwapped = true;
+                } catch(e) {}
+            }
+            renderLayoutOrder();
             startArenaClock();
             initSyncChannel();
             renderAllDisplays();

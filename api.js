@@ -5,10 +5,42 @@
 
 const InkaiAPI = (() => {
     // Port default inkai-backend: 5001
-    const DEFAULT_API_URL = 'http://localhost:5001/api';
+    const LOCAL_DEFAULT_API_URL = 'http://localhost:5001/api';
     
+    function isLocalhost() {
+        if (typeof window === 'undefined') return true;
+        const host = window.location.hostname || '';
+        return host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host.startsWith('192.168.') || host === '';
+    }
+
     function getBaseUrl() {
-        return window.INKAI_API_BASE || localStorage.getItem('inkai_api_url') || DEFAULT_API_URL;
+        // 1. Cek override eksplisit dari window
+        if (window.INKAI_API_BASE) {
+            return window.INKAI_API_BASE;
+        }
+
+        // 2. Cek runtime env dari env-config.js
+        if (window.__ENV && window.__ENV.API_URL) {
+            return window.__ENV.API_URL;
+        }
+
+        // 3. Cek localStorage (dengan proteksi Mixed Content di HTTPS)
+        const savedUrl = localStorage.getItem('inkai_api_url');
+        if (savedUrl) {
+            if (typeof window !== 'undefined' && window.location.protocol === 'https:' && savedUrl.startsWith('http://localhost')) {
+                console.warn('[InkaiAPI] Mengabaikan URL localhost pada koneksi HTTPS untuk mencegah Mixed Content. Menggunakan fallback /api.');
+            } else {
+                return savedUrl;
+            }
+        }
+
+        // 4. Default berbasis environment:
+        // Di localhost -> http://localhost:5001/api
+        // Di Vercel / Live HTTPS -> /api (reverse proxy)
+        if (isLocalhost()) {
+            return LOCAL_DEFAULT_API_URL;
+        }
+        return (typeof window !== 'undefined' && window.location.origin) ? `${window.location.origin}/api` : '/api';
     }
 
     function getToken() {
