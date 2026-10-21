@@ -315,18 +315,32 @@ const InkaiAPI = (() => {
                     backendSuccess = true;
                 }
             } catch (err) {
-                // Jika backend merespons error (misal 401 kredensial salah), teruskan error ke pengguna
-                const isNetworkFailure = err.name === 'AbortError' || err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError');
-                if (!isNetworkFailure) {
+                // Jika kredensial salah (401 / 403), teruskan error resmi dari backend
+                if (err.message && (err.message.includes('401') || err.message.toLowerCase().includes('kredensial') || err.message.toLowerCase().includes('password'))) {
                     throw err;
                 }
-                console.warn('[InkaiAPI] Backend offline/unreachable saat login. Mencoba fallback...');
+
+                // Jika endpoint tidak ditemukan (404 di Vercel karena backend belum di-deploy) atau server offline:
+                const isBackendUnavailable = err.name === 'AbortError' || 
+                    err.message?.includes('Failed to fetch') || 
+                    err.message?.includes('NetworkError') ||
+                    err.message?.includes('HTTP Error 404') ||
+                    err.message?.includes('HTTP Error 502') ||
+                    err.message?.includes('HTTP Error 503');
+
+                if (!isBackendUnavailable) {
+                    throw err;
+                }
+                console.warn('[InkaiAPI] Backend endpoint tidak ditemukan (404) atau offline. Mengaktifkan mode fallback...');
             }
 
-            // 3. Fallback Akun Terverifikasi Demo / Heuristik Otomatis (Hanya jika backend offline)
+            // 3. Fallback Akun Terverifikasi Demo / Heuristik Otomatis (Saat backend offline/404 di Vercel)
             let fallbackRole = 'MEMBER';
             let fallbackName = (cleanId.includes('@') && !cleanId.includes('atlet@')) ? cleanId.split('@')[0] : 'Ahmad Rayhan Putra';
-            if (idLower === REAL_ACCOUNTS.ADMIN.identifier.toLowerCase() || idLower.includes('admin') || idLower.includes('panitia')) {
+            if (idLower === 'rahmanh946@gmail.com') {
+                fallbackRole = 'MEMBER';
+                fallbackName = 'Habibur Rahman';
+            } else if (idLower === REAL_ACCOUNTS.ADMIN.identifier.toLowerCase() || idLower.includes('admin') || idLower.includes('panitia')) {
                 fallbackRole = 'ADMIN';
                 fallbackName = 'Dr. Bambang Suryono';
             } else if (idLower === REAL_ACCOUNTS.DOJO_MANAGER.identifier.toLowerCase() || idLower.includes('sensei') || idLower.includes('dojo') || idLower.includes('coach') || idLower.includes('pelatih')) {
@@ -339,13 +353,16 @@ const InkaiAPI = (() => {
                 email: cleanId,
                 fullName: fallbackName,
                 name: fallbackName,
+                currentRank: (idLower === 'rahmanh946@gmail.com') ? 'Sabuk Cokelat (Kyu 2)' : 'Sabuk Hitam (Dan 1 WKF)',
+                nia: (idLower === 'rahmanh946@gmail.com') ? 'INA-SBY-7788' : 'INA-SBY-8821',
+                dojoName: 'K-Majestigers Elite Surabaya Dojo',
                 primaryRole: fallbackRole,
                 role: fallbackRole,
                 roles: [fallbackRole]
             };
             this.setCurrentUser(fallbackUser);
             return {
-                token: 'mock-jwt-token-' + fallbackRole.toLowerCase(),
+                token: 'fallback-jwt-token-' + fallbackRole.toLowerCase(),
                 user: fallbackUser,
                 targetPortal: this.getPortalUrl(fallbackRole)
             };
