@@ -141,6 +141,12 @@
                         logIncident('PROTOTYPE_POLLUTION_BLOCKED', 'CRITICAL', `Upaya injeksi prototype ${key} dicegah!`);
                         continue;
                     }
+                    // Pertahankan nilai asli kata sandi dan token otentikasi tanpa manipulasi string
+                    const lowerKey = key.toLowerCase();
+                    if (lowerKey.includes('pass') || lowerKey.includes('token') || lowerKey.includes('secret')) {
+                        cleaned[key] = value;
+                        continue;
+                    }
                     cleaned[key] = sanitizePayload(value);
                 }
                 return cleaned;

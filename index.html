@@ -188,10 +188,10 @@
                         Kurikulum berjenjang dengan pemantauan sabuk (*Kyu/Dan*) digital langsung dari dashboard member pribadi Anda.
                     </p>
                 </div>
-                <div class="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gold-dark font-semibold">
-                    <span>Kurikulum Bertaraf WKF</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                </div>
+                <a href="/member" onclick="handleMemberLogin(event)" class="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gold-dark font-semibold hover:text-gold transition-colors cursor-pointer group/btn" title="Login ke Dashboard Member / Atlet">
+                    <span>Login Member</span>
+                    <i class="fa-solid fa-arrow-right transform group-hover/btn:translate-x-1 transition-transform"></i>
+                </a>
             </div>
 
             <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gold transition-all flex flex-col justify-between group">
@@ -204,10 +204,10 @@
                         Sistem turnamen real-time lengkap dengan bagan pertandingan (*bracket*) interaktif dan jadwal matras kontingen.
                     </p>
                 </div>
-                <div class="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gold-dark font-semibold">
-                    <span>Lihat Bagan Pertandingan</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                </div>
+                <a href="/dojo" onclick="handleDojoLogin(event)" class="mt-8 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gold-dark font-semibold hover:text-gold transition-colors cursor-pointer group/btn" title="Login ke Portal Kontingen / Dojo">
+                    <span>Login Dojo</span>
+                    <i class="fa-solid fa-arrow-right transform group-hover/btn:translate-x-1 transition-transform"></i>
+                </a>
             </div>
 
             <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gold transition-all flex flex-col justify-between group">
@@ -565,9 +565,17 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             
-            <div id="auth-header" class="mb-4">
+            <div id="auth-header" class="mb-3">
                 <h3 id="auth-modal-title" class="text-2xl font-black font-heading text-branddark mb-1">Masuk ke K-Majestigers</h3>
                 <p id="auth-modal-desc" class="text-xs text-gray-500">Masukkan email atau NIA dan kata sandi Anda. Sistem otomatis mengarahkan ke dashboard yang sesuai (Atlet, Dojo, atau Panitia).</p>
+            </div>
+
+            <!-- In-Modal Alert Box for Instant Feedback -->
+            <div id="auth-alert" class="hidden p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5">
+                <i id="auth-alert-icon" class="fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-sm"></i>
+                <div class="flex-1">
+                    <span id="auth-alert-msg" class="leading-relaxed font-semibold block"></span>
+                </div>
             </div>
 
             <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4 text-xs">
@@ -579,18 +587,80 @@
                     <label class="block text-gray-700 font-semibold mb-1">Nomor WhatsApp / HP</label>
                     <input type="tel" id="auth-phone" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="Contoh: 081234567890">
                 </div>
-                <div>
+                
+                <div id="identifier-field-container">
                     <label id="auth-identifier-label" class="block text-gray-700 font-semibold mb-1">Email atau NIA INKAI</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-envelope"></i>
+                            <i class="fa-solid fa-envelope" id="auth-identifier-icon"></i>
                         </div>
-                        <input type="text" id="auth-email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="nama@email.com atau NIA INKAI">
+                        <input type="text" id="auth-email" required class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-10 py-2.5 text-branddark focus:outline-none focus:border-gold" placeholder="nama@email.com atau NIA INKAI">
+                        <div id="auth-email-status-icon" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none hidden"></div>
+                    </div>
+                    <!-- Peringatan Khusus Jika Email Sudah Terdaftar -->
+                    <div id="auth-email-duplicate-notice" class="hidden mt-2 p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs shadow-xs transition-all">
+                        <div class="flex items-start space-x-2.5">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 text-sm flex-shrink-0"></i>
+                            <div class="space-y-1.5 flex-1">
+                                <p class="font-bold text-[11px] text-amber-950">Email ini sudah terdaftar di sistem!</p>
+                                <p class="text-[10px] text-amber-800 leading-relaxed">Satu alamat email hanya dapat digunakan untuk 1 akun. Jika ini akun Anda, silakan masuk atau atur ulang kata sandi.</p>
+                                <div class="flex items-center space-x-2 pt-1">
+                                    <button type="button" onclick="switchAuthMode('login')" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[10px] transition-colors shadow-xs">
+                                        Masuk ke Akun
+                                    </button>
+                                    <button type="button" onclick="openResetPasswordMode(document.getElementById('auth-email').value)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-400 hover:bg-amber-100 text-amber-900 font-bold text-[10px] transition-colors">
+                                        Reset Kata Sandi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div>
+
+                <!-- Input Token Pemulihan (Hanya untuk Mode Reset Kata Sandi) -->
+                <div id="token-field-container" class="hidden">
                     <div class="flex items-center justify-between mb-1">
-                        <label class="block text-gray-700 font-semibold">Kata Sandi</label>
+                        <label class="block text-gray-700 font-semibold">Token Pemulihan</label>
+                        <button type="button" onclick="switchAuthMode('forgot')" class="text-[10px] text-amber-700 hover:text-amber-800 underline">
+                            Minta token baru?
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <input type="text" id="auth-token" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-branddark focus:outline-none focus:border-gold font-mono text-xs" placeholder="Tempel token pemulihan 64 karakter">
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">Token pemulihan yang dikirimkan via WhatsApp atau diberikan oleh Administrator.</p>
+                    
+                    <!-- Info & Tombol Aksi WhatsApp Pemulihan -->
+                    <div id="auth-wa-action-box" class="hidden mt-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs shadow-xs">
+                        <div class="flex items-start space-x-2.5">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 text-base mt-0.5 flex-shrink-0"></i>
+                            <div class="flex-1 space-y-1.5">
+                                <p id="auth-wa-status-text" class="font-bold text-emerald-950 text-[11px]"></p>
+                                <p id="auth-wa-desc-text" class="text-[10px] text-emerald-800 leading-relaxed"></p>
+                                <div class="flex flex-wrap gap-1.5 pt-1">
+                                    <a id="auth-wa-open-btn" href="#" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition-colors shadow-xs">
+                                        <i class="fa-brands fa-whatsapp text-xs"></i>
+                                        <span>Buka WhatsApp</span>
+                                    </a>
+                                    <button type="button" id="auth-copy-token-btn" onclick="copyRecoveryToken()" class="inline-flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-emerald-300 hover:bg-emerald-100 text-emerald-900 font-semibold text-[10px] transition-colors">
+                                        <i class="fa-regular fa-copy text-xs"></i>
+                                        <span id="auth-copy-token-text">Salin Token</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pass-field-container">
+                    <div class="flex items-center justify-between mb-1">
+                        <label id="auth-pass-label" class="block text-gray-700 font-semibold">Kata Sandi</label>
+                        <button type="button" id="auth-forgot-btn" onclick="openResetPasswordMode()" class="text-[11px] text-amber-700 hover:text-amber-800 font-semibold hover:underline">
+                            Lupa Kata Sandi?
+                        </button>
                     </div>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -600,6 +670,31 @@
                         <button type="button" onclick="togglePasswordVisibility('auth-pass', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 focus:outline-none transition-colors" title="Lihat / Sembunyikan Kata Sandi">
                             <i class="fa-solid fa-eye" id="auth-pass-eye"></i>
                         </button>
+                    </div>
+                    <!-- Kriteria Kata Sandi -->
+                    <div id="auth-pass-rules" class="hidden mt-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1.5">
+                        <div class="font-semibold text-slate-700 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-shield-halved text-amber-600"></i>
+                            <span>Kriteria Kata Sandi:</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+                            <span id="rule-len" class="text-slate-500 flex items-center space-x-1 transition-colors">
+                                <i class="fa-solid fa-circle-xmark text-slate-400 rule-icon"></i>
+                                <span>Min. 8 karakter</span>
+                            </span>
+                            <span id="rule-upper" class="text-slate-500 flex items-center space-x-1 transition-colors">
+                                <i class="fa-solid fa-circle-xmark text-slate-400 rule-icon"></i>
+                                <span>Huruf Besar (A-Z)</span>
+                            </span>
+                            <span id="rule-lower" class="text-slate-500 flex items-center space-x-1 transition-colors">
+                                <i class="fa-solid fa-circle-xmark text-slate-400 rule-icon"></i>
+                                <span>Huruf Kecil (a-z)</span>
+                            </span>
+                            <span id="rule-num" class="text-slate-500 flex items-center space-x-1 transition-colors">
+                                <i class="fa-solid fa-circle-xmark text-slate-400 rule-icon"></i>
+                                <span>Angka (0-9)</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -628,9 +723,15 @@
                 </div>
             </div>
 
-            <div class="mt-4 text-center text-xs text-gray-500 border-t border-gray-100 pt-3">
+            <div id="auth-switch-box" class="mt-4 text-center text-xs text-gray-500 border-t border-gray-100 pt-3">
                 <span id="auth-switch-text">Belum punya akun?</span>
                 <button type="button" onclick="toggleAuthMode()" id="auth-switch-btn" class="text-gold font-bold ml-1 hover:underline">Daftar Akun Baru</button>
+            </div>
+
+            <div id="auth-back-box" class="mt-3 text-center text-xs hidden border-t border-gray-100 pt-3">
+                <button type="button" onclick="switchAuthMode('login')" class="text-slate-500 hover:text-slate-900 font-semibold transition-colors">
+                    <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke Halaman Masuk
+                </button>
             </div>
         </div>
     </div>
@@ -685,6 +786,53 @@
             initBackendStatusListener();
             InkaiAPI.checkHealth();
             initStoreProducts();
+
+            const passInput = document.getElementById('auth-pass');
+            if (passInput) {
+                passInput.addEventListener('input', () => {
+                    if (authMode === 'register' || authMode === 'reset') {
+                        updatePasswordRulesUI(passInput.value);
+                    }
+                });
+            }
+
+            const emailInput = document.getElementById('auth-email');
+            if (emailInput) {
+                emailInput.addEventListener('input', () => {
+                    if (authMode === 'register') {
+                        clearTimeout(emailCheckDebounceTimer);
+                        const val = emailInput.value.trim();
+                        if (!val || !val.includes('@')) {
+                            hideDuplicateEmailNotice();
+                            setEmailStatusIcon(null);
+                            lastCheckedEmail = '';
+                            return;
+                        }
+                        emailCheckDebounceTimer = setTimeout(() => {
+                            verifyEmailAvailability(emailInput.value);
+                        }, 350);
+                    } else {
+                        hideDuplicateEmailNotice();
+                        setEmailStatusIcon(null);
+                    }
+                });
+
+                emailInput.addEventListener('blur', () => {
+                    if (authMode === 'register') {
+                        clearTimeout(emailCheckDebounceTimer);
+                        verifyEmailAvailability(emailInput.value);
+                    }
+                });
+            }
+
+            // Tangani link reset kata sandi langsung dari URL jika ada parameter token
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const resetTokenParam = urlParams.get('token') || urlParams.get('resetToken');
+                if (resetTokenParam) {
+                    openResetPasswordMode('', resetTokenParam);
+                }
+            } catch (_) {}
         });
 
         function initBackendStatusListener() {
@@ -766,21 +914,271 @@
             }
         }
 
-        function openAuthModal(mode) {
-            isRegisterMode = (mode === 'register');
-            renderAuthMode();
+        function handleMemberLogin(event) {
+            if (currentUser) {
+                const targetUrl = (typeof InkaiAPI !== 'undefined' && InkaiAPI.getPortalUrl)
+                    ? InkaiAPI.getPortalUrl('MEMBER')
+                    : ((window.location.protocol === 'file:') ? 'member.html' : '/member');
+                window.location.href = targetUrl;
+                return;
+            }
+            if (event) event.preventDefault();
+            openAuthModal('login');
+            fillDemoAccount('atlet@kmajestigers.com', 'majestigers123');
+        }
+
+        function handleDojoLogin(event) {
+            if (currentUser) {
+                const targetUrl = (typeof InkaiAPI !== 'undefined' && InkaiAPI.getPortalUrl)
+                    ? InkaiAPI.getPortalUrl('DOJO_MANAGER')
+                    : ((window.location.protocol === 'file:') ? 'dojo.html' : '/dojo');
+                window.location.href = targetUrl;
+                return;
+            }
+            if (event) event.preventDefault();
+            openAuthModal('login');
+            fillDemoAccount('sensei.budi@kmajestigers.com', 'majestigers123');
+        }
+
+        function setAuthAlert(msg, type = 'error') {
+            const alertBox = document.getElementById('auth-alert');
+            const alertMsg = document.getElementById('auth-alert-msg');
+            const alertIcon = document.getElementById('auth-alert-icon');
+            if (!alertBox || !alertMsg || !alertIcon) return;
+
+            if (!msg) {
+                alertBox.className = 'hidden';
+                return;
+            }
+
+            alertMsg.innerText = msg;
+            if (type === 'success') {
+                alertBox.className = 'p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800';
+                alertIcon.className = 'fa-solid fa-circle-check mt-0.5 flex-shrink-0 text-emerald-600 text-sm';
+            } else if (type === 'info') {
+                alertBox.className = 'p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5 bg-amber-50 border border-amber-200 text-amber-800';
+                alertIcon.className = 'fa-solid fa-circle-info mt-0.5 flex-shrink-0 text-amber-600 text-sm';
+            } else {
+                alertBox.className = 'p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5 bg-red-50 border border-red-200 text-red-700';
+                alertIcon.className = 'fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-red-600 text-sm';
+            }
+        }
+
+        function updatePasswordRulesUI(pass) {
+            const val = pass || '';
+            const isLen = val.length >= 8;
+            const isUpper = /[A-Z]/.test(val);
+            const isLower = /[a-z]/.test(val);
+            const isNum = /[0-9]/.test(val);
+
+            function setRuleState(elId, valid) {
+                const el = document.getElementById(elId);
+                if (!el) return;
+                const icon = el.querySelector('.rule-icon');
+                if (valid) {
+                    el.className = 'text-emerald-700 font-semibold flex items-center space-x-1 transition-colors';
+                    if (icon) icon.className = 'fa-solid fa-circle-check text-emerald-600 rule-icon';
+                } else {
+                    el.className = 'text-slate-500 flex items-center space-x-1 transition-colors';
+                    if (icon) icon.className = 'fa-solid fa-circle-xmark text-slate-400 rule-icon';
+                }
+            }
+
+            setRuleState('rule-len', isLen);
+            setRuleState('rule-upper', isUpper);
+            setRuleState('rule-lower', isLower);
+            setRuleState('rule-num', isNum);
+
+            return isLen && isUpper && isLower && isNum;
+        }
+
+        let authMode = 'login'; // 'login' | 'register' | 'forgot' | 'reset'
+        let emailCheckDebounceTimer = null;
+        let lastCheckedEmail = '';
+
+        function setEmailStatusIcon(state) {
+            const container = document.getElementById('auth-email-status-icon');
+            if (!container) return;
+            if (!state) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+            container.classList.remove('hidden');
+            if (state === 'loading') {
+                container.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-slate-400 text-xs"></i>';
+            } else if (state === 'duplicate') {
+                container.innerHTML = '<i class="fa-solid fa-circle-exclamation text-amber-500 text-xs" title="Email sudah terdaftar"></i>';
+            } else if (state === 'available') {
+                container.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 text-xs" title="Email tersedia"></i>';
+            }
+        }
+
+        async function verifyEmailAvailability(emailVal) {
+            if (authMode !== 'register') return;
+            const clean = (emailVal || '').trim().toLowerCase();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+            if (!clean || !emailRegex.test(clean)) {
+                hideDuplicateEmailNotice();
+                setEmailStatusIcon(null);
+                lastCheckedEmail = '';
+                return;
+            }
+
+            if (clean === lastCheckedEmail) return;
+
+            setEmailStatusIcon('loading');
+            try {
+                const res = await InkaiAPI.checkEmail(clean);
+                const currentInputVal = (document.getElementById('auth-email')?.value || '').trim().toLowerCase();
+                if (currentInputVal !== clean) return;
+
+                lastCheckedEmail = clean;
+                if (res?.exists) {
+                    setEmailStatusIcon('duplicate');
+                    showDuplicateEmailNotice(clean, true);
+                } else {
+                    setEmailStatusIcon('available');
+                    hideDuplicateEmailNotice();
+                }
+            } catch (err) {
+                setEmailStatusIcon(null);
+            }
+        }
+
+        function showDuplicateEmailNotice(email, isLive = false) {
+            const noticeEl = document.getElementById('auth-email-duplicate-notice');
+            const emailInput = document.getElementById('auth-email');
+            if (noticeEl) noticeEl.classList.remove('hidden');
+            if (emailInput) {
+                emailInput.classList.remove('border-gray-200');
+                emailInput.classList.add('border-amber-500', 'ring-2', 'ring-amber-200');
+            }
+            if (!isLive) {
+                setAuthAlert(`Email '${email}' sudah terdaftar di sistem. Silakan masuk atau reset kata sandi Anda.`, 'error');
+                showToast('Email sudah terdaftar. Silakan masuk atau reset kata sandi.');
+            }
+        }
+
+        function hideDuplicateEmailNotice() {
+            const noticeEl = document.getElementById('auth-email-duplicate-notice');
+            const emailInput = document.getElementById('auth-email');
+            if (noticeEl) noticeEl.classList.add('hidden');
+            if (emailInput) {
+                emailInput.classList.remove('border-amber-500', 'border-red-500', 'ring-2', 'ring-amber-200', 'ring-red-200');
+                emailInput.classList.add('border-gray-200');
+            }
+        }
+
+        function openAuthModal(mode = 'login') {
+            switchAuthMode(mode);
             document.getElementById('auth-modal').classList.remove('hidden');
             document.getElementById('auth-modal').classList.add('flex');
         }
 
         function closeAuthModal() {
+            clearTimeout(emailCheckDebounceTimer);
+            setAuthAlert(null);
+            hideDuplicateEmailNotice();
+            setEmailStatusIcon(null);
+            lastCheckedEmail = '';
             document.getElementById('auth-modal').classList.add('hidden');
             document.getElementById('auth-modal').classList.remove('flex');
         }
 
         function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
+            switchAuthMode(authMode === 'register' ? 'login' : 'register');
+        }
+
+        function openResetPasswordMode(prefillEmail = '', token = '') {
+            if (token) {
+                const tokenInput = document.getElementById('auth-token');
+                if (tokenInput) tokenInput.value = token;
+                switchAuthMode('reset');
+                setAuthAlert('Token pemulihan dari tautan telah diterapkan. Silakan masukkan kata sandi baru.', 'success');
+            } else {
+                if (prefillEmail) {
+                    const emailInput = document.getElementById('auth-email');
+                    if (emailInput) emailInput.value = prefillEmail;
+                }
+                switchAuthMode('forgot');
+            }
+            document.getElementById('auth-modal').classList.remove('hidden');
+            document.getElementById('auth-modal').classList.add('flex');
+        }
+
+        function renderWhatsAppResetBox(data) {
+            const box = document.getElementById('auth-wa-action-box');
+            const statusText = document.getElementById('auth-wa-status-text');
+            const descText = document.getElementById('auth-wa-desc-text');
+            const openBtn = document.getElementById('auth-wa-open-btn');
+            if (!box || !statusText || !descText || !openBtn) return;
+
+            if (!data) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            box.classList.remove('hidden');
+            if (data.waSent) {
+                statusText.innerText = `Token Terkirim ke WhatsApp (${data.phoneNumber || ''})`;
+                descText.innerText = 'Tautan dan token pemulihan telah dikirim otomatis ke WhatsApp Anda. Token juga telah diisikan ke formulir di atas.';
+                openBtn.classList.add('hidden');
+            } else if (data.waLink) {
+                statusText.innerText = `Token Siap (${data.phoneNumber || 'Nomor WhatsApp'})`;
+                descText.innerText = 'Token pemulihan telah otomatis dimasukkan ke kolom formulir di atas. Klik tombol di bawah untuk membuka pesan WhatsApp dengan token Anda.';
+                openBtn.href = data.waLink;
+                openBtn.classList.remove('hidden');
+            } else {
+                statusText.innerText = 'Token Pemulihan Siap Digunakan';
+                descText.innerText = 'Token telah dibuat dan otomatis diisikan ke formulir di atas. Buat kata sandi baru Anda untuk menyelesaikan.';
+                openBtn.classList.add('hidden');
+            }
+        }
+
+        function copyRecoveryToken() {
+            const tokenInput = document.getElementById('auth-token');
+            const copyBtnText = document.getElementById('auth-copy-token-text');
+            if (tokenInput && tokenInput.value) {
+                navigator.clipboard.writeText(tokenInput.value).then(() => {
+                    if (copyBtnText) copyBtnText.innerText = 'Tersalin!';
+                    setTimeout(() => { if (copyBtnText) copyBtnText.innerText = 'Salin Token'; }, 2000);
+                    showToast('Token pemulihan berhasil disalin!');
+                }).catch(() => {
+                    tokenInput.select();
+                    document.execCommand('copy');
+                    showToast('Token berhasil disalin!');
+                });
+            } else {
+                showToast('Token belum tersedia.');
+            }
+        }
+
+        function switchAuthMode(mode) {
+            clearTimeout(emailCheckDebounceTimer);
+            authMode = mode;
+            isRegisterMode = (mode === 'register');
+            setAuthAlert(null);
+            hideDuplicateEmailNotice();
+            setEmailStatusIcon(null);
+            lastCheckedEmail = '';
+            if (mode !== 'reset') {
+                const waBox = document.getElementById('auth-wa-action-box');
+                if (waBox) waBox.classList.add('hidden');
+            }
             renderAuthMode();
+
+            const emailInput = document.getElementById('auth-email');
+            const passInput = document.getElementById('auth-pass');
+            if (mode === 'register') {
+                if (emailInput && emailInput.value.includes('@')) {
+                    verifyEmailAvailability(emailInput.value);
+                }
+            } else if (mode === 'login') {
+                if (emailInput && emailInput.value && passInput) {
+                    passInput.focus();
+                }
+            }
         }
 
         function renderAuthMode() {
@@ -789,47 +1187,168 @@
             const btnText = document.getElementById('auth-btn-text');
             const nameContainer = document.getElementById('name-field-container');
             const phoneContainer = document.getElementById('phone-field-container');
+            const idContainer = document.getElementById('identifier-field-container');
             const idLabel = document.getElementById('auth-identifier-label');
+            const emailInput = document.getElementById('auth-email');
+            const tokenContainer = document.getElementById('token-field-container');
+            const tokenInput = document.getElementById('auth-token');
+            const passContainer = document.getElementById('pass-field-container');
+            const passLabel = document.getElementById('auth-pass-label');
+            const passInput = document.getElementById('auth-pass');
+            const forgotBtn = document.getElementById('auth-forgot-btn');
+            const passRules = document.getElementById('auth-pass-rules');
+            const demoBox = document.getElementById('demo-autofill-box');
+            const switchBox = document.getElementById('auth-switch-box');
             const switchText = document.getElementById('auth-switch-text');
             const switchBtn = document.getElementById('auth-switch-btn');
+            const backBox = document.getElementById('auth-back-box');
 
-            if (isRegisterMode) {
+            if (authMode === 'register') {
                 title.innerText = 'Daftar Akun Baru';
-                desc.innerText = 'Bergabunglah bersama komunitas eksklusif K-Majestigers & Ekosistem INKAI.';
+                desc.innerText = '';
+                desc.classList.add('hidden');
                 btnText.innerText = 'Daftar Sekarang';
                 nameContainer.classList.remove('hidden');
-                phoneContainer.classList.remove('hidden');
-                idLabel.innerText = 'Alamat Email';
                 document.getElementById('auth-name').required = true;
+                phoneContainer.classList.remove('hidden');
+                idContainer.classList.remove('hidden');
+                idLabel.innerText = 'Alamat Email';
+                emailInput.required = true;
+                emailInput.placeholder = 'nama@email.com';
+                tokenContainer.classList.add('hidden');
+                tokenInput.required = false;
+                passContainer.classList.remove('hidden');
+                passLabel.innerText = 'Kata Sandi';
+                passInput.required = true;
+                passInput.placeholder = '••••••••';
+                forgotBtn.classList.add('hidden');
+                passRules.classList.remove('hidden');
+                updatePasswordRulesUI(passInput.value);
+                demoBox.classList.add('hidden');
+                switchBox.classList.remove('hidden');
                 switchText.innerText = 'Sudah punya akun?';
                 switchBtn.innerText = 'Masuk di sini';
-            } else {
+                backBox.classList.add('hidden');
+            } else if (authMode === 'login') {
                 title.innerText = 'Masuk ke K-Majestigers';
                 desc.innerText = 'Gunakan akun INKAI (Email atau Nomor NIA) Anda untuk akses dashboard kejuaraan.';
+                desc.classList.remove('hidden');
                 btnText.innerText = 'Masuk Sekarang';
                 nameContainer.classList.add('hidden');
-                phoneContainer.classList.add('hidden');
-                idLabel.innerText = 'Email atau NIA INKAI';
                 document.getElementById('auth-name').required = false;
+                phoneContainer.classList.add('hidden');
+                idContainer.classList.remove('hidden');
+                idLabel.innerText = 'Email atau NIA INKAI';
+                emailInput.required = true;
+                emailInput.placeholder = 'nama@email.com atau NIA INKAI';
+                tokenContainer.classList.add('hidden');
+                tokenInput.required = false;
+                passContainer.classList.remove('hidden');
+                passLabel.innerText = 'Kata Sandi';
+                passInput.required = true;
+                passInput.placeholder = '••••••••';
+                forgotBtn.classList.remove('hidden');
+                passRules.classList.add('hidden');
+                demoBox.classList.remove('hidden');
+                switchBox.classList.remove('hidden');
                 switchText.innerText = 'Belum punya akun?';
                 switchBtn.innerText = 'Daftar Akun Baru';
+                backBox.classList.add('hidden');
+            } else if (authMode === 'forgot') {
+                title.innerText = 'Lupa Kata Sandi';
+                desc.innerText = 'Masukkan email atau nomor NIA Anda. Sistem akan memverifikasi dan mengirimkan token pemulihan.';
+                desc.classList.remove('hidden');
+                btnText.innerText = 'Kirim Token Pemulihan';
+                nameContainer.classList.add('hidden');
+                document.getElementById('auth-name').required = false;
+                phoneContainer.classList.add('hidden');
+                idContainer.classList.remove('hidden');
+                idLabel.innerText = 'Email atau NIA Akun Anda';
+                emailInput.required = true;
+                emailInput.placeholder = 'nama@email.com atau NIA INKAI';
+                tokenContainer.classList.add('hidden');
+                tokenInput.required = false;
+                passContainer.classList.add('hidden');
+                passInput.required = false;
+                forgotBtn.classList.add('hidden');
+                passRules.classList.add('hidden');
+                demoBox.classList.add('hidden');
+                switchBox.classList.remove('hidden');
+                switchText.innerText = 'Sudah memiliki token reset?';
+                switchBtn.innerText = 'Masukkan Token di sini';
+                switchBtn.onclick = () => switchAuthMode('reset');
+                backBox.classList.remove('hidden');
+            } else if (authMode === 'reset') {
+                title.innerText = 'Atur Ulang Kata Sandi';
+                desc.innerText = 'Masukkan token pemulihan dan buat kata sandi baru untuk akun Anda.';
+                desc.classList.remove('hidden');
+                btnText.innerText = 'Simpan Kata Sandi Baru';
+                nameContainer.classList.add('hidden');
+                document.getElementById('auth-name').required = false;
+                phoneContainer.classList.add('hidden');
+                idContainer.classList.add('hidden');
+                emailInput.required = false;
+                tokenContainer.classList.remove('hidden');
+                tokenInput.required = true;
+                passContainer.classList.remove('hidden');
+                passLabel.innerText = 'Kata Sandi Baru';
+                passInput.required = true;
+                passInput.placeholder = 'Minimal 8 karakter kombinasi';
+                forgotBtn.classList.add('hidden');
+                passRules.classList.remove('hidden');
+                updatePasswordRulesUI(passInput.value);
+                demoBox.classList.add('hidden');
+                switchBox.classList.add('hidden');
+                backBox.classList.remove('hidden');
             }
         }
 
         async function handleAuthSubmit(e) {
             e.preventDefault();
+            setAuthAlert(null);
+            hideDuplicateEmailNotice();
+
             const identifier = document.getElementById('auth-email').value.trim();
             const pass = document.getElementById('auth-pass').value;
             const name = document.getElementById('auth-name').value.trim();
             const phone = document.getElementById('auth-phone')?.value.trim() || '';
+            const token = document.getElementById('auth-token')?.value.trim() || '';
 
             const spinner = document.getElementById('auth-btn-spinner');
             const btnText = document.getElementById('auth-btn-text');
             spinner?.classList.remove('hidden');
-            btnText.innerText = isRegisterMode ? 'Mendaftarkan...' : 'Memverifikasi...';
 
             try {
-                if (isRegisterMode) {
+                // 1. MODE REGISTRASI AKUN BARU
+                if (authMode === 'register') {
+                    if (!name) {
+                        setAuthAlert('Nama lengkap wajib diisi.', 'error');
+                        document.getElementById('auth-name').focus();
+                        return;
+                    }
+                    if (pass.length < 8) {
+                        setAuthAlert('Kata sandi minimal 8 karakter untuk memenuhi standar keamanan.', 'error');
+                        document.getElementById('auth-pass').focus();
+                        return;
+                    }
+                    if (!/[A-Z]/.test(pass)) {
+                        setAuthAlert('Kata sandi wajib mengandung minimal 1 huruf besar (A-Z).', 'error');
+                        document.getElementById('auth-pass').focus();
+                        return;
+                    }
+                    if (!/[a-z]/.test(pass)) {
+                        setAuthAlert('Kata sandi wajib mengandung minimal 1 huruf kecil (a-z).', 'error');
+                        document.getElementById('auth-pass').focus();
+                        return;
+                    }
+                    if (!/[0-9]/.test(pass)) {
+                        setAuthAlert('Kata sandi wajib mengandung minimal 1 angka (0-9).', 'error');
+                        document.getElementById('auth-pass').focus();
+                        return;
+                    }
+
+                    btnText.innerText = 'Mendaftarkan...';
+
                     try {
                         const res = await InkaiAPI.register({
                             email: identifier,
@@ -837,41 +1356,129 @@
                             fullName: name,
                             phoneNumber: phone
                         });
-                        showToast(`Registrasi berhasil! Silakan masuk dengan akun baru Anda.`);
-                        toggleAuthMode();
+                        setAuthAlert(`Pendaftaran akun ${name} berhasil! Menyiapkan sesi Anda...`, 'success');
+                        showToast(`Registrasi akun ${name} berhasil!`);
+
+                        try {
+                            const loginRes = await InkaiAPI.login(identifier, pass);
+                            currentUser = loginRes.user;
+                            InkaiAPI.setCurrentUser(currentUser);
+                            updateAuthUI();
+                            setTimeout(() => {
+                                closeAuthModal();
+                                window.location.href = loginRes.targetPortal || InkaiAPI.getPortalUrl('MEMBER');
+                            }, 1000);
+                        } catch (loginErr) {
+                            setAuthAlert('Registrasi berhasil! Silakan masuk menggunakan akun baru Anda.', 'success');
+                            showToast('Registrasi berhasil. Silakan masuk.');
+                            switchAuthMode('login');
+                        }
                     } catch (apiErr) {
-                        currentUser = InkaiAPI.loginAsDemo('MEMBER');
-                        currentUser.fullName = name;
-                        currentUser.name = name;
-                        currentUser.email = identifier;
-                        InkaiAPI.setCurrentUser(currentUser);
-                        showToast(`Akun lokal dibuat untuk ${name}. Mengalihkan ke Portal Member...`);
-                        closeAuthModal();
-                        setTimeout(() => {
-                            window.location.href = InkaiAPI.getPortalUrl('MEMBER');
-                        }, 800);
+                        const errMsg = apiErr.message || '';
+                        const isDuplicate = errMsg.toLowerCase().includes('sudah terdaftar') || errMsg.toLowerCase().includes('already');
+                        if (isDuplicate) {
+                            showDuplicateEmailNotice(identifier);
+                        } else {
+                            setAuthAlert(`Pendaftaran ditolak: ${errMsg || 'Periksa kembali data pendaftaran Anda.'}`, 'error');
+                            showToast(`Gagal registrasi: ${errMsg || 'Data tidak valid'}`);
+                        }
                     }
-                } else {
-                    // Login otomatis: Sistem langsung memeriksa peran di database tanpa perlu pilih akses manual
+                } 
+                // 2. MODE LUPA KATA SANDI (MINTA TOKEN)
+                else if (authMode === 'forgot') {
+                    if (!identifier) {
+                        setAuthAlert('Silakan masukkan email atau nomor NIA Anda.', 'error');
+                        document.getElementById('auth-email').focus();
+                        return;
+                    }
+
+                    btnText.innerText = 'Memproses...';
+                    try {
+                        const res = await InkaiAPI.forgotPassword(identifier);
+                        
+                        switchAuthMode('reset');
+
+                        if (res?.token) {
+                            const tokenInput = document.getElementById('auth-token');
+                            if (tokenInput) {
+                                tokenInput.value = res.token;
+                                tokenInput.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-200');
+                                setTimeout(() => tokenInput.classList.remove('ring-2', 'ring-emerald-200'), 1500);
+                            }
+                        }
+
+                        renderWhatsAppResetBox(res);
+
+                        if (res?.waSent) {
+                            setAuthAlert(`Token pemulihan telah dikirim via WhatsApp ke ${res.phoneNumber || 'nomor terdaftar'}.`, 'success');
+                            showToast('Token terkirim ke WhatsApp!');
+                        } else if (res?.waLink) {
+                            setAuthAlert('Token pemulihan berhasil dibuat dan otomatis terisi di kolom formulir. Anda juga dapat mengirimkannya via WhatsApp melalui tombol di bawah.', 'info');
+                            showToast('Token pemulihan siap digunakan!');
+                        } else {
+                            setAuthAlert(res?.message || 'Token pemulihan berhasil dibuat.', 'success');
+                            showToast('Token pemulihan siap!');
+                        }
+                    } catch (forgotErr) {
+                        setAuthAlert(`Gagal memproses pemulihan: ${forgotErr.message}`, 'error');
+                        showToast(`Gagal: ${forgotErr.message}`);
+                    }
+                }
+                // 3. MODE RESET KATA SANDI (MASUKKAN TOKEN & SANDI BARU)
+                else if (authMode === 'reset') {
+                    if (!token) {
+                        setAuthAlert('Token pemulihan wajib diisi.', 'error');
+                        document.getElementById('auth-token').focus();
+                        return;
+                    }
+                    if (pass.length < 8 || !/[A-Z]/.test(pass) || !/[a-z]/.test(pass) || !/[0-9]/.test(pass)) {
+                        setAuthAlert('Kata sandi baru harus minimal 8 karakter dan kombinasi huruf besar, kecil, serta angka.', 'error');
+                        document.getElementById('auth-pass').focus();
+                        return;
+                    }
+
+                    btnText.innerText = 'Menyimpan...';
+                    try {
+                        const res = await InkaiAPI.resetPassword({ token, newPassword: pass });
+                        setAuthAlert('Kata sandi berhasil diperbarui! Silakan masuk menggunakan kata sandi baru Anda.', 'success');
+                        showToast('Kata sandi berhasil diperbarui!');
+                        document.getElementById('auth-pass').value = '';
+                        setTimeout(() => {
+                            switchAuthMode('login');
+                        }, 1500);
+                    } catch (resetErr) {
+                        setAuthAlert(`Gagal memperbarui kata sandi: ${resetErr.message}`, 'error');
+                        showToast(`Gagal: ${resetErr.message}`);
+                    }
+                }
+                // 4. MODE MASUK / LOGIN BIASA
+                else {
+                    btnText.innerText = 'Memverifikasi...';
                     const res = await InkaiAPI.login(identifier, pass);
                     currentUser = res.user;
+                    InkaiAPI.setCurrentUser(currentUser);
                     const targetPortal = res.targetPortal || InkaiAPI.getPortalUrl(currentUser.primaryRole || currentUser.role);
                     
                     const roleLabel = (currentUser.primaryRole === 'ADMIN') ? 'Super Admin / Panitia' :
                                       (currentUser.primaryRole === 'DOJO_MANAGER') ? 'Sensei / Manajer Dojo' : 'Atlet / Anggota';
 
-                    showToast(`Login berhasil sebagai ${currentUser.fullName || currentUser.name} (${roleLabel})! Mengalihkan...`);
-                    closeAuthModal();
+                    setAuthAlert(`Login berhasil sebagai ${currentUser.fullName || currentUser.name} (${roleLabel})! Mengalihkan...`, 'success');
+                    showToast(`Login berhasil sebagai ${currentUser.fullName || currentUser.name} (${roleLabel})!`);
                     updateAuthUI();
                     setTimeout(() => {
+                        closeAuthModal();
                         window.location.href = targetPortal;
                     }, 800);
                 }
             } catch (err) {
-                showToast(`Gagal masuk: ${err.message || 'Email atau kata sandi tidak valid'}`);
+                setAuthAlert(`Gagal autentikasi: ${err.message || 'Email atau kata sandi tidak cocok.'}`, 'error');
+                showToast(`Gagal: ${err.message || 'Email atau kata sandi tidak valid'}`);
             } finally {
                 spinner?.classList.add('hidden');
-                btnText.innerText = isRegisterMode ? 'Daftar Sekarang' : 'Masuk Sekarang';
+                if (authMode === 'register') btnText.innerText = 'Daftar Sekarang';
+                else if (authMode === 'forgot') btnText.innerText = 'Kirim Token Pemulihan';
+                else if (authMode === 'reset') btnText.innerText = 'Simpan Kata Sandi Baru';
+                else btnText.innerText = 'Masuk Sekarang';
             }
         }
 

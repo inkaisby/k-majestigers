@@ -279,9 +279,10 @@ const InkaiAPI = (() => {
             let res = null;
             let backendSuccess = false;
             try {
+                const loginIdentifier = cleanId.includes('@') ? idLower : cleanId;
                 res = await request('/auth/login', {
                     method: 'POST',
-                    body: JSON.stringify({ identifier: cleanId, password })
+                    body: JSON.stringify({ identifier: loginIdentifier, password })
                 });
                 if (res && res.token) {
                     setToken(res.token);
@@ -302,8 +303,10 @@ const InkaiAPI = (() => {
                             ...user,
                             primaryRole,
                             roleNames,
+                            fullName: user.fullName || user.name || 'Member K-Majestigers',
                             name: user.fullName || user.name || 'Member K-Majestigers',
                         };
+                        this.setCurrentUser(normalizedUser);
                         if (typeof InkaiSecurity !== 'undefined') {
                             InkaiSecurity.recordLoginSuccess(cleanId);
                         }
@@ -312,12 +315,17 @@ const InkaiAPI = (() => {
                     backendSuccess = true;
                 }
             } catch (err) {
-                // Backend error atau offline, fallback ke verifikasi akun terverifikasi
+                // Jika backend merespons error (misal 401 kredensial salah), teruskan error ke pengguna
+                const isNetworkFailure = err.name === 'AbortError' || err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError');
+                if (!isNetworkFailure) {
+                    throw err;
+                }
+                console.warn('[InkaiAPI] Backend offline/unreachable saat login. Mencoba fallback...');
             }
 
-            // 3. Fallback Akun Terverifikasi Demo / Heuristik Otomatis
+            // 3. Fallback Akun Terverifikasi Demo / Heuristik Otomatis (Hanya jika backend offline)
             let fallbackRole = 'MEMBER';
-            let fallbackName = 'Ahmad Rayhan Putra';
+            let fallbackName = (cleanId.includes('@') && !cleanId.includes('atlet@')) ? cleanId.split('@')[0] : 'Ahmad Rayhan Putra';
             if (idLower === REAL_ACCOUNTS.ADMIN.identifier.toLowerCase() || idLower.includes('admin') || idLower.includes('panitia')) {
                 fallbackRole = 'ADMIN';
                 fallbackName = 'Dr. Bambang Suryono';
@@ -335,7 +343,7 @@ const InkaiAPI = (() => {
                 role: fallbackRole,
                 roles: [fallbackRole]
             };
-            localStorage.setItem('kmajestigers_user', JSON.stringify(fallbackUser));
+            this.setCurrentUser(fallbackUser);
             return {
                 token: 'mock-jwt-token-' + fallbackRole.toLowerCase(),
                 user: fallbackUser,
@@ -344,18 +352,55 @@ const InkaiAPI = (() => {
         },
 
         async register({ email, password, fullName, phoneNumber, dojoId }) {
+            const cleanEmail = (email || '').trim().toLowerCase();
             const res = await request('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify({
-                    email,
+                    email: cleanEmail,
                     password,
-                    fullName,
-                    phoneNumber,
+                    fullName: (fullName || '').trim(),
+                    phoneNumber: (phoneNumber || '').trim() || undefined,
                     dojoId: dojoId || undefined,
                     isParent: false
                 })
             });
             return res;
+        },
+
+        async checkEmail(email) {
+            const cleanEmail = (email || '').trim().toLowerCase();
+            if (!cleanEmail || !cleanEmail.includes('@')) {
+                return { exists: false };
+            }
+            try {
+                return await request(`/auth/check-email?email=${encodeURIComponent(cleanEmail)}`, { method: 'GET' });
+            } catch (err) {
+                const isRealAcc = Object.values(REAL_ACCOUNTS).some(acc => acc.identifier.toLowerCase() === cleanEmail);
+                const isCustomDojo = this.getCustomDojos().some(d => (d.email || '').toLowerCase() === cleanEmail);
+                if (isRealAcc || isCustomDojo) {
+                    return { status: 'success', exists: true, message: 'Email sudah terdaftar' };
+                }
+                return { exists: false, error: err.message };
+            }
+        },
+
+        async forgotPassword(identifier) {
+            const cleanId = (identifier || '').trim();
+            const payloadId = cleanId.includes('@') ? cleanId.toLowerCase() : cleanId;
+            return await request('/auth/forgot-password', {
+                method: 'POST',
+                body: JSON.stringify({ identifier: payloadId })
+            });
+        },
+
+        async resetPassword({ token, newPassword }) {
+            return await request('/auth/reset-password', {
+                method: 'POST',
+                body: JSON.stringify({
+                    token: (token || '').trim(),
+                    newPassword
+                })
+            });
         },
 
         async getProfile() {
@@ -368,6 +413,132 @@ const InkaiAPI = (() => {
             } catch (err) {
                 // Fallback to /auth/me if /members/me not linked to member record
                 return await request('/auth/me', { method: 'GET' }).then(r => r.data || r);
+            }
+        },
+
+        async updateProfile(profileData) {
+            const res = await request('/members/me', {
+                method: 'PATCH',
+                body: JSON.stringify(profileData)
+            });
+            const savedUser = JSON.parse(localStorage.getItem('kmajestigers_user') || '{}');
+            const updatedUser = {
+                ...savedUser,
+                ...profileData,
+                fullName: profileData.fullName || savedUser.fullName,
+                name: profileData.fullName || savedUser.fullName,
+                phoneNumber: profileData.phoneNumber || savedUser.phoneNumber,
+                photoUrl: profileData.photoUrl || savedUser.photoUrl,
+                nia: profileData.nia || savedUser.nia,
+                currentRank: profileData.currentRank || savedUser.currentRank,
+                dojoId: profileData.dojoId || savedUser.dojoId
+            };
+            this.setCurrentUser(updatedUser);
+            return res;
+        },
+
+        async uploadPhoto(file) {
+            const formData = new FormData();
+            formData.append('document', file);
+            formData.append('fieldName', 'photo');
+
+            const token = getToken();
+            const res = await fetch(`${API_BASE_URL}/members/upload-document`, {
+                method: 'POST',
+                headers: {
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Gagal mengunggah foto profil');
+            }
+            return data;
+        },
+
+        async getGradingHistory() {
+            try {
+                const res = await request('/members/me/ranks', { method: 'GET' });
+                return res?.data || (Array.isArray(res) ? res : []);
+            } catch (err) {
+                console.warn('[InkaiAPI] getGradingHistory fallback:', err.message);
+                const local = localStorage.getItem('inkai_local_ranks');
+                return local ? JSON.parse(local) : [];
+            }
+        },
+
+        async addGradingHistory(data) {
+            try {
+                const res = await request('/members/me/ranks', {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                return res?.data || res;
+            } catch (err) {
+                const local = JSON.parse(localStorage.getItem('inkai_local_ranks') || '[]');
+                const newItem = {
+                    id: 'local-' + Date.now(),
+                    ...data,
+                    isVerified: true,
+                    createdAt: new Date().toISOString()
+                };
+                local.unshift(newItem);
+                localStorage.setItem('inkai_local_ranks', JSON.stringify(local));
+                return newItem;
+            }
+        },
+
+        async updateGradingHistory(id, data) {
+            try {
+                const res = await request(`/members/me/ranks/${id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(data)
+                });
+                return res?.data || res;
+            } catch (err) {
+                const local = JSON.parse(localStorage.getItem('inkai_local_ranks') || '[]');
+                const idx = local.findIndex(x => x.id === id);
+                if (idx !== -1) {
+                    local[idx] = { ...local[idx], ...data };
+                    localStorage.setItem('inkai_local_ranks', JSON.stringify(local));
+                }
+                return local[idx] || data;
+            }
+        },
+
+        async deleteGradingHistory(id) {
+            try {
+                return await request(`/members/me/ranks/${id}`, { method: 'DELETE' });
+            } catch (err) {
+                const local = JSON.parse(localStorage.getItem('inkai_local_ranks') || '[]');
+                const filtered = local.filter(x => x.id !== id);
+                localStorage.setItem('inkai_local_ranks', JSON.stringify(filtered));
+                return { status: 'success' };
+            }
+        },
+
+        async getMyBillings() {
+            try {
+                const res = await request('/billing/my', { method: 'GET' });
+                return res?.data || (Array.isArray(res) ? res : []);
+            } catch (err) {
+                return [];
+            }
+        },
+
+        async verifyMember(id) {
+            const res = await request(`/members/verify/${encodeURIComponent(id)}`, { method: 'GET' });
+            return res?.data || res;
+        },
+
+        async getDojos() {
+            try {
+                const res = await request('/org/dojos/all', { method: 'GET' });
+                return res?.data || res || [];
+            } catch (err) {
+                console.error('[InkaiAPI] Gagal mengambil daftar dojo:', err);
+                return [];
             }
         },
 

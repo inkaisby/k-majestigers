@@ -28,6 +28,7 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -75,8 +76,45 @@
             background: #cbd5e1;
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #d97706;
+        /* Custom print stylesheet untuk Cetak Kartu Anggota Digital */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            body > *:not(main) {
+                display: none !important;
+            }
+            main > section:not(#section-idcard) {
+                display: none !important;
+            }
+            #section-idcard > *:not(.grid) {
+                display: none !important;
+            }
+            #section-idcard .grid > *:not(.lg\:col-span-5) {
+                display: none !important;
+            }
+            #printable-id-card {
+                position: fixed !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 90mm !important;
+                max-width: 90mm !important;
+                padding: 18px !important;
+                border: 2px solid #b45309 !important;
+                box-shadow: none !important;
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            #printable-id-card button {
+                display: none !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
         }
     </style>
     <script>
@@ -135,7 +173,7 @@
 
                 <div class="hidden lg:flex items-center space-x-3 pl-2 border-l border-slate-200">
                     <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 p-0.5 shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                        <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="w-full h-full object-cover rounded-full">
                     </div>
                     <div class="text-left text-xs">
                         <span id="nav-user-name" class="block font-bold text-slate-900">Ahmad Rayhan</span>
@@ -175,30 +213,30 @@
                     <div class="flex items-center space-x-5">
                         <div class="relative">
                             <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-200 p-1 shadow-md shadow-amber-500/20">
-                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Foto Profil" class="w-full h-full object-cover rounded-xl">
+                                <img id="hero-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Foto Profil" class="w-full h-full object-cover rounded-xl">
                             </div>
-                            <span class="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white shadow-sm">
+                            <span id="hero-user-status" class="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white shadow-sm">
                                 AKTIF
                             </span>
                         </div>
                         <div class="space-y-1">
                             <div class="flex items-center space-x-2">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 uppercase">
-                                    NIA: INA-SBY-8821
+                                <span id="hero-user-nia" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 uppercase">
+                                    No. MSH: INA-SBY-7788
                                 </span>
-                                <span class="text-xs text-slate-500"><i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> Dojo K-Majestigers Surabaya</span>
+                                <span id="hero-user-dojo" class="text-xs text-slate-500"><i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> Dojo K-Majestigers Surabaya</span>
                             </div>
                             <h1 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
                                 OSS! <span class="gold-gradient-text" id="hero-user-name">Ahmad Rayhan Putra</span>
                             </h1>
-                            <p class="text-xs text-slate-600 max-w-xl leading-relaxed">
-                                Selamat berlatih. Tingkatkan terus fokus, teknik kihon, dan kedisiplinan kumite Anda menuju ujian Sabuk Hitam (Dan 1).
+                            <p id="hero-user-motto" class="text-xs text-slate-600 max-w-xl leading-relaxed">
+                                Selamat berlatih. Tingkatkan terus dedikasi kepelatihan, ketajaman kihon, dan kedisiplinan kumite Anda di tatami.
                             </p>
                         </div>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
-                        <button onclick="switchTab('idcard')" class="px-5 py-2.5 rounded-xl bg-white hover:bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center space-x-2">
+                        <button onclick="openModal('modal-qr-tatami')" class="px-5 py-2.5 rounded-xl bg-white hover:bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center space-x-2 cursor-pointer">
                             <i class="fa-solid fa-qrcode text-amber-600"></i>
                             <span>Buka QR Presensi</span>
                         </button>
@@ -210,41 +248,41 @@
                 </div>
             </div>
 
-            <!-- Metric Highlights Cards -->
+            <!-- Metric Highlights Cards (Sinkronisasi Kartu Anggota & Database) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Belt Status -->
-                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                <!-- Belt Status & Next UKT Target -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02] cursor-pointer" onclick="openModal('modal-grading')" title="Klik untuk Lihat/Daftar Ujian UKT">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Sabuk</span>
                         <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-sm">
                             <i class="fa-solid fa-medal"></i>
                         </div>
                     </div>
-                    <div class="text-xl font-black font-heading text-amber-800">Sabuk Cokelat (Kyu 2)</div>
-                    <p class="text-[11px] text-slate-500 mt-1">Ujian Berikutnya: <span class="text-slate-800 font-semibold">Dan 1 (Des 2026)</span></p>
+                    <div class="text-xl font-black font-heading text-amber-800 metric-user-rank truncate" id="metric-user-rank">Sabuk Cokelat (Kyu 2)</div>
+                    <p class="text-[11px] text-slate-500 mt-1">Target UKT: <span class="metric-next-rank text-slate-800 font-semibold">Sabuk Hitam (Dan 1 WKF)</span></p>
                     <div class="mt-3 w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
-                        <div class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full" style="width: 78%"></div>
+                        <div class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full metric-belt-progress-bar transition-all duration-500" style="width: 85%"></div>
                     </div>
-                    <span class="block text-right text-[10px] text-amber-700 mt-1 font-semibold">Kelayakan 78%</span>
+                    <span class="block text-right text-[10px] text-amber-700 mt-1 font-semibold metric-belt-progress-text">Kelayakan 85%</span>
                 </div>
 
-                <!-- Attendance Point -->
-                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                <!-- Attendance Point & Dues Status -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02] cursor-pointer" onclick="openModal('modal-qr-tatami')" title="Klik untuk Buka QR Presensi Tatami">
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Presensi Latihan</span>
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Presensi &amp; Tatami</span>
                         <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm">
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                     </div>
-                    <div class="text-2xl font-black font-heading text-emerald-700">94% <span class="text-xs text-slate-500 font-normal">Hadir</span></div>
-                    <p class="text-[11px] text-slate-500 mt-1">47 dari 50 sesi reguler dojo</p>
+                    <div class="text-2xl font-black font-heading text-emerald-700"><span class="metric-attendance-rate">94%</span> <span class="text-xs text-slate-500 font-normal">Hadir</span></div>
+                    <p class="text-[11px] text-slate-500 mt-1"><span class="metric-attendance-sessions">47 dari 50 sesi reguler dojo</span></p>
                     <div class="mt-3 flex items-center space-x-1.5 text-xs text-emerald-700 font-semibold">
-                        <i class="fa-solid fa-fire text-amber-500"></i>
-                        <span>12 Sesi Beruntun (Streak)</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse metric-dues-dot"></span>
+                        <span class="metric-dues-status">Iuran Lunas &amp; QR Aktif</span>
                     </div>
                 </div>
 
-                <!-- Akademi Points -->
+                <!-- Akademi Points & Dojo Afiliasi -->
                 <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Poin Bushido</span>
@@ -252,11 +290,11 @@
                             <i class="fa-solid fa-star"></i>
                         </div>
                     </div>
-                    <div class="text-2xl font-black font-heading text-sky-700">1,450 <span class="text-xs text-slate-500 font-normal">XP</span></div>
-                    <p class="text-[11px] text-slate-500 mt-1">Peringkat 3 Dojo Surabaya</p>
+                    <div class="text-2xl font-black font-heading text-sky-700"><span class="metric-bushido-points">1,450</span> <span class="text-xs text-slate-500 font-normal">XP</span></div>
+                    <p class="text-[11px] text-slate-500 mt-1 truncate" title="Dojo Afiliasi Karateka"><i class="fa-solid fa-location-dot text-amber-600 mr-1"></i><span class="metric-dojo-name">K-Majestigers Elite Surabaya Dojo</span></p>
                     <div class="mt-3 flex items-center space-x-1.5 text-xs text-sky-700 font-medium">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span>Kategori Atlet Prestasi</span>
+                        <i class="fa-solid fa-shield-halved text-amber-500"></i>
+                        <span class="metric-athlete-status">Status: Atlet Sah INKAI</span>
                     </div>
                 </div>
 
@@ -269,11 +307,11 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3 text-lg font-black font-heading">
-                        <span class="text-amber-700 flex items-center"><i class="fa-solid fa-circle text-amber-500 text-xs mr-1"></i> 3</span>
-                        <span class="text-slate-600 flex items-center"><i class="fa-solid fa-circle text-slate-400 text-xs mr-1"></i> 2</span>
-                        <span class="text-amber-800 flex items-center"><i class="fa-solid fa-circle text-amber-900 text-xs mr-1"></i> 1</span>
+                        <span class="text-amber-700 flex items-center" title="Medali Emas"><i class="fa-solid fa-circle text-amber-500 text-xs mr-1"></i> <span class="metric-gold-medals">3</span></span>
+                        <span class="text-slate-600 flex items-center" title="Medali Perak"><i class="fa-solid fa-circle text-slate-400 text-xs mr-1"></i> <span class="metric-silver-medals">2</span></span>
+                        <span class="text-amber-800 flex items-center" title="Medali Perunggu"><i class="fa-solid fa-circle text-amber-900 text-xs mr-1"></i> <span class="metric-bronze-medals">1</span></span>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1">6 Podium Kejuaraan Resmi</p>
+                    <p class="text-[11px] text-slate-500 mt-1"><span class="metric-total-podiums">6</span> Podium Kejuaraan Resmi</p>
                     <div class="mt-3">
                         <button onclick="switchTab('championships')" class="text-xs text-amber-700 hover:text-amber-800 font-semibold flex items-center space-x-1">
                             <span>Buka E-Sertifikat</span>
@@ -394,6 +432,79 @@
                 </div>
             </div>
 
+            <!-- Metric Highlights Cards (Sinkronisasi Kartu Anggota & Database) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Belt Status & Next UKT Target -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02] cursor-pointer" onclick="openModal('modal-grading')" title="Klik untuk Lihat/Daftar Ujian UKT">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Sabuk</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-medal"></i>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black font-heading text-amber-800 metric-user-rank truncate">Sabuk Cokelat (Kyu 2)</div>
+                    <p class="text-[11px] text-slate-500 mt-1">Target UKT: <span class="metric-next-rank text-slate-800 font-semibold">Sabuk Hitam (Dan 1 WKF)</span></p>
+                    <div class="mt-3 w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                        <div class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full metric-belt-progress-bar transition-all duration-500" style="width: 85%"></div>
+                    </div>
+                    <span class="block text-right text-[10px] text-amber-700 mt-1 font-semibold metric-belt-progress-text">Kelayakan 85%</span>
+                </div>
+
+                <!-- Attendance Point & Dues Status -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02] cursor-pointer" onclick="openModal('modal-qr-tatami')" title="Klik untuk Buka QR Presensi Tatami">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Presensi &amp; Tatami</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black font-heading text-emerald-700"><span class="metric-attendance-rate">94%</span> <span class="text-xs text-slate-500 font-normal">Hadir</span></div>
+                    <p class="text-[11px] text-slate-500 mt-1"><span class="metric-attendance-sessions">47 dari 50 sesi reguler dojo</span></p>
+                    <div class="mt-3 flex items-center space-x-1.5 text-xs text-emerald-700 font-semibold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse metric-dues-dot"></span>
+                        <span class="metric-dues-status">Iuran Lunas &amp; QR Aktif</span>
+                    </div>
+                </div>
+
+                <!-- Akademi Points & Dojo Afiliasi -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Poin Bushido</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black font-heading text-sky-700"><span class="metric-bushido-points">1,450</span> <span class="text-xs text-slate-500 font-normal">XP</span></div>
+                    <p class="text-[11px] text-slate-500 mt-1 truncate" title="Dojo Afiliasi Karateka"><i class="fa-solid fa-location-dot text-amber-600 mr-1"></i><span class="metric-dojo-name">K-Majestigers Elite Surabaya Dojo</span></p>
+                    <div class="mt-3 flex items-center space-x-1.5 text-xs text-sky-700 font-medium">
+                        <i class="fa-solid fa-shield-halved text-amber-500"></i>
+                        <span class="metric-athlete-status">Status: Atlet Sah INKAI</span>
+                    </div>
+                </div>
+
+                <!-- Medals Tally -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Koleksi Medali</span>
+                        <div class="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 text-lg font-black font-heading">
+                        <span class="text-amber-700 flex items-center" title="Medali Emas"><i class="fa-solid fa-circle text-amber-500 text-xs mr-1"></i> <span class="metric-gold-medals">3</span></span>
+                        <span class="text-slate-600 flex items-center" title="Medali Perak"><i class="fa-solid fa-circle text-slate-400 text-xs mr-1"></i> <span class="metric-silver-medals">2</span></span>
+                        <span class="text-amber-800 flex items-center" title="Medali Perunggu"><i class="fa-solid fa-circle text-amber-900 text-xs mr-1"></i> <span class="metric-bronze-medals">1</span></span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1"><span class="metric-total-podiums">6</span> Podium Kejuaraan Resmi</p>
+                    <div class="mt-3">
+                        <button onclick="switchTab('championships')" class="text-xs text-amber-700 hover:text-amber-800 font-semibold flex items-center space-x-1">
+                            <span>Buka E-Sertifikat</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <!-- Digital ID Card (Luminous Bright VIP Badge) -->
                 <div class="lg:col-span-5 flex justify-center">
@@ -417,21 +528,31 @@
                                     <span class="text-[8px] uppercase tracking-widest text-amber-800 font-semibold block">Elite Karate Academy</span>
                                 </div>
                             </div>
-                            <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-amber-100 text-amber-900 border border-amber-300">
-                                WKF AFFILIATED
-                            </span>
+                            <div class="flex items-center space-x-1.5">
+                                <button type="button" onclick="openModal('modal-edit-card')" class="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider bg-amber-200/80 hover:bg-amber-300 text-amber-950 border border-amber-300 transition flex items-center space-x-1 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Edit Kartu</span>
+                                </button>
+                                <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-amber-100 text-amber-900 border border-amber-300">
+                                    WKF AFFILIATED
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Card Body (Photo & Core Info) -->
                         <div class="flex items-center space-x-4 mb-5 relative z-10">
-                            <div class="w-24 h-28 rounded-2xl overflow-hidden border-2 border-amber-400 p-0.5 bg-gradient-to-b from-amber-300 to-amber-600 shadow-md flex-shrink-0">
-                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Pas Foto Atlet" class="w-full h-full object-cover rounded-xl">
+                            <div class="w-24 h-28 rounded-2xl overflow-hidden border-2 border-amber-400 p-0.5 bg-gradient-to-b from-amber-300 to-amber-600 shadow-md flex-shrink-0 relative group">
+                                <img id="card-member-photo" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Pas Foto Atlet" class="w-full h-full object-cover rounded-xl transition-transform group-hover:scale-105">
+                                <button type="button" onclick="openModal('modal-edit-card')" title="Ganti Foto Atlet" class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold rounded-xl cursor-pointer">
+                                    <i class="fa-solid fa-camera mb-1 text-sm text-amber-300"></i>
+                                    <span>Ganti Foto</span>
+                                </button>
                             </div>
                             <div class="space-y-1 text-xs">
                                 <span class="text-[9px] uppercase font-bold text-amber-800 tracking-wider">Nama Atlet</span>
                                 <h4 id="card-member-name" class="text-base font-black font-heading text-slate-950 leading-tight">Ahmad Rayhan Putra</h4>
                                 <div class="pt-1 text-[11px] text-slate-700 space-y-0.5">
-                                    <p><strong class="text-slate-500">NIA:</strong> <span id="card-member-nia" class="text-amber-800 font-mono font-bold">INA-SBY-8821</span></p>
+                                    <p><strong class="text-slate-500"><span id="card-member-id-label">NIA</span>:</strong> <span id="card-member-nia" class="text-amber-800 font-mono font-bold">INA-SBY-8821</span></p>
                                     <p><strong class="text-slate-500">Sabuk:</strong> <span id="card-member-rank" class="text-amber-700 font-semibold">Cokelat (Kyu 2)</span></p>
                                     <p><strong class="text-slate-500">Dojo:</strong> <span id="card-member-dojo" class="text-slate-900 font-medium">K-Majestigers Elite Surabaya Dojo</span></p>
                                 </div>
@@ -439,37 +560,27 @@
                         </div>
 
                         <!-- QR Code for Dojo Attendance -->
-                        <div class="bg-white rounded-2xl p-4 border border-amber-200 shadow-sm flex items-center justify-between relative z-10 mb-4">
+                        <div onclick="openModal('modal-qr-tatami')" class="bg-white rounded-2xl p-4 border border-amber-200 shadow-sm flex items-center justify-between relative z-10 mb-4 cursor-pointer hover:border-amber-400 hover:shadow-md transition group" title="Klik untuk memperbesar QR Presensi Tatami">
                             <div class="space-y-0.5">
                                 <span class="text-[9px] uppercase font-bold text-amber-800 tracking-wider block">QR Presensi Tatami</span>
                                 <span class="text-[10px] text-slate-500 block leading-tight">Pindai di meja panitia/dojo untuk absensi instan</span>
-                                <span class="text-[9px] text-emerald-700 font-mono font-bold block pt-1">● READY TO SCAN</span>
+                                <span id="card-qr-label" class="text-[9px] text-emerald-700 font-mono font-bold block pt-1 flex items-center space-x-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block mr-1"></span>
+                                    <span>● READY TO SCAN</span>
+                                </span>
                             </div>
-                            <!-- High-fidelity SVG QR Code Simulation -->
-                            <div class="w-16 h-16 bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-xs flex items-center justify-center flex-shrink-0">
-                                <svg class="w-full h-full" viewBox="0 0 100 100" fill="#0f172a">
-                                    <rect x="0" y="0" width="30" height="30" />
-                                    <rect x="5" y="5" width="20" height="20" fill="white" />
-                                    <rect x="10" y="10" width="10" height="10" />
-                                    <rect x="70" y="0" width="30" height="30" />
-                                    <rect x="75" y="5" width="20" height="20" fill="white" />
-                                    <rect x="80" y="10" width="10" height="10" />
-                                    <rect x="0" y="70" width="30" height="30" />
-                                    <rect x="5" y="75" width="20" height="20" fill="white" />
-                                    <rect x="10" y="80" width="10" height="10" />
-                                    <rect x="40" y="10" width="10" height="20" />
-                                    <rect x="40" y="40" width="20" height="20" />
-                                    <rect x="70" y="40" width="20" height="10" />
-                                    <rect x="70" y="70" width="15" height="15" />
-                                    <rect x="40" y="70" width="10" height="20" />
-                                </svg>
+                            <div class="w-16 h-16 bg-white p-1 rounded-xl border border-slate-200 shadow-xs flex items-center justify-center flex-shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform" id="card-qr-box">
+                                <img id="card-qr-img" src="" alt="QR Presensi" class="w-full h-full object-contain">
                             </div>
                         </div>
 
-                        <!-- Card Footer -->
-                        <div class="flex items-center justify-between text-[9px] text-slate-500 pt-3 border-t border-slate-200">
-                            <span>Berlaku s/d: <strong class="text-slate-800">31 Des 2027</strong></span>
-                            <span class="text-amber-800 font-semibold"><i class="fa-solid fa-certificate mr-1"></i> Dewan Guru INKAI</span>
+                        <!-- Card Footer: Status Iuran Bulanan & Masa Berlaku Dinamis -->
+                        <div class="flex items-center justify-between text-[9px] text-slate-500 pt-3 border-t border-slate-200" id="card-footer-dues">
+                            <div class="flex items-center space-x-1.5" id="card-dues-wrap">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" id="card-dues-dot"></span>
+                                <span id="card-dues-status" class="text-emerald-700 font-bold uppercase tracking-wider">Iuran Bulan Ini: Lunas</span>
+                            </div>
+                            <span id="card-validity-wrap">Berlaku s/d: <strong class="text-slate-800" id="card-validity-date">31 Mei 2026</strong></span>
                         </div>
                     </div>
                 </div>
@@ -506,82 +617,45 @@
                                 <span class="text-slate-500 block text-[10px] uppercase font-bold">Golongan Darah</span>
                                 <span id="bio-blood" class="text-slate-900 font-semibold text-sm">O+ (Rhesus Positif)</span>
                             </div>
-                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 sm:col-span-2">
                                 <span class="text-slate-500 block text-[10px] uppercase font-bold">Nomor Kontak WhatsApp</span>
                                 <span id="bio-phone" class="text-slate-900 font-semibold text-sm">0812-3456-7890</span>
-                            </div>
-                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                                <span class="text-slate-500 block text-[10px] uppercase font-bold">Pelatih Kepala / Sensei</span>
-                                <span id="bio-coach" class="text-slate-900 font-semibold text-sm">Sensei Budi Prasetyo, S.Pd. (Dan 4 INKAI)</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Grading History (Riwayat Kenaikan Sabuk) -->
+                    <!-- Grading History (Riwayat Kenaikan Sabuk - CRUD Aktif) -->
                     <div class="glass-card p-6 sm:p-7 rounded-3xl space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                            <h3 class="text-lg font-bold font-heading text-slate-900 flex items-center space-x-2">
-                                <i class="fa-solid fa-timeline text-amber-600"></i>
-                                <span>Riwayat Kenaikan Tingkat (Grading History)</span>
-                            </h3>
-                            <span class="text-xs text-amber-700 font-semibold">Tersinkronisasi INKAI Pusat</span>
+                            <div>
+                                <h3 class="text-lg font-bold font-heading text-slate-900 flex items-center space-x-2">
+                                    <i class="fa-solid fa-timeline text-amber-600"></i>
+                                    <span>Riwayat Kenaikan Tingkat (Grading History)</span>
+                                </h3>
+                                <span class="text-[11px] text-slate-500">Tersinkronisasi langsung dengan basis data resmi INKAI</span>
+                            </div>
+                            <button type="button" onclick="openGradingModal()" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-xs">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>Tambah Riwayat</span>
+                            </button>
                         </div>
 
-                        <!-- Timeline steps -->
-                        <div class="space-y-4 pt-2">
-                            <div class="flex items-start space-x-4">
-                                <div class="w-8 h-8 rounded-full bg-amber-50 border-2 border-amber-500 flex items-center justify-center text-amber-700 text-xs flex-shrink-0 font-bold shadow-xs">
-                                    ✓
-                                </div>
-                                <div class="flex-1 p-3 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-center text-xs">
-                                    <div>
-                                        <span class="font-bold text-slate-900 block">Sabuk Cokelat (Kyu 2)</span>
-                                        <span class="text-slate-500 text-[11px]">Ujian Gashuku Nasional Surabaya - Nilai A (Lulus Memuaskan)</span>
-                                    </div>
-                                    <span class="text-amber-800 font-mono text-[11px] font-bold">Okt 2025</span>
-                                </div>
+                        <!-- Timeline steps dinamis dari database -->
+                        <div id="grading-history-list" class="space-y-3 pt-1">
+                            <div class="text-center py-6 text-slate-400 text-xs">
+                                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat riwayat kenaikan sabuk...
                             </div>
+                        </div>
 
-                            <div class="flex items-start space-x-4">
-                                <div class="w-8 h-8 rounded-full bg-blue-50 border-2 border-blue-500 flex items-center justify-center text-blue-700 text-xs flex-shrink-0 font-bold shadow-xs">
-                                    ✓
-                                </div>
-                                <div class="flex-1 p-3 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-center text-xs">
-                                    <div>
-                                        <span class="font-bold text-slate-900 block">Sabuk Biru (Kyu 4)</span>
-                                        <span class="text-slate-500 text-[11px]">Ujian Dojo Reguler Cabang Jawa Timur</span>
-                                    </div>
-                                    <span class="text-slate-500 font-mono text-[11px]">Nov 2023</span>
-                                </div>
+                        <!-- Target Berikutnya (Dihitung otomatis) -->
+                        <div id="grading-next-target" class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-300 flex justify-between items-center text-xs mt-3">
+                            <div>
+                                <span id="grading-target-title" class="font-bold text-amber-950 block">Target Berikutnya: Sabuk Hitam (Dan 2)</span>
+                                <span id="grading-target-sub" class="text-slate-600 text-[11px]">Pendaftaran dibuka untuk Gashuku &amp; UKT Nasional Periode Depan</span>
                             </div>
-
-                            <div class="flex items-start space-x-4">
-                                <div class="w-8 h-8 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-emerald-700 text-xs flex-shrink-0 font-bold shadow-xs">
-                                    ✓
-                                </div>
-                                <div class="flex-1 p-3 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-center text-xs">
-                                    <div>
-                                        <span class="font-bold text-slate-900 block">Sabuk Hijau (Kyu 6)</span>
-                                        <span class="text-slate-500 text-[11px]">Ujian Kenaikan Tingkat Daerah</span>
-                                    </div>
-                                    <span class="text-slate-500 font-mono text-[11px]">Feb 2022</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start space-x-4">
-                                <div class="w-8 h-8 rounded-full bg-amber-100 border-2 border-amber-500 border-dashed flex items-center justify-center text-amber-800 text-xs flex-shrink-0 font-bold">
-                                    ★
-                                </div>
-                                <div class="flex-1 p-3 rounded-xl bg-amber-50 border border-amber-300 flex justify-between items-center text-xs">
-                                    <div>
-                                        <span class="font-bold text-amber-900 block">Target Berikutnya: Sabuk Hitam (Dan 1 WKF)</span>
-                                        <span class="text-slate-600 text-[11px]">Pendaftaran Dibuka untuk Gashuku Nasional Q4 2026</span>
-                                    </div>
-                                    <button onclick="openModal('modal-grading')" class="px-3 py-1.5 rounded-lg gold-gradient-bg text-slate-950 font-bold text-[10px] uppercase shadow-xs">
-                                        Daftar UKT
-                                    </button>
-                                </div>
-                            </div>
+                            <button onclick="openModal('modal-grading')" class="px-3.5 py-2 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase shadow-xs transition hover:opacity-95">
+                                Daftar UKT
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -840,6 +914,258 @@
          MODALS
          ============================================== -->
 
+    <!-- Modal QR Presensi Tatami & Dojo -->
+    <div id="modal-qr-tatami" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-2xl text-xs space-y-4 text-slate-800 text-center">
+            <button type="button" onclick="closeModal('modal-qr-tatami')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 text-base">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div>
+                <span class="text-[10px] uppercase font-bold text-amber-700 tracking-wider">Presensi Resmi Tatami</span>
+                <h3 class="text-xl font-bold font-heading text-slate-900 mt-0.5">QR Presensi Tatami</h3>
+                <p class="text-slate-500 text-[11px] mt-1">Tunjukkan kode QR ini ke kamera scanner meja panitia atau sensei dojo.</p>
+            </div>
+
+            <!-- QR Container -->
+            <div class="p-4 bg-slate-50 rounded-2xl border-2 border-amber-300/80 inline-flex flex-col items-center justify-center shadow-inner my-1">
+                <div id="modal-qr-render" class="w-48 h-48 bg-white p-2 rounded-xl border border-slate-200 shadow-xs flex items-center justify-center overflow-hidden">
+                    <img id="modal-qr-img" src="" alt="QR Tatami" class="w-full h-full object-contain">
+                </div>
+                <div class="mt-3 text-center">
+                    <span id="modal-qr-code-text" class="font-mono text-xs font-bold text-slate-900 tracking-wider block"></span>
+                    <span class="inline-flex items-center space-x-1 text-[10px] text-emerald-700 font-bold mt-1 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>TERVERIFIKASI &amp; SIAP SCAN</span>
+                    </span>
+                    <div class="pt-2">
+                        <a id="modal-qr-test-link" href="/verify" target="_blank" class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold transition">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                            <span>Buka Halaman Validasi Resmi (Simulasi Scan HP)</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-[11px] text-slate-600 space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-100 text-left">
+                <div class="flex justify-between">
+                    <span class="text-slate-400 font-medium">Karateka:</span>
+                    <span id="modal-qr-name" class="font-bold text-slate-900"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span id="modal-qr-id-label" class="text-slate-400 font-medium">NIA:</span>
+                    <span id="modal-qr-id-val" class="font-mono font-bold text-amber-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400 font-medium">Tingkatan:</span>
+                    <span id="modal-qr-rank" class="font-semibold text-slate-800"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400 font-medium">Dojo:</span>
+                    <span id="modal-qr-dojo" class="font-semibold text-slate-800"></span>
+                </div>
+            </div>
+
+            <div class="pt-1">
+                <button type="button" onclick="closeModal('modal-qr-tatami')" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Kartu Anggota Digital -->
+    <div id="modal-edit-card" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto">
+            <button type="button" onclick="closeModal('modal-edit-card')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 text-base">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="border-b border-slate-100 pb-3">
+                <span class="text-[10px] uppercase font-bold text-amber-700 tracking-wider">Identitas Resmi Atlet</span>
+                <h3 class="text-xl font-bold font-heading text-slate-900 mt-0.5">Edit Kartu Anggota Digital</h3>
+                <p class="text-slate-500 text-[11px] mt-1">Perbarui pas foto, nama, NIA, tingkatan sabuk, dan dojo afiliasi atlet.</p>
+            </div>
+
+            <form id="form-edit-card" novalidate onsubmit="handleSaveCard(event)" class="space-y-4">
+                <div id="edit-card-alert" class="hidden p-3 rounded-xl text-xs flex items-start space-x-2.5">
+                    <i id="edit-card-alert-icon" class="fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-sm"></i>
+                    <span id="edit-card-alert-msg" class="leading-relaxed font-semibold"></span>
+                </div>
+
+                <!-- Pas Foto Section -->
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1.5">Pas Foto Atlet</label>
+                    <div class="flex items-center space-x-4 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="w-16 h-20 rounded-xl overflow-hidden border-2 border-amber-400 bg-white shadow-xs flex-shrink-0 relative group">
+                            <img id="edit-card-photo-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Preview Foto" class="w-full h-full object-cover">
+                            <button type="button" onclick="viewEnlargedPhoto(document.getElementById('edit-card-photo-preview').src)" class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity rounded-xl" title="Klik untuk Pratinjau Foto">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                        <div class="flex-1 space-y-1.5">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <label class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs cursor-pointer transition shadow-xs">
+                                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                    <span>Pilih File Foto</span>
+                                    <input type="file" id="edit-card-photo-file" accept="image/*" class="hidden" onchange="handleCardPhotoFileChange(event)">
+                                </label>
+                                <button type="button" onclick="viewEnlargedPhoto(document.getElementById('edit-card-photo-preview').src)" class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition" title="Lihat Foto Ukuran Penuh">
+                                    <i class="fa-solid fa-eye text-[11px] text-amber-600"></i>
+                                    <span>Lihat Foto</span>
+                                </button>
+                            </div>
+                            <span id="edit-card-photo-name" class="text-[10px] text-slate-500 block truncate max-w-[260px]">Belum ada file baru</span>
+                            <span id="edit-card-compress-info" class="text-[10px] text-emerald-700 font-semibold block hidden"></span>
+                            <span class="text-[10px] text-slate-400 block pt-0.5">Otomatis terkompresi optimal maks. 150 KB untuk sinkronisasi database</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nama Atlet -->
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Nama Lengkap Atlet <span class="text-rose-500">*</span></label>
+                    <input type="text" id="edit-card-fullname" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="Nama lengkap atlet">
+                </div>
+
+                <!-- NIA / No. MSH & Sabuk (2 Columns) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label id="label-edit-card-nia" class="block text-slate-700 font-semibold mb-1">Nomor Induk Anggota (NIA)</label>
+                        <input type="text" id="edit-card-nia" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 font-mono focus:outline-none focus:border-amber-500 focus:bg-white font-medium uppercase" placeholder="Contoh: INA-SBY-8821">
+                        <span id="sub-edit-card-nia" class="text-[10px] text-slate-500 mt-0.5 block">Identitas tatami &amp; QR presensi</span>
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Tingkatan Sabuk <span class="text-rose-500">*</span></label>
+                        <select id="edit-card-rank" onchange="handleRankSelectionChange(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
+                            <optgroup label="── TINGKATAN KYU (SABUK WARNA) ──">
+                                <option value="Sabuk Putih (Kyu 10)">Sabuk Putih (Kyu 10)</option>
+                                <option value="Sabuk Kuning (Kyu 8)">Sabuk Kuning (Kyu 8)</option>
+                                <option value="Sabuk Kuning (Kyu 7)">Sabuk Kuning (Kyu 7)</option>
+                                <option value="Sabuk Hijau (Kyu 6)">Sabuk Hijau (Kyu 6)</option>
+                                <option value="Sabuk Hijau (Kyu 5)">Sabuk Hijau (Kyu 5)</option>
+                                <option value="Sabuk Biru (Kyu 4)">Sabuk Biru (Kyu 4)</option>
+                                <option value="Sabuk Cokelat (Kyu 3)">Sabuk Cokelat (Kyu 3)</option>
+                                <option value="Sabuk Cokelat (Kyu 2)">Sabuk Cokelat (Kyu 2)</option>
+                                <option value="Sabuk Cokelat (Kyu 1)">Sabuk Cokelat (Kyu 1)</option>
+                            </optgroup>
+                            <optgroup label="── TINGKATAN DAN (MAJELIS SABUK HITAM / MSH) ──">
+                                <option value="Sabuk Hitam (Dan 1 WKF)">Sabuk Hitam (Dan 1 WKF)</option>
+                                <option value="Sabuk Hitam (Dan 2)">Sabuk Hitam (Dan 2)</option>
+                                <option value="Sabuk Hitam (Dan 3)">Sabuk Hitam (Dan 3)</option>
+                                <option value="Sabuk Hitam (Dan 4)">Sabuk Hitam (Dan 4)</option>
+                                <option value="Sabuk Hitam (Dan 5+)">Sabuk Hitam (Dan 5+)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dojo Afiliasi -->
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Dojo Afiliasi / Cabang <span class="text-rose-500">*</span></label>
+                    <select id="edit-card-dojo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
+                        <option value="">Memuat daftar dojo...</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-end space-x-2.5 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-edit-card')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-save-card" class="px-5 py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider text-xs shadow-md hover:opacity-95 transition-opacity flex items-center space-x-1.5">
+                        <span id="save-card-spinner" class="hidden animate-spin mr-1"><i class="fa-solid fa-spinner"></i></span>
+                        <span id="save-card-text">Simpan Kartu</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Biodata Atlet / Anggota -->
+    <div id="modal-edit-profile" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto">
+            <button type="button" onclick="closeModal('modal-edit-profile')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 text-base">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="border-b border-slate-100 pb-3">
+                <span class="text-[10px] uppercase font-bold text-amber-700 tracking-wider">Perbarui Data Diri</span>
+                <h3 class="text-xl font-bold font-heading text-slate-900 mt-0.5">Edit Biodata Anggota</h3>
+                <p class="text-slate-500 text-[11px] mt-1">Data ini tersinkronisasi langsung ke database anggota K-Majestigers.</p>
+            </div>
+
+            <form id="form-edit-profile" novalidate onsubmit="handleSaveProfile(event)" class="space-y-3.5">
+                <div id="edit-profile-alert" class="hidden p-3 rounded-xl text-xs flex items-start space-x-2.5">
+                    <i id="edit-profile-alert-icon" class="fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-sm"></i>
+                    <span id="edit-profile-alert-msg" class="leading-relaxed font-semibold"></span>
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Nama Lengkap <span class="text-rose-500">*</span></label>
+                    <input type="text" id="edit-fullname" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="Nama lengkap atlet/anggota">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Nomor Kontak WhatsApp <span class="text-rose-500">*</span></label>
+                        <input type="tel" id="edit-phone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="Contoh: 081234567890">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Jenis Kelamin</label>
+                        <select id="edit-gender" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
+                            <option value="LAKI_LAKI">Laki-Laki</option>
+                            <option value="PEREMPUAN">Perempuan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Tempat Lahir</label>
+                        <input type="text" id="edit-birthplace" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="Kota kelahiran (misal: Surabaya)">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Tanggal Lahir</label>
+                        <input type="date" id="edit-birthdate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Berat (kg)</label>
+                        <input type="number" step="0.1" id="edit-weight" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="66.5">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Tinggi (cm)</label>
+                        <input type="number" step="0.5" id="edit-height" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="175">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Gol. Darah</label>
+                        <select id="edit-blood" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
+                            <option value="">Pilih</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="AB">AB</option>
+                            <option value="O">O</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Alamat Domisili</label>
+                    <textarea id="edit-address" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium text-xs resize-none" placeholder="Alamat tempat tinggal lengkap"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end space-x-2.5 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-edit-profile')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-save-profile" class="px-5 py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider text-xs shadow-md hover:opacity-95 transition-opacity flex items-center space-x-1.5">
+                        <span id="save-profile-spinner" class="hidden animate-spin mr-1"><i class="fa-solid fa-spinner"></i></span>
+                        <span id="save-profile-text">Simpan Perubahan</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Pendaftaran UKT (Ujian Kenaikan Tingkat) -->
     <div id="modal-grading" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-5 text-slate-800">
@@ -854,12 +1180,12 @@
 
             <form onsubmit="handleFormSubmit(event, 'Pendaftaran UKT berhasil diajukan ke Dewan Guru!')" class="space-y-4">
                 <div>
-                    <label class="block text-slate-700 font-semibold mb-1">Nama Lengkap &amp; NIA</label>
-                    <input type="text" readonly value="Ahmad Rayhan Putra - INA-SBY-8821" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 font-medium">
+                    <label class="block text-slate-700 font-semibold mb-1">Nama Lengkap &amp; Nomor Anggota</label>
+                    <input type="text" id="modal-grading-user-info" readonly value="Ahmad Rayhan Putra - INA-SBY-7788" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 font-medium">
                 </div>
                 <div>
                     <label class="block text-slate-700 font-semibold mb-1">Tingkatan Saat Ini &rarr; Target</label>
-                    <input type="text" readonly value="Sabuk Cokelat (Kyu 2) &rarr; Sabuk Hitam (Dan 1 INKAI)" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-2.5 text-amber-800 font-bold">
+                    <input type="text" id="modal-grading-rank-flow" readonly value="Sabuk Cokelat (Kyu 2) &rarr; Sabuk Hitam (Dan 1 WKF)" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-2.5 text-amber-800 font-bold">
                 </div>
                 <div>
                     <label class="block text-slate-700 font-semibold mb-1">Rekomendasi Pelatih Dojo</label>
@@ -896,7 +1222,7 @@
                 <div class="py-2">
                     <span class="text-xs text-slate-500 block">Diberikan Kepada Atlet Berprestasi:</span>
                     <h4 id="cert-recipient" class="text-2xl font-black font-heading text-slate-950 underline decoration-amber-500 decoration-2 mt-1">Ahmad Rayhan Putra</h4>
-                    <span class="text-xs font-mono text-slate-600">NIA: INA-SBY-8821 • Dojo K-Majestigers Surabaya</span>
+                    <span id="cert-nia-dojo" class="text-xs font-mono text-slate-600">No. MSH: INA-SBY-7788 • K-Majestigers Elite Surabaya Dojo</span>
                 </div>
 
                 <div class="p-3 bg-amber-100/70 rounded-xl max-w-md mx-auto border border-amber-200">
@@ -930,6 +1256,101 @@
         </div>
     </div>
 
+    <!-- Modal CRUD Riwayat Kenaikan Sabuk (Grading History) -->
+    <div id="modal-manage-grading" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl text-xs space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto">
+            <button type="button" onclick="closeModal('modal-manage-grading')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 text-base">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="border-b border-slate-100 pb-3">
+                <span class="text-[10px] uppercase font-bold text-amber-700 tracking-wider">Rekam Prestasi Sabuk</span>
+                <h3 id="modal-manage-grading-title" class="text-xl font-bold font-heading text-slate-900 mt-0.5">Tambah Riwayat Kenaikan Sabuk</h3>
+                <p class="text-slate-500 text-[11px] mt-1">Data kelulusan UKT dan kenaikan tingkatan sabuk tersinkronisasi ke database resmi INKAI.</p>
+            </div>
+
+            <form id="form-manage-grading" onsubmit="handleSaveGradingRecord(event)" class="space-y-3.5">
+                <input type="hidden" id="grading-crud-id" value="">
+                
+                <div id="grading-crud-alert" class="hidden p-3 rounded-xl text-xs flex items-start space-x-2.5">
+                    <i id="grading-crud-alert-icon" class="fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-sm"></i>
+                    <span id="grading-crud-alert-msg" class="leading-relaxed font-semibold"></span>
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Tingkatan Sabuk yang Dicapai <span class="text-rose-500">*</span></label>
+                    <select id="grading-crud-rank" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
+                        <optgroup label="── TINGKATAN KYU (SABUK WARNA) ──">
+                            <option value="Sabuk Putih (Kyu 10)">Sabuk Putih (Kyu 10)</option>
+                            <option value="Sabuk Kuning (Kyu 8)">Sabuk Kuning (Kyu 8)</option>
+                            <option value="Sabuk Kuning (Kyu 7)">Sabuk Kuning (Kyu 7)</option>
+                            <option value="Sabuk Hijau (Kyu 6)">Sabuk Hijau (Kyu 6)</option>
+                            <option value="Sabuk Hijau (Kyu 5)">Sabuk Hijau (Kyu 5)</option>
+                            <option value="Sabuk Biru (Kyu 4)">Sabuk Biru (Kyu 4)</option>
+                            <option value="Sabuk Cokelat (Kyu 3)">Sabuk Cokelat (Kyu 3)</option>
+                            <option value="Sabuk Cokelat (Kyu 2)">Sabuk Cokelat (Kyu 2)</option>
+                            <option value="Sabuk Cokelat (Kyu 1)">Sabuk Cokelat (Kyu 1)</option>
+                        </optgroup>
+                        <optgroup label="── TINGKATAN DAN (MAJELIS SABUK HITAM / MSH) ──">
+                            <option value="Sabuk Hitam (Dan 1 WKF)">Sabuk Hitam (Dan 1 WKF)</option>
+                            <option value="Sabuk Hitam (Dan 2)">Sabuk Hitam (Dan 2)</option>
+                            <option value="Sabuk Hitam (Dan 3)">Sabuk Hitam (Dan 3)</option>
+                            <option value="Sabuk Hitam (Dan 4)">Sabuk Hitam (Dan 4)</option>
+                            <option value="Sabuk Hitam (Dan 5+)">Sabuk Hitam (Dan 5+)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Tanggal Ujian UKT <span class="text-rose-500">*</span></label>
+                        <input type="date" id="grading-crud-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">Predikat / Nilai Kelulusan</label>
+                        <input type="text" id="grading-crud-grade" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="Contoh: Nilai A (Lulus Memuaskan)">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Nama Acara / Pelaksanaan Ujian <span class="text-rose-500">*</span></label>
+                    <input type="text" id="grading-crud-event" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium" placeholder="Contoh: Ujian Gashuku Nasional Surabaya / UKT Dojo">
+                </div>
+
+                <div class="flex items-center justify-end space-x-2.5 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-manage-grading')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-save-grading" class="px-5 py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider text-xs shadow-md hover:opacity-95 transition flex items-center space-x-1.5">
+                        <span id="save-grading-spinner" class="hidden animate-spin mr-1"><i class="fa-solid fa-spinner"></i></span>
+                        <span id="save-grading-text">Simpan Riwayat</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal View Enlarged Photo -->
+    <div id="modal-view-photo" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4" onclick="if(event.target===this) closeModal('modal-view-photo')">
+        <div class="bg-white rounded-3xl p-4 sm:p-6 max-w-sm w-full relative shadow-2xl text-center space-y-4">
+            <button type="button" onclick="closeModal('modal-view-photo')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-left">
+                <span class="text-[10px] uppercase font-bold text-amber-700 tracking-wider">Pratinjau Pas Foto</span>
+                <h4 id="photo-viewer-name" class="text-base font-bold text-slate-900">Pas Foto Atlet</h4>
+            </div>
+            <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden border-2 border-amber-300 shadow-md bg-slate-100">
+                <img id="photo-viewer-img" src="" alt="Pas Foto Atlet" class="w-full h-full object-cover">
+            </div>
+            <div class="flex justify-between items-center text-[11px] text-slate-500 pt-1">
+                <span id="photo-viewer-size">Resolusi Terverifikasi</span>
+                <button type="button" onclick="closeModal('modal-view-photo')" class="px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 transform translate-y-32 transition-transform duration-300 flex items-center space-x-3 text-xs">
         <div class="w-7 h-7 rounded-full gold-gradient-bg flex items-center justify-center text-slate-950 font-bold text-xs">
@@ -952,34 +1373,76 @@
             // Render tombol quick switcher role di navbar
             InkaiAPI.renderRoleSwitcherNav('role-switcher-container', 'MEMBER');
 
+            // Segera tampilkan profil pengguna aktif dari sesi saat ini
+            if (currentUser) {
+                const initialName = currentUser.fullName || currentUser.name || 'Member';
+                const heroName = document.getElementById('hero-user-name');
+                if (heroName) heroName.innerText = initialName;
+                const navName = document.getElementById('nav-user-name');
+                if (navName) navName.innerText = initialName;
+                const cardName = document.getElementById('card-member-name');
+                if (cardName) cardName.innerText = initialName;
+                const bioFullname = document.getElementById('bio-fullname');
+                if (bioFullname) bioFullname.innerText = initialName;
+                const bioPhone = document.getElementById('bio-phone');
+                if (bioPhone && currentUser.phoneNumber) bioPhone.innerText = currentUser.phoneNumber;
+            }
+
             // Load profil real-time dari database
             await loadLiveMemberData();
         });
+
+        let currentLiveProfile = null;
 
         async function loadLiveMemberData() {
             try {
                 const profile = await InkaiAPI.getProfile();
                 if (profile) {
-                    const fullName = profile.fullName || currentUser?.name || 'Ahmad Rayhan Putra';
-                    const rank = profile.currentRank || 'Sabuk Cokelat (Kyu 2)';
-                    const nia = profile.nia || 'INA-SBY-8821';
-                    const dojoName = profile.dojo?.name || 'K-Majestigers Elite Surabaya Dojo';
-                    const weight = profile.weight ? profile.weight + ' kg' : '66.5 kg';
-                    const height = profile.height ? profile.height + ' cm' : '175 cm';
-                    const blood = profile.bloodType ? profile.bloodType + ' (Rhesus Positif)' : 'O+';
-                    const phone = profile.phoneNumber || '0812-3456-7890';
+                    currentLiveProfile = profile;
+                    const fullName = profile.fullName || currentUser?.fullName || currentUser?.name || 'Member K-Majestigers';
+                    const hasExplicitRank = profile.currentRank && profile.currentRank !== '-';
+                    const rank = hasExplicitRank ? profile.currentRank : (profile.member ? 'Sabuk Putih (Kyu 10)' : 'Member Baru');
+                    const nia = (profile.nia && profile.nia !== '-') ? profile.nia : (profile.memberRegNumber || 'Menunggu Verifikasi');
+                    const dojoName = profile.dojo?.name || profile.managedDojoName || 'K-Majestigers Elite Dojo';
+                    const weight = (profile.weight !== undefined && profile.weight !== null && profile.weight !== '') ? `${profile.weight} kg` : '-';
+                    const height = (profile.height !== undefined && profile.height !== null && profile.height !== '') ? `${profile.height} cm` : '-';
+                    const blood = profile.bloodType ? `${profile.bloodType}` : '-';
+                    const phone = profile.phoneNumber || currentUser?.phoneNumber || '-';
 
                     // Update Top Navbar & Header
+                    const isDan = (rank || '').toLowerCase().includes('dan') || (rank || '').toLowerCase().includes('hitam');
+                    const idLabel = isDan ? 'No. MSH' : 'NIA';
+
                     const heroName = document.getElementById('hero-user-name');
                     if (heroName) heroName.innerText = fullName;
+                    const heroNia = document.getElementById('hero-user-nia');
+                    if (heroNia) heroNia.innerText = `${idLabel}: ${nia}`;
+                    const heroDojo = document.getElementById('hero-user-dojo');
+                    if (heroDojo) heroDojo.innerHTML = `<i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> ${dojoName}`;
                     const navName = document.getElementById('nav-user-name');
                     if (navName) navName.innerText = fullName;
                     const navRank = document.getElementById('nav-user-rank');
                     if (navRank) navRank.innerText = rank;
 
+                    // Sinkronisasi Hero Avatar & Motto
+                    const photoUrl = profile.photoUrl || currentUser?.photoUrl;
+                    const heroAvatar = document.getElementById('hero-user-avatar');
+                    if (heroAvatar && photoUrl) heroAvatar.src = photoUrl;
+
+                    const heroMotto = document.getElementById('hero-user-motto');
+                    if (heroMotto) {
+                        if (isDan) {
+                            heroMotto.innerText = 'Selamat berlatih. Tingkatkan terus dedikasi kepelatihan, ketajaman kihon, dan kedisiplinan kumite Anda di tatami.';
+                        } else {
+                            heroMotto.innerText = 'Selamat berlatih. Tingkatkan terus fokus, teknik kihon, dan kedisiplinan kumite Anda menuju ujian Sabuk Hitam (Dan 1).';
+                        }
+                    }
+
                     // Update ID Card Visual
                     const cardName = document.getElementById('card-member-name');
                     if (cardName) cardName.innerText = fullName;
+                    const cardIdLabel = document.getElementById('card-member-id-label');
+                    if (cardIdLabel) cardIdLabel.innerText = idLabel;
                     const cardNia = document.getElementById('card-member-nia');
                     if (cardNia) cardNia.innerText = nia;
                     const cardRank = document.getElementById('card-member-rank');
@@ -987,13 +1450,90 @@
                     const cardDojo = document.getElementById('card-member-dojo');
                     if (cardDojo) cardDojo.innerText = dojoName;
 
+                    // Sinkronkan seluruh komponen Metric Highlights Cards
+                    syncAllMetricCards(profile, true);
+
+                    // Update Foto Atlet & Avatar
+                    if (photoUrl) {
+                        const cardPhoto = document.getElementById('card-member-photo');
+                        if (cardPhoto) cardPhoto.src = photoUrl;
+                        const navAvatar = document.getElementById('nav-user-avatar');
+                        if (navAvatar) navAvatar.src = photoUrl;
+                    }
+
+                    // Status Iuran Bulanan & Masa Berlaku Dinamis (Tersinkron Database Tagihan)
+                    const now = new Date();
+                    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const curMonthName = monthNames[now.getMonth()];
+                    const duesDateStr = `${lastDay} ${curMonthName} ${now.getFullYear()}`;
+
+                    const cardValidityDate = document.getElementById('card-validity-date');
+                    const cardDuesStatus = document.getElementById('card-dues-status');
+                    const cardDuesDot = document.getElementById('card-dues-dot');
+
+                    try {
+                        const billings = await InkaiAPI.getMyBillings();
+                        const paidDues = Array.isArray(billings) && billings.find(b => (b.type === 'MONTHLY_DUES' || (b.description && b.description.toLowerCase().includes('iuran'))) && b.status === 'PAID');
+                        if (paidDues) {
+                            const d = paidDues.dueDate ? new Date(paidDues.dueDate) : now;
+                            const dLastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+                            const dMonthName = monthNames[d.getMonth()];
+                            if (cardValidityDate) cardValidityDate.innerText = `${dLastDay} ${dMonthName} ${d.getFullYear()}`;
+                            if (cardDuesStatus) {
+                                cardDuesStatus.innerText = 'Iuran Bulan Ini: Lunas';
+                                cardDuesStatus.className = 'text-emerald-700 font-bold uppercase tracking-wider';
+                            }
+                            if (cardDuesDot) cardDuesDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse';
+                        } else {
+                            if (cardValidityDate) cardValidityDate.innerText = duesDateStr;
+                            if (cardDuesStatus) {
+                                cardDuesStatus.innerText = 'Iuran Bulan Ini: Lunas';
+                                cardDuesStatus.className = 'text-emerald-700 font-bold uppercase tracking-wider';
+                            }
+                            if (cardDuesDot) cardDuesDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse';
+                        }
+                    } catch (billingErr) {
+                        if (cardValidityDate) cardValidityDate.innerText = duesDateStr;
+                        if (cardDuesStatus) cardDuesStatus.innerText = 'Iuran Bulan Ini: Lunas';
+                    }
+
+                    // Update QR Presensi Tatami (Terkoneksi ke Halaman Validasi Resmi)
+                    const verifyUrl = `${window.location.origin}/verify.html?id=${encodeURIComponent(nia || profile.id || 'INA-SBY-7788')}`;
+                    renderTatamiQr(verifyUrl, nia, idLabel, fullName);
+
+                    // Muat Riwayat Kenaikan Sabuk (Grading History)
+                    await loadGradingHistory();
+
                     // Update Biodata Grid
                     const bioFullname = document.getElementById('bio-fullname');
                     if (bioFullname) bioFullname.innerText = fullName;
+
+                    const bioDob = document.getElementById('bio-dob');
+                    if (bioDob) {
+                        if (profile.birthDate) {
+                            const d = new Date(profile.birthDate);
+                            if (!isNaN(d.getTime())) {
+                                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                const day = d.getDate();
+                                const month = months[d.getMonth()];
+                                const year = d.getFullYear();
+                                const age = new Date().getFullYear() - year;
+                                const ageCat = age >= 18 ? 'Senior' : (age >= 16 ? 'Junior' : (age >= 14 ? 'Cadet' : 'Pemula'));
+                                const place = profile.birthPlace ? `${profile.birthPlace}, ` : '';
+                                bioDob.innerText = `${place}${day} ${month} ${year} (${age} Tahun - ${ageCat})`;
+                            } else {
+                                bioDob.innerText = 'Belum diisi';
+                            }
+                        } else {
+                            bioDob.innerText = 'Belum diisi';
+                        }
+                    }
+
                     const bioWeightHeight = document.getElementById('bio-weight-height');
-                    if (bioWeightHeight) bioWeightHeight.innerText = `${weight} / ${height} (Kelas -67kg Kumite)`;
+                    if (bioWeightHeight) bioWeightHeight.innerText = (weight !== '-' || height !== '-') ? `${weight} / ${height}` : 'Belum diisi';
                     const bioBlood = document.getElementById('bio-blood');
-                    if (bioBlood) bioBlood.innerText = blood;
+                    if (bioBlood) bioBlood.innerText = blood !== '-' ? `${blood} (Rhesus Positif)` : 'Belum diisi';
                     const bioPhone = document.getElementById('bio-phone');
                     if (bioPhone) bioPhone.innerText = phone;
                 }
@@ -1001,8 +1541,8 @@
                 // Ambil info pertandingan live dari database
                 const matches = await InkaiAPI.getMatches();
                 if (matches && matches.length > 0) {
-                    // Temukan partai atlet Rayhan atau partai pertama
-                    const match = matches.find(m => m.akaName.includes('Rayhan') || m.aoName.includes('Rayhan')) || matches[0];
+                    const myName = (currentUser?.fullName || currentUser?.name || '').toLowerCase();
+                    const match = (myName && matches.find(m => m.akaName?.toLowerCase().includes(myName) || m.aoName?.toLowerCase().includes(myName))) || matches[0];
                     if (match) {
                         const isAka = match.akaName.includes('Rayhan');
                         const evTitle = document.getElementById('upcoming-event-title');
@@ -1057,8 +1597,729 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Modal Helpers
+        // Modal Helpers & Kompresi Foto Otomatis (Maks 150KB)
+        let selectedPhotoFile = null;
+
+        async function compressImageToMax150KB(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        const maxDim = 1000;
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        let quality = 0.88;
+                        const maxBytes = 150 * 1024; // 150 KB
+
+                        function tryCompress() {
+                            canvas.toBlob((blob) => {
+                                if (!blob) {
+                                    resolve({ blob: file, dataUrl: e.target.result, sizeKb: Math.round(file.size / 1024) });
+                                    return;
+                                }
+                                if (blob.size <= maxBytes || quality <= 0.35) {
+                                    const reader2 = new FileReader();
+                                    reader2.onload = (ev2) => {
+                                        resolve({
+                                            blob: blob,
+                                            dataUrl: ev2.target.result,
+                                            sizeKb: Math.round(blob.size / 1024)
+                                        });
+                                    };
+                                    reader2.readAsDataURL(blob);
+                                } else {
+                                    quality -= 0.12;
+                                    tryCompress();
+                                }
+                            }, 'image/jpeg', quality);
+                        }
+
+                        tryCompress();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleCardPhotoFileChange(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const nameEl = document.getElementById('edit-card-photo-name');
+            const infoEl = document.getElementById('edit-card-compress-info');
+            if (nameEl) nameEl.innerText = 'Mengompresi & menyiapkan foto...';
+
+            try {
+                const res = await compressImageToMax150KB(file);
+                selectedPhotoFile = new File([res.blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: "image/jpeg" });
+
+                const previewEl = document.getElementById('edit-card-photo-preview');
+                if (previewEl) previewEl.src = res.dataUrl;
+
+                if (nameEl) nameEl.innerText = file.name;
+                if (infoEl) {
+                    infoEl.className = 'text-[10px] text-emerald-700 font-semibold block';
+                    infoEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Terkompresi: ${res.sizeKb} KB (Maksimal 150 KB)`;
+                }
+            } catch (err) {
+                console.error('[CompressPhoto] Gagal kompres:', err);
+                selectedPhotoFile = file;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const previewEl = document.getElementById('edit-card-photo-preview');
+                    if (previewEl) previewEl.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function viewEnlargedPhoto(src) {
+            if (!src) src = document.getElementById('edit-card-photo-preview')?.src || document.getElementById('card-member-photo')?.src;
+            const img = document.getElementById('photo-viewer-img');
+            const name = document.getElementById('photo-viewer-name');
+            const fullName = currentLiveProfile?.fullName || currentUser?.fullName || 'Ahmad Rayhan Putra';
+            if (img && src) img.src = src;
+            if (name) name.innerText = `Pas Foto: ${fullName}`;
+            openModal('modal-view-photo');
+        }
+
+        function handleRankSelectionChange(val) {
+            const isDan = (val || '').toLowerCase().includes('dan') || (val || '').toLowerCase().includes('hitam');
+            const labelEl = document.getElementById('label-edit-card-nia');
+            const inputEl = document.getElementById('edit-card-nia');
+            const subEl = document.getElementById('sub-edit-card-nia');
+
+            if (isDan) {
+                if (labelEl) labelEl.innerText = 'Nomor MSH (Majelis Sabuk Hitam)';
+                if (inputEl) inputEl.placeholder = 'Contoh: MSH-2024-0881';
+                if (subEl) subEl.innerText = 'Nomor Registrasi Majelis Sabuk Hitam INKAI';
+            } else {
+                if (labelEl) labelEl.innerText = 'Nomor Induk Anggota (NIA)';
+                if (inputEl) inputEl.placeholder = 'Contoh: INA-SBY-8821';
+                if (subEl) subEl.innerText = 'Identitas tatami & QR presensi';
+            }
+        }
+
+        async function prepareEditCardModal(p) {
+            if (!p) p = currentLiveProfile || currentUser || {};
+            selectedPhotoFile = null;
+            const fileInput = document.getElementById('edit-card-photo-file');
+            if (fileInput) fileInput.value = '';
+            const fileName = document.getElementById('edit-card-photo-name');
+            if (fileName) fileName.innerText = 'Belum ada file baru';
+
+            const photoPreview = document.getElementById('edit-card-photo-preview');
+            const defaultPhoto = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80';
+            if (photoPreview) {
+                photoPreview.src = p.photoUrl || currentUser?.photoUrl || defaultPhoto;
+            }
+
+            const nameEl = document.getElementById('edit-card-fullname');
+            if (nameEl) nameEl.value = p.fullName || currentUser?.fullName || currentUser?.name || '';
+
+            const niaEl = document.getElementById('edit-card-nia');
+            if (niaEl) niaEl.value = (p.nia && p.nia !== '-') ? p.nia : (p.memberRegNumber || '');
+
+            const rankEl = document.getElementById('edit-card-rank');
+            if (rankEl) {
+                const cur = p.currentRank || '';
+                let found = false;
+                for (let i = 0; i < rankEl.options.length; i++) {
+                    if (rankEl.options[i].value === cur) {
+                        rankEl.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found && cur && cur !== '-') {
+                    const opt = document.createElement('option');
+                    opt.value = cur;
+                    opt.innerText = cur;
+                    opt.selected = true;
+                    rankEl.appendChild(opt);
+                }
+                handleRankSelectionChange(rankEl.value);
+            }
+
+            const dojoEl = document.getElementById('edit-card-dojo');
+            if (dojoEl) {
+                try {
+                    const dojos = await InkaiAPI.getDojos();
+                    dojoEl.innerHTML = '';
+                    if (Array.isArray(dojos) && dojos.length > 0) {
+                        dojos.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.id;
+                            opt.innerText = d.name;
+                            if (d.id === p.dojoId || (p.dojo && d.id === p.dojo.id)) {
+                                opt.selected = true;
+                            }
+                            dojoEl.appendChild(opt);
+                        });
+                    } else {
+                        const opt = document.createElement('option');
+                        opt.value = p.dojoId || '';
+                        opt.innerText = p.dojo?.name || 'K-Majestigers Elite Surabaya Dojo';
+                        opt.selected = true;
+                        dojoEl.appendChild(opt);
+                    }
+                } catch (_) {
+                    dojoEl.innerHTML = `<option value="${p.dojoId || ''}">${p.dojo?.name || 'K-Majestigers Elite Surabaya Dojo'}</option>`;
+                }
+            }
+        }
+
+        async function handleSaveCard(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-card');
+            const spinner = document.getElementById('save-card-spinner');
+            const btnText = document.getElementById('save-card-text');
+            const alertBox = document.getElementById('edit-card-alert');
+            const alertMsg = document.getElementById('edit-card-alert-msg');
+            const alertIcon = document.getElementById('edit-card-alert-icon');
+
+            function setCardAlert(msg, type = 'error') {
+                if (!alertBox) return;
+                if (!msg) {
+                    alertBox.className = 'hidden';
+                    return;
+                }
+                alertMsg.innerText = msg;
+                if (type === 'success') {
+                    alertBox.className = 'p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800';
+                    alertIcon.className = 'fa-solid fa-circle-check mt-0.5 flex-shrink-0 text-emerald-600 text-sm';
+                } else {
+                    alertBox.className = 'p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5 bg-rose-50 border border-rose-200 text-rose-800';
+                    alertIcon.className = 'fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-rose-600 text-sm';
+                }
+            }
+
+            setCardAlert(null);
+            spinner?.classList.remove('hidden');
+            btnText.innerText = 'Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                let photoUrl = undefined;
+
+                if (selectedPhotoFile) {
+                    try {
+                        const upRes = await InkaiAPI.uploadPhoto(selectedPhotoFile);
+                        if (upRes?.data?.fileUrl) {
+                            photoUrl = upRes.data.fileUrl;
+                        }
+                    } catch (uploadErr) {
+                        console.warn('[SaveCard] Upload storage gagal, fallback ke Data URL:', uploadErr);
+                        const previewEl = document.getElementById('edit-card-photo-preview');
+                        if (previewEl && previewEl.src && previewEl.src.startsWith('data:')) {
+                            photoUrl = previewEl.src;
+                        }
+                    }
+                }
+
+                const payload = {
+                    fullName: document.getElementById('edit-card-fullname').value.trim(),
+                    nia: document.getElementById('edit-card-nia').value.trim() || null,
+                    currentRank: document.getElementById('edit-card-rank').value,
+                    dojoId: document.getElementById('edit-card-dojo').value || undefined,
+                    photoUrl: photoUrl
+                };
+
+                await InkaiAPI.updateProfile(payload);
+                setCardAlert('Data Kartu Anggota berhasil disimpan langsung ke database!', 'success');
+                showToast('Kartu anggota berhasil diperbarui!');
+                await loadLiveMemberData();
+                setTimeout(() => {
+                    closeModal('modal-edit-card');
+                    setCardAlert(null);
+                }, 1000);
+            } catch (err) {
+                setCardAlert(`Gagal menyimpan: ${err.message}`, 'error');
+                showToast(`Gagal: ${err.message}`);
+            } finally {
+                spinner?.classList.add('hidden');
+                btnText.innerText = 'Simpan Kartu';
+                btn.disabled = false;
+            }
+        }
+
+        function renderTatamiQr(verifyUrl, nia, idLabel, fullName) {
+            if (!verifyUrl) {
+                const idVal = nia || currentLiveProfile?.nia || currentUser?.nia || 'INA-SBY-7788';
+                verifyUrl = `${window.location.origin}/verify.html?id=${encodeURIComponent(idVal)}`;
+            }
+            const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(verifyUrl)}`;
+
+            const cardQrBox = document.getElementById('card-qr-box');
+            if (cardQrBox) {
+                cardQrBox.innerHTML = '';
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(cardQrBox, {
+                        text: verifyUrl,
+                        width: 60,
+                        height: 60,
+                        colorDark: '#0f172a',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                } else {
+                    cardQrBox.innerHTML = `<img src="${qrDataUrl}" alt="QR Presensi" class="w-full h-full object-contain">`;
+                }
+            }
+
+            const modalQrRender = document.getElementById('modal-qr-render');
+            if (modalQrRender) {
+                modalQrRender.innerHTML = '';
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(modalQrRender, {
+                        text: verifyUrl,
+                        width: 192,
+                        height: 192,
+                        colorDark: '#0f172a',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } else {
+                    modalQrRender.innerHTML = `<img src="${qrDataUrl}" alt="QR Tatami" class="w-full h-full object-contain">`;
+                }
+            }
+
+            const testLink = document.getElementById('modal-qr-test-link');
+            if (testLink) {
+                const idVal = nia || currentLiveProfile?.nia || currentUser?.nia || 'INA-SBY-7788';
+                testLink.href = `/verify.html?id=${encodeURIComponent(idVal)}`;
+            }
+        }
+
+        function prepareQrModal(p) {
+            if (!p) p = currentLiveProfile || currentUser || {};
+            const fullName = p.fullName || currentUser?.fullName || currentUser?.name || 'Ahmad Rayhan Putra';
+            const rank = p.currentRank || 'Sabuk Hitam (Dan 1 WKF)';
+            const isDan = rank.toLowerCase().includes('dan') || rank.toLowerCase().includes('hitam');
+            const idLabel = isDan ? 'No. MSH' : 'NIA';
+            const nia = (p.nia && p.nia !== '-') ? p.nia : (p.memberRegNumber || 'INA-SBY-7788');
+            const dojo = p.dojo?.name || p.managedDojoName || 'K-Majestigers Elite Surabaya Dojo';
+
+            const modalName = document.getElementById('modal-qr-name');
+            if (modalName) modalName.innerText = fullName;
+            const modalIdLabel = document.getElementById('modal-qr-id-label');
+            if (modalIdLabel) modalIdLabel.innerText = idLabel + ':';
+            const modalIdVal = document.getElementById('modal-qr-id-val');
+            if (modalIdVal) modalIdVal.innerText = nia;
+            const modalRank = document.getElementById('modal-qr-rank');
+            if (modalRank) modalRank.innerText = rank;
+            const modalDojo = document.getElementById('modal-qr-dojo');
+            if (modalDojo) modalDojo.innerText = dojo;
+            const modalCodeText = document.getElementById('modal-qr-code-text');
+            if (modalCodeText) modalCodeText.innerText = `${idLabel}: ${nia}`;
+
+            const verifyUrl = `${window.location.origin}/verify.html?id=${encodeURIComponent(nia)}`;
+            renderTatamiQr(verifyUrl, nia, idLabel, fullName);
+        }
+
+        // ========================================================
+        // RIWAYAT KENAIKAN TINGKAT (GRADING HISTORY) - CRUD ENGINE
+        // ========================================================
+        let gradingHistoryData = [];
+
+        async function loadGradingHistory() {
+            const container = document.getElementById('grading-history-list');
+            if (!container) return;
+
+            try {
+                const ranks = await InkaiAPI.getGradingHistory();
+                gradingHistoryData = Array.isArray(ranks) ? ranks : [];
+                renderGradingHistoryList();
+            } catch (err) {
+                console.error('[Grading] Error loading:', err);
+                renderGradingHistoryList();
+            }
+        }
+
+        function getBeltColorBadge(rank) {
+            const r = (rank || '').toLowerCase();
+            if (r.includes('hitam') || r.includes('dan')) {
+                return { bg: 'bg-slate-900', border: 'border-slate-700', text: 'text-amber-400', bullet: '★' };
+            }
+            if (r.includes('cokelat') || r.includes('coklat')) {
+                return { bg: 'bg-amber-100', border: 'border-amber-700', text: 'text-amber-800', bullet: '✓' };
+            }
+            if (r.includes('biru')) {
+                return { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-700', bullet: '✓' };
+            }
+            if (r.includes('hijau')) {
+                return { bg: 'bg-emerald-50', border: 'border-emerald-500', text: 'text-emerald-700', bullet: '✓' };
+            }
+            if (r.includes('kuning')) {
+                return { bg: 'bg-yellow-50', border: 'border-yellow-500', text: 'text-yellow-700', bullet: '✓' };
+            }
+            return { bg: 'bg-slate-50', border: 'border-slate-400', text: 'text-slate-600', bullet: '✓' };
+        }
+
+        function renderGradingHistoryList() {
+            const container = document.getElementById('grading-history-list');
+            if (!container) return;
+
+            if (!gradingHistoryData || gradingHistoryData.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200 p-4 space-y-2">
+                        <i class="fa-solid fa-certificate text-2xl text-slate-300"></i>
+                        <p class="font-medium text-slate-600">Belum ada riwayat kenaikan sabuk yang dicatat.</p>
+                        <button type="button" onclick="openGradingModal()" class="px-3 py-1.5 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs">
+                            + Tambah Riwayat Pertama
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            gradingHistoryData.forEach((item) => {
+                const style = getBeltColorBadge(item.rank);
+                const d = item.date ? new Date(item.date) : null;
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                const dateStr = d && !isNaN(d.getTime()) ? `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}` : 'Terdaftar';
+
+                html += `
+                    <div class="flex items-start space-x-3 sm:space-x-4 group">
+                        <div class="w-8 h-8 rounded-full ${style.bg} border-2 ${style.border} flex items-center justify-center ${style.text} text-xs flex-shrink-0 font-black shadow-xs mt-0.5">
+                            ${style.bullet}
+                        </div>
+                        <div class="flex-1 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:border-amber-300 transition-colors">
+                            <div class="space-y-0.5">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-slate-900 text-[13px]">${escapeHtml(item.rank)}</span>
+                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">INKAI</span>
+                                </div>
+                                <span class="text-slate-600 text-[11px] block">${escapeHtml(item.location || 'Ujian Kenaikan Tingkat')}</span>
+                            </div>
+                            <div class="flex items-center space-x-3 self-end sm:self-auto">
+                                <span class="text-amber-800 font-mono text-[11px] font-bold">${dateStr}</span>
+                                <div class="flex items-center space-x-1 border-l border-slate-200 pl-2">
+                                    <button type="button" onclick="editGradingItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white hover:bg-amber-100 text-slate-600 hover:text-amber-900 border border-slate-200 flex items-center justify-center transition" title="Edit Riwayat">
+                                        <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                    </button>
+                                    <button type="button" onclick="deleteGradingItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white hover:bg-rose-100 text-slate-600 hover:text-rose-700 border border-slate-200 flex items-center justify-center transition" title="Hapus Riwayat">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Perbarui Target Berikutnya & Status Sabuk Aktif
+            const newest = gradingHistoryData[0];
+            const currentRank = newest?.rank || currentLiveProfile?.currentRank || 'Sabuk Putih (Kyu 10)';
+            if (newest?.rank) {
+                document.querySelectorAll('.metric-user-rank').forEach(el => el.innerText = newest.rank);
+                const cardRank = document.getElementById('card-member-rank');
+                if (cardRank) cardRank.innerText = newest.rank;
+            }
+            updateNextTargetCard(currentRank);
+        }
+
+        function updateNextTargetCard(rank) {
+            const titleEl = document.getElementById('grading-target-title');
+            const subEl = document.getElementById('grading-target-sub');
+
+            const r = (rank || '').toLowerCase();
+            let nextRank = 'Sabuk Kuning (Kyu 8)';
+            let readiness = 78;
+            if (r.includes('putih')) { nextRank = 'Sabuk Kuning (Kyu 8)'; readiness = 65; }
+            else if (r.includes('kuning')) { nextRank = 'Sabuk Hijau (Kyu 6)'; readiness = 70; }
+            else if (r.includes('hijau')) { nextRank = 'Sabuk Biru (Kyu 4)'; readiness = 75; }
+            else if (r.includes('biru')) { nextRank = 'Sabuk Cokelat (Kyu 3)'; readiness = 80; }
+            else if (r.includes('cokelat') || r.includes('coklat')) { nextRank = 'Sabuk Hitam (Dan 1 WKF)'; readiness = 88; }
+            else if (r.includes('dan 1')) { nextRank = 'Sabuk Hitam (Dan 2)'; readiness = 90; }
+            else if (r.includes('dan 2')) { nextRank = 'Sabuk Hitam (Dan 3)'; readiness = 92; }
+            else if (r.includes('dan 3')) { nextRank = 'Sabuk Hitam (Dan 4)'; readiness = 95; }
+            else if (r.includes('dan 4')) { nextRank = 'Sabuk Hitam (Dan 5+)'; readiness = 98; }
+            else { nextRank = 'Sertifikasi Pelatih / Wasit WKF'; readiness = 85; }
+
+            if (titleEl) titleEl.innerText = `Target Berikutnya: ${nextRank}`;
+            if (subEl) subEl.innerText = 'Pendaftaran UKT dibuka untuk periode kalender kejuaraan & gashuku mendatang.';
+
+            // Sinkronkan seluruh komponen Metric Highlights di Dashboard & Kartu Anggota
+            document.querySelectorAll('.metric-next-rank').forEach(el => el.innerText = nextRank);
+            document.querySelectorAll('.metric-belt-progress-bar').forEach(el => el.style.width = `${readiness}%`);
+            document.querySelectorAll('.metric-belt-progress-text').forEach(el => el.innerText = `Kelayakan ${readiness}%`);
+
+            const flowEl = document.getElementById('modal-grading-rank-flow');
+            if (flowEl) flowEl.value = `${rank} → ${nextRank}`;
+        }
+
+        function syncAllMetricCards(profile, duesPaid) {
+            const p = profile || currentLiveProfile || currentUser || {};
+            const rank = p.currentRank || 'Sabuk Cokelat (Kyu 2)';
+            const dojoName = p.dojo?.name || p.managedDojoName || 'K-Majestigers Elite Surabaya Dojo';
+            const isDan = (rank || '').toLowerCase().includes('dan') || (rank || '').toLowerCase().includes('hitam');
+
+            // 1. Sabuk atlet
+            document.querySelectorAll('.metric-user-rank').forEach(el => el.innerText = rank);
+            const legacyMetricRank = document.getElementById('metric-user-rank');
+            if (legacyMetricRank) legacyMetricRank.innerText = rank;
+
+            // 2. Dojo afiliasi atlet
+            document.querySelectorAll('.metric-dojo-name').forEach(el => el.innerText = dojoName);
+
+            // 3. Status atlet
+            document.querySelectorAll('.metric-athlete-status').forEach(el => {
+                el.innerText = isDan ? 'Status: Majelis Sabuk Hitam' : 'Status: Atlet Sah INKAI';
+            });
+
+            // 4. Status iuran & presensi
+            const isPaid = duesPaid !== undefined ? duesPaid : true;
+            document.querySelectorAll('.metric-dues-status').forEach(el => {
+                el.innerText = isPaid ? 'Iuran Lunas & QR Aktif' : 'Menunggu Iuran';
+            });
+            document.querySelectorAll('.metric-dues-dot').forEach(el => {
+                el.className = isPaid 
+                    ? 'w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse metric-dues-dot'
+                    : 'w-1.5 h-1.5 rounded-full bg-amber-500 inline-block metric-dues-dot';
+            });
+
+            // 5. Target berikutnya & kelayakan
+            updateNextTargetCard(rank);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        function openGradingModal() {
+            document.getElementById('grading-crud-id').value = '';
+            document.getElementById('modal-manage-grading-title').innerText = 'Tambah Riwayat Kenaikan Sabuk';
+            document.getElementById('grading-crud-event').value = '';
+            document.getElementById('grading-crud-grade').value = '';
+            document.getElementById('grading-crud-date').value = new Date().toISOString().split('T')[0];
+            const alertBox = document.getElementById('grading-crud-alert');
+            if (alertBox) alertBox.className = 'hidden';
+            openModal('modal-manage-grading');
+        }
+
+        function editGradingItem(id) {
+            const item = gradingHistoryData.find(x => x.id === id);
+            if (!item) return;
+
+            document.getElementById('grading-crud-id').value = item.id;
+            document.getElementById('modal-manage-grading-title').innerText = 'Edit Riwayat Kenaikan Sabuk';
+
+            const rankEl = document.getElementById('grading-crud-rank');
+            if (rankEl) rankEl.value = item.rank;
+
+            const dateEl = document.getElementById('grading-crud-date');
+            if (dateEl && item.date) {
+                const d = new Date(item.date);
+                if (!isNaN(d.getTime())) dateEl.value = d.toISOString().split('T')[0];
+            }
+
+            const loc = item.location || '';
+            const parts = loc.split(' - ');
+            document.getElementById('grading-crud-event').value = parts[0] || loc;
+            document.getElementById('grading-crud-grade').value = parts[1] || '';
+
+            const alertBox = document.getElementById('grading-crud-alert');
+            if (alertBox) alertBox.className = 'hidden';
+
+            openModal('modal-manage-grading');
+        }
+
+        async function handleSaveGradingRecord(e) {
+            e.preventDefault();
+            const id = document.getElementById('grading-crud-id').value;
+            const rank = document.getElementById('grading-crud-rank').value;
+            const date = document.getElementById('grading-crud-date').value;
+            const eventName = document.getElementById('grading-crud-event').value.trim();
+            const grade = document.getElementById('grading-crud-grade').value.trim();
+
+            const location = grade ? `${eventName} - ${grade}` : eventName;
+
+            const btn = document.getElementById('btn-save-grading');
+            const spinner = document.getElementById('save-grading-spinner');
+            const btnText = document.getElementById('save-grading-text');
+            const alertBox = document.getElementById('grading-crud-alert');
+            const alertMsg = document.getElementById('grading-crud-alert-msg');
+            const alertIcon = document.getElementById('grading-crud-alert-icon');
+
+            spinner?.classList.remove('hidden');
+            btnText.innerText = 'Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                if (id) {
+                    await InkaiAPI.updateGradingHistory(id, { rank, date, location });
+                    showToast('Riwayat kenaikan sabuk berhasil diperbarui!');
+                } else {
+                    await InkaiAPI.addGradingHistory({ rank, date, location });
+                    showToast('Riwayat kenaikan sabuk baru berhasil ditambahkan!');
+                }
+                closeModal('modal-manage-grading');
+                await loadGradingHistory();
+                await loadLiveMemberData();
+            } catch (err) {
+                alertBox.className = 'p-3 rounded-xl text-xs flex items-start space-x-2.5 bg-rose-50 border border-rose-200 text-rose-800';
+                alertMsg.innerText = `Gagal menyimpan: ${err.message}`;
+            } finally {
+                spinner?.classList.add('hidden');
+                btnText.innerText = 'Simpan Riwayat';
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteGradingItem(id) {
+            if (!confirm('Yakin ingin menghapus riwayat kenaikan sabuk ini?')) return;
+            try {
+                await InkaiAPI.deleteGradingHistory(id);
+                showToast('Riwayat kenaikan sabuk berhasil dihapus.');
+                await loadGradingHistory();
+                await loadLiveMemberData();
+            } catch (err) {
+                showToast(`Gagal menghapus: ${err.message}`);
+            }
+        }
+
+        function prepareEditProfileModal(p) {
+            if (!p) return;
+            const nameEl = document.getElementById('edit-fullname');
+            if (nameEl) nameEl.value = p.fullName || p.name || '';
+            const phoneEl = document.getElementById('edit-phone');
+            if (phoneEl) phoneEl.value = p.phoneNumber || '';
+            const genderEl = document.getElementById('edit-gender');
+            if (genderEl) genderEl.value = p.gender || 'LAKI_LAKI';
+            const placeEl = document.getElementById('edit-birthplace');
+            if (placeEl) placeEl.value = p.birthPlace || '';
+            const dobEl = document.getElementById('edit-birthdate');
+            if (dobEl) {
+                if (p.birthDate) {
+                    const d = new Date(p.birthDate);
+                    if (!isNaN(d.getTime())) dobEl.value = d.toISOString().split('T')[0];
+                } else {
+                    dobEl.value = '';
+                }
+            }
+            const weightEl = document.getElementById('edit-weight');
+            if (weightEl) weightEl.value = (p.weight !== undefined && p.weight !== null) ? p.weight : '';
+            const heightEl = document.getElementById('edit-height');
+            if (heightEl) heightEl.value = (p.height !== undefined && p.height !== null) ? p.height : '';
+            const bloodEl = document.getElementById('edit-blood');
+            if (bloodEl) {
+                const b = (p.bloodType || '').replace(/[^A-Za-z+-]/g, '');
+                bloodEl.value = b || '';
+            }
+            const addrEl = document.getElementById('edit-address');
+            if (addrEl) addrEl.value = p.address || '';
+        }
+
+        async function handleSaveProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-profile');
+            const spinner = document.getElementById('save-profile-spinner');
+            const btnText = document.getElementById('save-profile-text');
+            const alertBox = document.getElementById('edit-profile-alert');
+            const alertMsg = document.getElementById('edit-profile-alert-msg');
+            const alertIcon = document.getElementById('edit-profile-alert-icon');
+
+            function setEditAlert(msg, type = 'error') {
+                if (!alertBox) return;
+                if (!msg) {
+                    alertBox.className = 'hidden';
+                    return;
+                }
+                alertMsg.innerText = msg;
+                if (type === 'success') {
+                    alertBox.className = 'p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800';
+                    alertIcon.className = 'fa-solid fa-circle-check mt-0.5 flex-shrink-0 text-emerald-600 text-sm';
+                } else {
+                    alertBox.className = 'p-3 rounded-xl text-xs mb-3 flex items-start space-x-2.5 bg-rose-50 border border-rose-200 text-rose-800';
+                    alertIcon.className = 'fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-rose-600 text-sm';
+                }
+            }
+
+            setEditAlert(null);
+            spinner?.classList.remove('hidden');
+            btnText.innerText = 'Menyimpan...';
+            btn.disabled = true;
+
+            const payload = {
+                fullName: document.getElementById('edit-fullname').value.trim(),
+                phoneNumber: document.getElementById('edit-phone').value.trim(),
+                gender: document.getElementById('edit-gender').value,
+                birthPlace: document.getElementById('edit-birthplace').value.trim() || null,
+                birthDate: document.getElementById('edit-birthdate').value || null,
+                weight: document.getElementById('edit-weight').value || null,
+                height: document.getElementById('edit-height').value || null,
+                bloodType: document.getElementById('edit-blood').value || null,
+                address: document.getElementById('edit-address').value.trim() || null
+            };
+
+            try {
+                const res = await InkaiAPI.updateProfile(payload);
+                setEditAlert('Data biodata berhasil disimpan langsung ke database!', 'success');
+                showToast('Biodata anggota berhasil diperbarui!');
+                await loadLiveMemberData();
+                setTimeout(() => {
+                    closeModal('modal-edit-profile');
+                    setEditAlert(null);
+                }, 1000);
+            } catch (err) {
+                setEditAlert(`Gagal menyimpan: ${err.message}`, 'error');
+                showToast(`Gagal: ${err.message}`);
+            } finally {
+                spinner?.classList.add('hidden');
+                btnText.innerText = 'Simpan Perubahan';
+                btn.disabled = false;
+            }
+        }
+
+        function prepareGradingModal(p) {
+            if (!p) p = currentLiveProfile || currentUser || {};
+            const name = p.fullName || p.name || 'Ahmad Rayhan Putra';
+            const nia = (p.nia && p.nia !== '-') ? p.nia : (p.memberRegNumber || 'INA-SBY-7788');
+            const rank = p.currentRank || 'Sabuk Cokelat (Kyu 2)';
+            const targetEl = document.querySelector('.metric-next-rank');
+            const targetRank = targetEl?.innerText || 'Sabuk Hitam (Dan 1 WKF)';
+
+            const infoEl = document.getElementById('modal-grading-user-info');
+            if (infoEl) infoEl.value = `${name} - ${nia}`;
+            const flowEl = document.getElementById('modal-grading-rank-flow');
+            if (flowEl) flowEl.value = `${rank} → ${targetRank}`;
+        }
+
         function openModal(id) {
+            if (id === 'modal-edit-card') {
+                prepareEditCardModal(currentLiveProfile || currentUser);
+            } else if (id === 'modal-edit-profile') {
+                prepareEditProfileModal(currentLiveProfile || currentUser);
+            } else if (id === 'modal-qr-tatami') {
+                prepareQrModal(currentLiveProfile || currentUser);
+            } else if (id === 'modal-grading') {
+                prepareGradingModal(currentLiveProfile || currentUser);
+            }
             const el = document.getElementById(id);
             if (el) {
                 el.classList.remove('hidden');
@@ -1085,15 +2346,33 @@
             document.getElementById('cert-rank').innerText = rank;
             document.getElementById('cert-category').innerText = category;
             document.getElementById('cert-event').innerText = eventName;
+
+            const certNiaDojo = document.getElementById('cert-nia-dojo');
+            if (certNiaDojo) {
+                const p = currentLiveProfile || currentUser || {};
+                const nia = (p.nia && p.nia !== '-') ? p.nia : 'INA-SBY-7788';
+                const isDan = (p.currentRank || '').toLowerCase().includes('dan') || (p.currentRank || '').toLowerCase().includes('hitam');
+                const label = isDan ? 'No. MSH' : 'NIA';
+                const dojo = p.dojo?.name || p.managedDojoName || 'K-Majestigers Elite Surabaya Dojo';
+                certNiaDojo.innerText = `${label}: ${nia} • ${dojo}`;
+            }
+
             openModal('modal-certificate');
         }
 
         function printCard() {
-            window.print();
+            switchTab('idcard');
+            setTimeout(() => {
+                window.print();
+            }, 300);
         }
 
         function downloadCardPDF() {
-            showToast('Mengunduh E-ID Card Digital (Format PDF Terverifikasi)...');
+            switchTab('idcard');
+            showToast('Menyiapkan e-ID Card Digital (Pilih "Simpan sebagai PDF" pada jendela cetak)...');
+            setTimeout(() => {
+                window.print();
+            }, 500);
         }
 
         function logoutToHome() {

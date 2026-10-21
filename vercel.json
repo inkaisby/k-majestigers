@@ -7,10 +7,12 @@
     { "source": "/dojo", "destination": "/dojo.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/scoreboard", "destination": "/scoreboard.html" },
+    { "source": "/verify", "destination": "/verify.html" },
     { "source": "/member/(.*)", "destination": "/member.html" },
     { "source": "/dojo/(.*)", "destination": "/dojo.html" },
     { "source": "/admin/(.*)", "destination": "/admin.html" },
-    { "source": "/scoreboard/(.*)", "destination": "/scoreboard.html" }
+    { "source": "/scoreboard/(.*)", "destination": "/scoreboard.html" },
+    { "source": "/verify/(.*)", "destination": "/verify.html" }
   ],
   "headers": [
     {
