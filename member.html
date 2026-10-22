@@ -600,13 +600,21 @@
                             </button>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
                             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                                 <span class="text-slate-500 block text-[10px] uppercase font-bold">Nama Lengkap</span>
                                 <span id="bio-fullname" class="text-slate-900 font-semibold text-sm">Ahmad Rayhan Putra</span>
                             </div>
                             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                                <span class="text-slate-500 block text-[10px] uppercase font-bold">Tanggal Lahir / Usia</span>
+                                <span class="text-slate-500 block text-[10px] uppercase font-bold">Nomor Kontak WhatsApp</span>
+                                <span id="bio-phone" class="text-slate-900 font-semibold text-sm">0812-3456-7890</span>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="text-slate-500 block text-[10px] uppercase font-bold">Jenis Kelamin</span>
+                                <span id="bio-gender" class="text-slate-900 font-semibold text-sm">Laki-Laki</span>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="text-slate-500 block text-[10px] uppercase font-bold">Tempat &amp; Tanggal Lahir / Usia</span>
                                 <span id="bio-dob" class="text-slate-900 font-semibold text-sm">14 Mei 2005 (21 Tahun - Senior)</span>
                             </div>
                             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
@@ -618,8 +626,8 @@
                                 <span id="bio-blood" class="text-slate-900 font-semibold text-sm">O+ (Rhesus Positif)</span>
                             </div>
                             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 sm:col-span-2">
-                                <span class="text-slate-500 block text-[10px] uppercase font-bold">Nomor Kontak WhatsApp</span>
-                                <span id="bio-phone" class="text-slate-900 font-semibold text-sm">0812-3456-7890</span>
+                                <span class="text-slate-500 block text-[10px] uppercase font-bold">Alamat Domisili</span>
+                                <span id="bio-address" class="text-slate-900 font-semibold text-sm">Gading Indah Regency X -7</span>
                             </div>
                         </div>
                     </div>
@@ -1110,8 +1118,8 @@
                     <div>
                         <label class="block text-slate-700 font-semibold mb-1">Jenis Kelamin</label>
                         <select id="edit-gender" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white font-medium">
-                            <option value="LAKI_LAKI">Laki-Laki</option>
-                            <option value="PEREMPUAN">Perempuan</option>
+                            <option value="MALE">Laki-Laki</option>
+                            <option value="FEMALE">Perempuan</option>
                         </select>
                     </div>
                 </div>
@@ -1509,6 +1517,15 @@
                     const bioFullname = document.getElementById('bio-fullname');
                     if (bioFullname) bioFullname.innerText = fullName;
 
+                    const bioPhone = document.getElementById('bio-phone');
+                    if (bioPhone) bioPhone.innerText = phone;
+
+                    const bioGender = document.getElementById('bio-gender');
+                    if (bioGender) {
+                        const g = (profile.gender || '').toUpperCase();
+                        bioGender.innerText = (g === 'FEMALE' || g === 'PEREMPUAN') ? 'Perempuan' : ((g === 'MALE' || g === 'LAKI_LAKI') ? 'Laki-Laki' : 'Laki-Laki');
+                    }
+
                     const bioDob = document.getElementById('bio-dob');
                     if (bioDob) {
                         if (profile.birthDate) {
@@ -1532,10 +1549,12 @@
 
                     const bioWeightHeight = document.getElementById('bio-weight-height');
                     if (bioWeightHeight) bioWeightHeight.innerText = (weight !== '-' || height !== '-') ? `${weight} / ${height}` : 'Belum diisi';
+
                     const bioBlood = document.getElementById('bio-blood');
                     if (bioBlood) bioBlood.innerText = blood !== '-' ? `${blood} (Rhesus Positif)` : 'Belum diisi';
-                    const bioPhone = document.getElementById('bio-phone');
-                    if (bioPhone) bioPhone.innerText = phone;
+
+                    const bioAddress = document.getElementById('bio-address');
+                    if (bioAddress) bioAddress.innerText = profile.address || 'Belum diisi';
                 }
 
                 // Ambil info pertandingan live dari database
@@ -2204,15 +2223,48 @@
         }
 
         function prepareEditProfileModal(p) {
-            if (!p) return;
+            if (!p) p = currentLiveProfile || currentUser || {};
+            
+            // 1. Nama Lengkap
             const nameEl = document.getElementById('edit-fullname');
-            if (nameEl) nameEl.value = p.fullName || p.name || '';
+            if (nameEl) {
+                const domName = document.getElementById('bio-fullname')?.innerText;
+                nameEl.value = p.fullName || p.name || (domName && domName !== 'Ahmad Rayhan Putra' ? domName : '') || '';
+            }
+
+            // 2. Nomor WhatsApp
             const phoneEl = document.getElementById('edit-phone');
-            if (phoneEl) phoneEl.value = p.phoneNumber || '';
+            if (phoneEl) {
+                const domPhone = document.getElementById('bio-phone')?.innerText;
+                phoneEl.value = p.phoneNumber || (domPhone && domPhone !== '0812-3456-7890' ? domPhone : '') || '';
+            }
+
+            // 3. Jenis Kelamin (MALE / FEMALE)
             const genderEl = document.getElementById('edit-gender');
-            if (genderEl) genderEl.value = p.gender || 'LAKI_LAKI';
+            if (genderEl) {
+                let rawG = (p.gender || '').toUpperCase();
+                if (!rawG) {
+                    const domG = (document.getElementById('bio-gender')?.innerText || '').toLowerCase();
+                    if (domG.includes('perempuan') || domG.includes('wanita')) rawG = 'FEMALE';
+                    else if (domG.includes('laki') || domG.includes('pria')) rawG = 'MALE';
+                }
+                genderEl.value = (rawG === 'FEMALE' || rawG === 'PEREMPUAN') ? 'FEMALE' : 'MALE';
+            }
+
+            // 4. Tempat Lahir
             const placeEl = document.getElementById('edit-birthplace');
-            if (placeEl) placeEl.value = p.birthPlace || '';
+            if (placeEl) {
+                let birthplace = p.birthPlace || '';
+                if (!birthplace) {
+                    const domDob = document.getElementById('bio-dob')?.innerText || '';
+                    if (domDob.includes(',')) {
+                        birthplace = domDob.split(',')[0].trim();
+                    }
+                }
+                placeEl.value = birthplace;
+            }
+
+            // 5. Tanggal Lahir (YYYY-MM-DD)
             const dobEl = document.getElementById('edit-birthdate');
             if (dobEl) {
                 if (p.birthDate) {
@@ -2222,17 +2274,50 @@
                     dobEl.value = '';
                 }
             }
+
+            // 6. Berat Badan (kg)
             const weightEl = document.getElementById('edit-weight');
-            if (weightEl) weightEl.value = (p.weight !== undefined && p.weight !== null) ? p.weight : '';
+            if (weightEl) {
+                if (p.weight !== undefined && p.weight !== null && p.weight !== '') {
+                    weightEl.value = p.weight;
+                } else {
+                    const domWh = document.getElementById('bio-weight-height')?.innerText || '';
+                    const m = domWh.match(/([0-9.]+)\s*kg/i);
+                    weightEl.value = m ? m[1] : '';
+                }
+            }
+
+            // 7. Tinggi Badan (cm)
             const heightEl = document.getElementById('edit-height');
-            if (heightEl) heightEl.value = (p.height !== undefined && p.height !== null) ? p.height : '';
+            if (heightEl) {
+                if (p.height !== undefined && p.height !== null && p.height !== '') {
+                    heightEl.value = p.height;
+                } else {
+                    const domWh = document.getElementById('bio-weight-height')?.innerText || '';
+                    const m = domWh.match(/([0-9.]+)\s*cm/i);
+                    heightEl.value = m ? m[1] : '';
+                }
+            }
+
+            // 8. Golongan Darah
             const bloodEl = document.getElementById('edit-blood');
             if (bloodEl) {
-                const b = (p.bloodType || '').replace(/[^A-Za-z+-]/g, '');
-                bloodEl.value = b || '';
+                let rawB = p.bloodType || '';
+                if (!rawB) {
+                    const domBlood = document.getElementById('bio-blood')?.innerText || '';
+                    const m = domBlood.match(/\b(A|B|AB|O)\b/i);
+                    if (m) rawB = m[1].toUpperCase();
+                }
+                rawB = rawB.replace(/[^A-Za-z]/g, '').toUpperCase();
+                bloodEl.value = ['A', 'B', 'AB', 'O'].includes(rawB) ? rawB : '';
             }
+
+            // 9. Alamat Domisili
             const addrEl = document.getElementById('edit-address');
-            if (addrEl) addrEl.value = p.address || '';
+            if (addrEl) {
+                const domAddr = document.getElementById('bio-address')?.innerText;
+                addrEl.value = p.address || (domAddr && domAddr !== 'Belum diisi' && domAddr !== 'Gading Indah Regency X -7' ? domAddr : '') || '';
+            }
         }
 
         async function handleSaveProfile(e) {
@@ -2265,14 +2350,17 @@
             btnText.innerText = 'Menyimpan...';
             btn.disabled = true;
 
+            const weightVal = document.getElementById('edit-weight').value;
+            const heightVal = document.getElementById('edit-height').value;
+
             const payload = {
                 fullName: document.getElementById('edit-fullname').value.trim(),
                 phoneNumber: document.getElementById('edit-phone').value.trim(),
                 gender: document.getElementById('edit-gender').value,
                 birthPlace: document.getElementById('edit-birthplace').value.trim() || null,
                 birthDate: document.getElementById('edit-birthdate').value || null,
-                weight: document.getElementById('edit-weight').value || null,
-                height: document.getElementById('edit-height').value || null,
+                weight: weightVal ? parseFloat(weightVal) : null,
+                height: heightVal ? parseFloat(heightVal) : null,
                 bloodType: document.getElementById('edit-blood').value || null,
                 address: document.getElementById('edit-address').value.trim() || null
             };
