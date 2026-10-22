@@ -3,6 +3,9 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/api", "destination": "https://inkai-ecosystem.vercel.app/" },
+    { "source": "/api/(.*)", "destination": "https://inkai-ecosystem.vercel.app/v1/$1" },
+    { "source": "/v1/(.*)", "destination": "https://inkai-ecosystem.vercel.app/v1/$1" },
     { "source": "/member", "destination": "/member.html" },
     { "source": "/dojo", "destination": "/dojo.html" },
     { "source": "/admin", "destination": "/admin.html" },
