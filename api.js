@@ -40,7 +40,7 @@ const InkaiAPI = (() => {
         if (isLocalhost()) {
             return LOCAL_DEFAULT_API_URL;
         }
-        return (typeof window !== 'undefined' && window.location.origin) ? `${window.location.origin}/api` : '/api';
+        return '/api';
     }
 
     function getToken() {
