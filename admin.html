@@ -224,16 +224,21 @@
                 <div id="role-switcher-container"></div>
 
                 <div class="hidden sm:flex items-center space-x-3 pl-2 border-l border-slate-200">
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-500 to-amber-400 p-0.5 shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" alt="Avatar Admin" class="w-full h-full object-cover rounded-full">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-500 to-amber-400 p-0.5 shadow-sm overflow-hidden flex-shrink-0">
+                        <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" alt="Avatar Admin" class="w-full h-full object-cover rounded-full">
                     </div>
                     <div class="text-left text-xs">
-                        <span id="nav-user-name" class="block font-bold text-slate-900">Dr. Bambang S.</span>
-                        <span class="block text-[10px] text-rose-700 font-semibold">Super Admin • Dewan Guru</span>
+                        <span id="nav-user-name" class="block font-bold text-slate-900 truncate max-w-[130px]">Dr. Bambang S.</span>
+                        <span id="nav-user-role" class="block text-[10px] text-rose-700 font-semibold truncate max-w-[150px]">Super Admin • Dewan Guru</span>
                     </div>
                 </div>
 
-                <button onclick="logoutToHome()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 transition-all text-xs" title="Keluar">
+                <button type="button" onclick="openAdminAuthModal()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 transition-all text-xs flex items-center space-x-1.5 cursor-pointer shadow-xs" title="Login atau Beralih Akun Database">
+                    <i class="fa-solid fa-right-to-bracket text-xs text-amber-600"></i>
+                    <span class="hidden md:inline font-bold text-[11px]">Masuk / Ganti</span>
+                </button>
+
+                <button type="button" onclick="logoutToHome()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 transition-all text-xs cursor-pointer shadow-xs" title="Keluar">
                     <i class="fa-solid fa-power-off"></i>
                 </button>
             </div>
@@ -268,7 +273,7 @@
                 <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
                     <div class="space-y-2">
                         <div class="flex items-center space-x-2">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300">
+                            <span id="hero-admin-badge" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300">
                                 EVENT DIRECTORY &bull; SUPER ADMIN
                             </span>
                             <span class="text-xs text-emerald-700 font-semibold"><i class="fa-solid fa-signal mr-1"></i> Sistem Turnamen Online (Supabase Active)</span>
@@ -277,7 +282,7 @@
                             Pusat Komando &amp; <span class="gold-gradient-text">Event Organizer</span>
                         </h1>
                         <p class="text-xs text-slate-600 max-w-2xl leading-relaxed">
-                            Turnamen Aktif: <strong class="text-slate-900">K-Majestigers National Open Championship 2026</strong> &bull; DBL Arena Surabaya
+                            Turnamen Aktif: <strong class="text-slate-900">K-Majestigers National Open Championship 2026</strong> &bull; DBL Arena Surabaya &bull; Penanggung Jawab: <span id="hero-admin-user" class="font-bold text-slate-900">Dr. Bambang Suryono</span>
                         </p>
                     </div>
 
@@ -1351,54 +1356,36 @@
 
             <!-- Dojo Directory Table (Bright Mode) -->
             <div class="glass-card rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
-                <div class="p-4 border-b border-slate-200 flex justify-between items-center text-xs">
-                    <span class="font-bold text-slate-900">Daftar Cabang Dojo K-Majestigers</span>
-                    <span id="dojo-count-badge" class="text-slate-500">Total 42 Cabang Aktif</span>
+                <div class="p-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-2 text-xs">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-slate-900">Daftar Cabang Dojo K-Majestigers</span>
+                        <span class="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center space-x-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Live Database Supabase</span>
+                        </span>
+                    </div>
+                    <span id="dojo-count-badge" class="text-slate-500 font-medium">Memuat cabang dari database...</span>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
                             <tr>
+                                <th class="py-3.5 px-3 w-12 text-center">No.</th>
                                 <th class="py-3.5 px-4">Nama Dojo &amp; Kode</th>
                                 <th class="py-3.5 px-4">Kota / Wilayah</th>
                                 <th class="py-3.5 px-4">Kepala Pelatih (Sensei)</th>
                                 <th class="py-3.5 px-4">Email Login</th>
-                                <th class="py-3.5 px-4">Jumlah Atlet</th>
-                                <th class="py-3.5 px-4">Status Akun</th>
+                                <th class="py-3.5 px-4 text-center">Jumlah Atlet</th>
+                                <th class="py-3.5 px-4 text-center">Status</th>
                                 <th class="py-3.5 px-4 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="dojo-table-body" class="divide-y divide-slate-100 text-slate-800">
-                            <tr class="hover:bg-amber-50/40 transition-colors">
-                                <td class="py-3.5 px-4">
-                                    <span class="font-bold text-slate-900 block">K-Majestigers Elite Surabaya</span>
-                                    <span class="text-[10px] text-amber-800 font-mono font-bold">KM-SBY-01</span>
-                                </td>
-                                <td class="py-3.5 px-4">Surabaya, Jawa Timur</td>
-                                <td class="py-3.5 px-4">Sensei Budi Prasetyo (Dan 4)</td>
-                                <td class="py-3.5 px-4 font-bold text-slate-900">38 Atlet</td>
-                                <td class="py-3.5 px-4">
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">AKTIF</span>
-                                </td>
-                                <td class="py-3.5 px-4 text-right">
-                                    <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
-                                </td>
-                            </tr>
-
-                            <tr class="hover:bg-amber-50/40 transition-colors">
-                                <td class="py-3.5 px-4">
-                                    <span class="font-bold text-slate-900 block">K-Majestigers Jakarta Pusat</span>
-                                    <span class="text-[10px] text-amber-800 font-mono font-bold">KM-JKT-02</span>
-                                </td>
-                                <td class="py-3.5 px-4">Jakarta Pusat, DKI</td>
-                                <td class="py-3.5 px-4">Sensei Hendra Gunawan (Dan 5)</td>
-                                <td class="py-3.5 px-4 font-bold text-slate-900">52 Atlet</td>
-                                <td class="py-3.5 px-4">
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">AKTIF</span>
-                                </td>
-                                <td class="py-3.5 px-4 text-right">
-                                    <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
+                            <tr>
+                                <td colspan="8" class="text-center py-8 text-slate-400">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-amber-500 mr-2"></i>
+                                    Memuat direktori cabang dojo dari database...
                                 </td>
                             </tr>
                         </tbody>
@@ -1790,14 +1777,55 @@
                     <input type="text" id="new-dojo-name" required placeholder="Contoh: K-Majestigers Cabang Surabaya Barat" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-slate-700 font-semibold mb-1">Kode Kontingen</label>
-                        <input type="text" id="new-dojo-code" required placeholder="Contoh: KM-SBY-03" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-mono focus:outline-none focus:border-amber-500">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-slate-700 font-semibold text-xs">
+                            Kota / Wilayah Kontingen <span class="text-rose-500">*</span>
+                        </label>
+                        <span id="dispenduk-status-indicator" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center space-x-1.5 shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Dispendukcapil Live API</span>
+                        </span>
                     </div>
-                    <div>
-                        <label class="block text-slate-700 font-semibold mb-1">Kota / Wilayah</label>
-                        <input type="text" id="new-dojo-city" required placeholder="Contoh: Surabaya, Jawa Timur" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- Dropdown Provinsi Dispenduk -->
+                        <div>
+                            <label class="block text-[11px] text-slate-500 font-medium mb-1">Pilih Provinsi:</label>
+                            <div class="relative">
+                                <select id="new-dojo-province" onchange="onDispendukProvinceChange(this.value)" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-3 pr-8 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500 font-medium text-xs appearance-none cursor-pointer">
+                                    <option value="">Memuat Provinsi Dispenduk...</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown Kabupaten / Kota Dispenduk -->
+                        <div>
+                            <label class="block text-[11px] text-slate-500 font-medium mb-1">Pilih Kota / Kabupaten:</label>
+                            <div class="relative">
+                                <select id="new-dojo-regency" onchange="onDispendukRegencyChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-3 pr-8 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500 font-medium text-xs appearance-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                                    <option value="">Memuat Kota / Kabupaten...</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input tersembunyi yang disinkronkan untuk kompatibilitas sistem & database -->
+                    <input type="hidden" id="new-dojo-city" required value="Kota Surabaya, Jawa Timur">
+
+                    <!-- Kotak konfirmasi realtime wilayah yang dipilih -->
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-[11px] text-slate-600">
+                        <div class="flex items-center space-x-2 truncate">
+                            <i class="fa-solid fa-location-dot text-amber-600 text-xs flex-shrink-0"></i>
+                            <span class="truncate">Wilayah: <strong id="dispenduk-preview-text" class="text-slate-900">Kota Surabaya, Jawa Timur</strong></span>
+                        </div>
+                        <span id="dispenduk-kode-badge" class="px-2 py-0.5 rounded font-mono text-[9px] bg-amber-100 text-amber-900 font-bold shrink-0">ID: 3578</span>
                     </div>
                 </div>
 
@@ -1824,7 +1852,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-3.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider shadow-md hover:opacity-90 flex items-center justify-center space-x-2">
+                <button type="submit" id="btn-submit-dojo" class="w-full py-3.5 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider shadow-md hover:opacity-90 flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-key"></i>
                     <span>Terbitkan Akun &amp; Simpan ke Database</span>
                 </button>
@@ -1839,7 +1867,13 @@
                 <i class="fa-solid fa-circle-check"></i>
             </div>
             
-            <h3 class="text-xl font-bold font-heading text-slate-900">Akun Dojo Resmi Berhasil Dibuat!</h3>
+            <div class="space-y-1">
+                <div id="success-dojo-db-badge" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full inline-flex items-center space-x-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Tersimpan di Supabase Live DB</span>
+                </div>
+                <h3 class="text-xl font-bold font-heading text-slate-900">Akun Dojo Resmi Berhasil Dibuat!</h3>
+            </div>
             <p class="text-slate-600 text-xs">
                 Kredensial login berikut sudah tersimpan di database dan siap digunakan oleh Sensei untuk masuk langsung ke portal Dojo tanpa pilih role manual.
             </p>
@@ -1866,6 +1900,338 @@
             <button type="button" onclick="closeModal('modal-dojo-success')" class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 mt-1">
                 Tutup &amp; Lihat Tabel Dojo
             </button>
+        </div>
+    </div>
+
+    <!-- Modal Detail Dojo & Roster Anggota (Live dari Database) -->
+    <div id="modal-dojo-detail" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-2 sm:p-4 animate-fadeIn">
+        <div id="modal-dojo-detail-container" class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-7 max-w-4xl w-full relative shadow-2xl text-xs space-y-4 text-slate-800 max-h-[92vh] flex flex-col transition-all duration-300">
+            <!-- Header Modal -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3.5">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                            PROFIL &amp; ROSTER DOJO RESMI
+                        </span>
+                        <span id="detail-dojo-live-badge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center space-x-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Live Database Supabase</span>
+                        </span>
+                    </div>
+                    <h3 id="detail-dojo-title" class="text-xl sm:text-2xl font-bold font-heading text-slate-900">
+                        Nama Dojo
+                    </h3>
+                    <p id="detail-dojo-subtitle" class="text-slate-500 text-xs font-mono">
+                        KM-DOJO • Wilayah
+                    </p>
+                </div>
+                <div class="flex items-center space-x-1 shrink-0">
+                    <button type="button" id="btn-maximize-dojo-detail" onclick="toggleMaximizeDojoDetail()" title="Perbesar Tampilan Modal (Maksimal)" class="text-slate-400 hover:text-slate-800 text-sm w-8 h-8 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center">
+                        <i id="icon-maximize-dojo-detail" class="fa-solid fa-expand"></i>
+                    </button>
+                    <button type="button" onclick="closeModal('modal-dojo-detail')" title="Tutup Modal" class="text-slate-400 hover:text-slate-800 text-base w-8 h-8 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="overflow-y-auto space-y-4 pr-1 flex-1">
+                <!-- Info Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <!-- Sensei Card -->
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-user-ninja text-amber-600"></i>
+                            <span>Kepala Pelatih / Sensei</span>
+                        </div>
+                        <div id="detail-dojo-sensei" class="font-bold text-slate-900 text-xs truncate">-</div>
+                        <div class="flex items-center space-x-2 pt-1 text-[11px]">
+                            <span id="detail-dojo-phone" class="font-mono text-slate-600 truncate">-</span>
+                            <a id="detail-dojo-wa-btn" href="#" target="_blank" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 inline-flex items-center space-x-1 shrink-0">
+                                <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+                                <span>WA</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Email & Akses -->
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-envelope text-amber-600"></i>
+                            <span>Email Login Resmi</span>
+                        </div>
+                        <div id="detail-dojo-email" class="font-mono font-semibold text-amber-800 text-xs truncate">-</div>
+                        <div class="text-[11px] text-slate-500 flex items-center space-x-1.5 pt-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>Role: <strong>DOJO_MANAGER</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Total Atlet Card -->
+                    <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1">
+                        <div class="text-[10px] font-bold text-amber-800 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-users text-amber-600"></i>
+                            <span>Kekuatan Atlet</span>
+                        </div>
+                        <div id="detail-dojo-total-athletes" class="text-xl font-black font-heading text-slate-900">
+                            0 Karateka
+                        </div>
+                        <div class="text-[10px] text-amber-900 font-medium">Terdaftar di Database</div>
+                    </div>
+
+                    <!-- Lokasi & Alamat -->
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-location-dot text-amber-600"></i>
+                            <span>Wilayah / Alamat</span>
+                        </div>
+                        <div id="detail-dojo-address" class="text-slate-800 text-xs leading-snug line-clamp-2">-</div>
+                    </div>
+                </div>
+
+                <!-- Bagian Tabel Anggota Dojo -->
+                <div class="space-y-3 pt-2 border-t border-slate-100">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center space-x-2">
+                            <h4 class="font-bold text-slate-900 text-sm">Daftar Karateka Binaan</h4>
+                            <span id="detail-members-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">0 Atlet</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" onclick="openAddMemberModal()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center space-x-1.5 shadow-2xs transition-colors">
+                                <i class="fa-solid fa-user-plus text-[11px]"></i>
+                                <span>Tambah Anggota</span>
+                            </button>
+                            <button type="button" onclick="openBulkMemberModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center space-x-1.5 shadow-2xs transition-colors">
+                                <i class="fa-solid fa-users-line text-[11px]"></i>
+                                <span>Tambah Massal</span>
+                            </button>
+                            <button type="button" onclick="exportDojoRosterCsv()" title="Unduh Roster Format CSV / Excel" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center space-x-1.5 shadow-2xs transition-colors">
+                                <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                                <span>Export CSV</span>
+                            </button>
+                            <select id="detail-member-filter-rank" onchange="filterDetailMembers()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-amber-500 font-medium">
+                                <option value="">Semua Sabuk</option>
+                                <option value="hitam">Sabuk Hitam</option>
+                                <option value="cokelat">Sabuk Cokelat</option>
+                                <option value="biru">Sabuk Biru</option>
+                                <option value="hijau">Sabuk Hijau</option>
+                                <option value="kuning">Sabuk Kuning</option>
+                                <option value="putih">Sabuk Putih</option>
+                            </select>
+                            <select id="detail-member-filter-gender" onchange="filterDetailMembers()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-amber-500 font-medium">
+                                <option value="">Semua Gender</option>
+                                <option value="laki">Laki-laki</option>
+                                <option value="perempuan">Perempuan</option>
+                            </select>
+                            <div class="relative w-full sm:w-48">
+                                <input type="text" id="detail-member-search" oninput="filterDetailMembers()" placeholder="Cari nama atau NIA..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium">
+                                <i class="fa-solid fa-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
+                        <div id="detail-members-table-container" class="overflow-x-auto max-h-72 transition-all duration-300">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="py-2.5 px-3 w-10 text-center">No.</th>
+                                        <th class="py-2.5 px-3">Nama Karateka &amp; NIA</th>
+                                        <th class="py-2.5 px-3">Sabuk / Tingkatan</th>
+                                        <th class="py-2.5 px-3">Gender</th>
+                                        <th class="py-2.5 px-3">Berat / Tinggi</th>
+                                        <th class="py-2.5 px-3 text-center">Status</th>
+                                        <th class="py-2.5 px-3 text-center w-28">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detail-dojo-members-tbody" class="divide-y divide-slate-100 bg-white">
+                                    <!-- Diisi via renderDetailMembersTable -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[11px] text-slate-500 font-medium">Data tersinkronisasi otomatis dengan database live kejuaraan.</span>
+                <button onclick="closeModal('modal-dojo-detail')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Karateka Tunggal Dojo -->
+    <div id="modal-add-dojo-member" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[70] p-4 animate-fadeIn">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl text-xs space-y-4 text-slate-800 animate-slideUp">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold font-heading text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-plus text-amber-500"></i>
+                        <span>Tambah Karateka Binaan</span>
+                    </h3>
+                    <p class="text-slate-500 text-xs mt-0.5">
+                        Dojo: <span id="add-member-target-dojo-name" class="font-bold text-amber-600">-</span>
+                    </p>
+                </div>
+                <button type="button" onclick="closeModal('modal-add-dojo-member')" class="text-slate-400 hover:text-slate-800 text-base w-8 h-8 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="form-add-dojo-member" onsubmit="handleAddDojoMemberSubmit(event)" class="space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Nama Lengkap Karateka <span class="text-rose-500">*</span></label>
+                        <input type="text" id="add-member-fullname" required placeholder="Contoh: Muhammad Reza Pahlevi" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">NIK (KTP / KK)</label>
+                        <input type="text" id="add-member-nik" maxlength="16" placeholder="16 Digit (Opsional)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">NIA (Nomor Induk Atlet)</label>
+                        <input type="text" id="add-member-nia" placeholder="Otomatis jika kosong" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Sabuk / Tingkatan <span class="text-rose-500">*</span></label>
+                        <select id="add-member-rank" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
+                            <option value="Sabuk Putih (Kyu 10)">Sabuk Putih (Kyu 10)</option>
+                            <option value="Sabuk Kuning (Kyu 7)">Sabuk Kuning (Kyu 7)</option>
+                            <option value="Sabuk Hijau (Kyu 6)">Sabuk Hijau (Kyu 6)</option>
+                            <option value="Sabuk Biru (Kyu 5)">Sabuk Biru (Kyu 5)</option>
+                            <option value="Sabuk Biru (Kyu 4)">Sabuk Biru (Kyu 4)</option>
+                            <option value="Sabuk Cokelat (Kyu 3)">Sabuk Cokelat (Kyu 3)</option>
+                            <option value="Sabuk Cokelat (Kyu 2)">Sabuk Cokelat (Kyu 2)</option>
+                            <option value="Sabuk Cokelat (Kyu 1)">Sabuk Cokelat (Kyu 1)</option>
+                            <option value="Sabuk Hitam (Dan 1)">Sabuk Hitam (Dan 1)</option>
+                            <option value="Sabuk Hitam (Dan 2)">Sabuk Hitam (Dan 2)</option>
+                            <option value="Sabuk Hitam (Dan 3+)">Sabuk Hitam (Dan 3+)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Gender <span class="text-rose-500">*</span></label>
+                        <select id="add-member-gender" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Tanggal Lahir</label>
+                        <input type="date" id="add-member-birthdate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Berat (kg)</label>
+                        <input type="number" step="0.5" id="add-member-weight" placeholder="Kg" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Tinggi (cm)</label>
+                        <input type="number" step="1" id="add-member-height" placeholder="Cm" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+                    <button type="button" onclick="closeModal('modal-add-dojo-member')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-submit-add-member" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold transition-colors flex items-center space-x-2 shadow-xs">
+                        <i class="fa-solid fa-save"></i>
+                        <span>Simpan ke Database</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Karateka Massal Dojo -->
+    <div id="modal-bulk-dojo-member" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[70] p-4 animate-fadeIn">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-2xl w-full relative shadow-2xl text-xs space-y-4 text-slate-800 animate-slideUp">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold font-heading text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-users-line text-amber-500"></i>
+                        <span>Tambah Anggota Massal (Bulk Import)</span>
+                    </h3>
+                    <p class="text-slate-500 text-xs mt-0.5">
+                        Dojo: <span id="bulk-member-target-dojo-name" class="font-bold text-amber-600">-</span>
+                    </p>
+                </div>
+                <button type="button" onclick="closeModal('modal-bulk-dojo-member')" class="text-slate-400 hover:text-slate-800 text-base w-8 h-8 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Petunjuk Format -->
+            <div class="p-3 bg-amber-50/60 border border-amber-200/80 rounded-2xl space-y-1.5 text-slate-700">
+                <div class="flex flex-wrap items-center justify-between gap-1.5">
+                    <span class="font-bold text-amber-900 text-xs flex items-center space-x-1.5">
+                        <i class="fa-solid fa-circle-info text-amber-600"></i>
+                        <span>Format Input Teks / CSV (Satu atlet per baris)</span>
+                    </span>
+                    <div class="flex items-center space-x-2">
+                        <input type="file" id="bulk-member-file-input" accept=".csv,.txt" onchange="handleBulkFileSelect(event)" class="hidden">
+                        <button type="button" onclick="document.getElementById('bulk-member-file-input').click()" class="text-[11px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-xl flex items-center space-x-1.5 shadow-2xs transition-colors">
+                            <i class="fa-solid fa-file-arrow-up text-emerald-600"></i>
+                            <span>Upload File CSV</span>
+                        </button>
+                        <button type="button" onclick="fillBulkMemberSample()" class="text-[11px] font-bold text-amber-700 hover:text-amber-900 underline">
+                            Isi Contoh Data
+                        </button>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-600">
+                    Format: <code class="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200 text-amber-800">Nama Lengkap, Sabuk, Gender, Berat, Tinggi</code>
+                </p>
+            </div>
+
+            <!-- Textarea Bulk -->
+            <div>
+                <textarea id="bulk-member-raw-text" rows="6" oninput="parseBulkMemberInput()" placeholder="Contoh:&#10;Muhammad Reza, Sabuk Putih, Laki-laki, 60, 170&#10;Siti Aisyah, Sabuk Kuning, Perempuan, 52, 160&#10;Bima Sakti, Sabuk Cokelat, Laki-laki, 68, 175" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs font-mono text-slate-900 focus:outline-none focus:border-amber-500"></textarea>
+            </div>
+
+            <!-- Preview Data -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-[11px]">
+                    <span class="font-bold text-slate-700">Pratinjau Data Terdeteksi:</span>
+                    <span id="bulk-preview-count" class="font-bold text-amber-600">0 Atlet siap diimpor</span>
+                </div>
+                <div class="border border-slate-200 rounded-xl overflow-hidden max-h-36 overflow-y-auto">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-slate-100 text-slate-600 sticky top-0">
+                            <tr>
+                                <th class="p-1.5 px-2">Nama</th>
+                                <th class="p-1.5 px-2">Sabuk</th>
+                                <th class="p-1.5 px-2">Gender</th>
+                                <th class="p-1.5 px-2">Berat/Tinggi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulk-preview-tbody" class="divide-y divide-slate-100 bg-white">
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-400 italic">Ketik atau tempel data di atas untuk melihat pratinjau</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+                <button type="button" onclick="closeModal('modal-bulk-dojo-member')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors">
+                    Batal
+                </button>
+                <button type="button" id="btn-submit-bulk-member" onclick="submitBulkMembers()" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-colors flex items-center space-x-2 shadow-xs">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Simpan Semua ke Database</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2383,6 +2749,154 @@
         </div>
     </div>
 
+    <!-- ==============================================
+         MODAL: AUTENTIKASI ADMIN & LOGIN MULTI-ROLE DATABASE
+         ============================================== -->
+    <div id="modal-admin-auth" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4 animate-fadeIn overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 max-w-lg w-full relative shadow-2xl text-xs space-y-5 text-slate-800 my-auto">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-11 h-11 rounded-2xl gold-gradient-bg text-slate-950 flex items-center justify-center text-lg font-black shadow-xs">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black font-heading text-slate-900">
+                            Masuk Portal Administrator
+                        </h3>
+                        <p class="text-slate-500 text-[11px]">
+                            Autentikasi akun langsung ke live database K-Majestigers.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminAuthModal()" class="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-2 rounded-xl transition-all cursor-pointer" title="Tutup">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Alert message box -->
+            <div id="admin-auth-alert" class="hidden p-3 rounded-xl text-xs flex items-start space-x-2.5">
+                <i id="admin-auth-alert-icon" class="fa-solid fa-circle-exclamation mt-0.5 flex-shrink-0 text-sm"></i>
+                <span id="admin-auth-alert-msg" class="leading-relaxed font-semibold block"></span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="admin-auth-form" onsubmit="handleAdminAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">Email atau NIA INKAI</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <input type="text" id="admin-auth-email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs font-medium" placeholder="admin@kmajestigers.com atau NIA INKAI">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-slate-700 font-semibold">Kata Sandi</label>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <input type="password" id="admin-auth-pass" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs font-medium" placeholder="••••••••">
+                        <button type="button" onclick="toggleAdminPassVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer" title="Lihat kata sandi">
+                            <i class="fa-solid fa-eye" id="admin-auth-pass-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="admin-auth-submit-btn" class="w-full py-3 rounded-xl gold-gradient-bg text-slate-950 font-bold uppercase tracking-wider text-xs shadow-md shadow-amber-500/20 hover:opacity-95 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    <span id="admin-auth-spinner" class="hidden animate-spin mr-1"><i class="fa-solid fa-spinner"></i></span>
+                    <span id="admin-auth-btn-text">Verifikasi &amp; Masuk</span>
+                </button>
+            </form>
+
+            <!-- Role-based Database Account Helper -->
+            <div class="pt-3 border-t border-slate-100">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    Pilih Cepat Akun Terverifikasi di Database:
+                </span>
+                <div class="grid grid-cols-2 gap-2 text-[11px]">
+                    <button type="button" onclick="fillAdminCredentials('admin@kmajestigers.com', 'majestigers123')" class="p-2.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100/80 text-left transition-all cursor-pointer">
+                        <div class="flex items-center space-x-1.5 text-rose-800 font-bold">
+                            <i class="fa-solid fa-crown text-[10px]"></i>
+                            <span>1. Super Admin</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">admin@kmajestigers.com</div>
+                    </button>
+                    <button type="button" onclick="fillAdminCredentials('inkaisby@gmail.com', 'majestigers123')" class="p-2.5 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100/80 text-left transition-all cursor-pointer">
+                        <div class="flex items-center space-x-1.5 text-amber-900 font-bold">
+                            <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                            <span>2. Panitia Pengcab</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">inkaisby@gmail.com</div>
+                    </button>
+                    <button type="button" onclick="fillAdminCredentials('sensei.budi@kmajestigers.com', 'majestigers123')" class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/80 text-left transition-all cursor-pointer">
+                        <div class="flex items-center space-x-1.5 text-blue-900 font-bold">
+                            <i class="fa-solid fa-people-group text-[10px]"></i>
+                            <span>3. Manajer Dojo</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">sensei.budi@kmajestigers.com</div>
+                    </button>
+                    <button type="button" onclick="fillAdminCredentials('atlet@kmajestigers.com', 'majestigers123')" class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/80 text-left transition-all cursor-pointer">
+                        <div class="flex items-center space-x-1.5 text-emerald-900 font-bold">
+                            <i class="fa-solid fa-user-ninja text-[10px]"></i>
+                            <span>4. Atlet / Member</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">atlet@kmajestigers.com</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         MODAL: PEMBERITAHUAN HAK AKSES PERAN (ROLE MISMATCH)
+         ============================================== -->
+    <div id="modal-role-mismatch" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4 animate-fadeIn">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 max-w-md w-full relative shadow-2xl text-xs space-y-4 text-slate-800">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold mx-auto">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="text-center space-y-1">
+                <h3 class="text-base font-black font-heading text-slate-900">
+                    Akses Khusus Panitia &amp; Administrator
+                </h3>
+                <p id="mismatch-desc" class="text-slate-600 text-xs leading-relaxed">
+                    Akun Anda saat ini terdaftar dengan peran non-admin di database.
+                </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1 text-[11px]">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Nama Pengguna:</span>
+                    <strong id="mismatch-user-name" class="text-slate-800">-</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Peran di Database:</span>
+                    <span id="mismatch-user-role" class="px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 text-[10px]">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Portal yang Sesuai:</span>
+                    <strong id="mismatch-target-portal" class="text-slate-800">-</strong>
+                </div>
+            </div>
+
+            <div class="space-y-2 pt-2">
+                <button type="button" id="mismatch-redirect-btn" onclick="redirectToUserPortal()" class="w-full py-2.5 rounded-xl gold-gradient-bg text-slate-950 font-bold text-xs uppercase tracking-wider shadow-sm hover:opacity-95 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span id="mismatch-btn-text">Buka Portal Saya</span>
+                </button>
+                <button type="button" onclick="openAdminAuthModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Masuk dengan Akun Admin Lain</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 transform translate-y-32 transition-transform duration-300 flex items-center space-x-3 text-xs">
         <div class="w-7 h-7 rounded-full gold-gradient-bg flex items-center justify-center text-slate-950 font-bold text-xs">
@@ -2713,8 +3227,32 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // Guard halaman: Hanya izinkan role ADMIN
-            currentUser = await InkaiAPI.enforceRouteGuard(['ADMIN'], 'ADMIN');
+            // Evaluasi Sesi Pengguna & Hak Akses Berdasarkan Role di Database
+            currentUser = InkaiAPI.getCurrentUser();
+            const token = InkaiAPI.getToken();
+
+            if (currentUser && typeof InkaiSecurity !== 'undefined') {
+                const isValid = InkaiSecurity.verifySessionIntegrity(currentUser);
+                if (!isValid) {
+                    InkaiAPI.logout();
+                    currentUser = null;
+                }
+            }
+
+            if (!currentUser || !token) {
+                applyAdminUserProfile(InkaiAPI.REAL_ACCOUNTS.ADMIN);
+                openAdminAuthModal();
+            } else {
+                const primaryRole = (currentUser.primaryRole || currentUser.role || 'MEMBER').toUpperCase();
+                const roleNames = (currentUser.roleNames || []).map(r => (r || '').toUpperCase());
+                const isAdmin = primaryRole === 'ADMIN' || roleNames.some(r => ['ADMINISTRATOR', 'ADMIN', 'ADMIN_PUSAT', 'SUPERADMIN', 'PANITIA', 'EVENT_ORGANIZER', 'OPERATOR', 'OPERATOR_TATAMI', 'WASIT_JURI'].includes(r));
+
+                if (isAdmin) {
+                    applyAdminUserProfile(currentUser);
+                } else {
+                    showRoleMismatchModal(currentUser);
+                }
+            }
 
             // Render tombol quick switcher role di navbar
             InkaiAPI.renderRoleSwitcherNav('role-switcher-container', 'ADMIN');
@@ -2724,6 +3262,9 @@
 
             // Render daftar dojo (termasuk yang baru dibuat oleh admin)
             renderAllDojos();
+
+            // Preload API Dispendukcapil / Wilayah Indonesia untuk formulir dojo
+            initDispendukWilayahDropdown();
 
             // Inisialisasi Security & Concurrency Sentinel Listener
             initSecuritySentinelListeners();
@@ -7251,12 +7792,241 @@
             }
         }
 
+        // ==========================================
+        // INTEGRASI API REALTIME WILAYAH DISPENDUK / KEMENDAGRI
+        // ==========================================
+        const DISPENDUK_API_BASE = 'https://raw.githubusercontent.com/ibnux/data-indonesia/master';
+        let dispendukProvincesCache = null;
+        let dispendukRegenciesCache = {};
+
+        const DISPENDUK_FALLBACK_PROVINCES = [
+            { id: "35", nama: "Jawa Timur" },
+            { id: "31", nama: "DKI Jakarta" },
+            { id: "32", nama: "Jawa Barat" },
+            { id: "33", nama: "Jawa Tengah" },
+            { id: "34", nama: "DI Yogyakarta" },
+            { id: "36", nama: "Banten" },
+            { id: "51", nama: "Bali" },
+            { id: "52", nama: "Nusa Tenggara Barat" },
+            { id: "53", nama: "Nusa Tenggara Timur" },
+            { id: "11", nama: "Aceh" },
+            { id: "12", nama: "Sumatera Utara" },
+            { id: "13", nama: "Sumatera Barat" },
+            { id: "14", nama: "Riau" },
+            { id: "15", nama: "Jambi" },
+            { id: "16", nama: "Sumatera Selatan" },
+            { id: "18", nama: "Lampung" },
+            { id: "21", nama: "Kepulauan Riau" },
+            { id: "61", nama: "Kalimantan Barat" },
+            { id: "62", nama: "Kalimantan Tengah" },
+            { id: "63", nama: "Kalimantan Selatan" },
+            { id: "64", nama: "Kalimantan Timur" },
+            { id: "71", nama: "Sulawesi Utara" },
+            { id: "73", nama: "Sulawesi Selatan" },
+            { id: "81", nama: "Maluku" },
+            { id: "91", nama: "Papua" }
+        ];
+
+        const DISPENDUK_FALLBACK_REGENCIES = {
+            "35": [
+                { id: "3578", nama: "Kota Surabaya" },
+                { id: "3515", nama: "Kabupaten Sidoarjo" },
+                { id: "3525", nama: "Kabupaten Gresik" },
+                { id: "3573", nama: "Kota Malang" },
+                { id: "3507", nama: "Kabupaten Malang" },
+                { id: "3579", nama: "Kota Batu" },
+                { id: "3516", nama: "Kabupaten Mojokerto" },
+                { id: "3576", nama: "Kota Mojokerto" },
+                { id: "3514", nama: "Kabupaten Pasuruan" },
+                { id: "3575", nama: "Kota Pasuruan" },
+                { id: "3571", nama: "Kota Kediri" },
+                { id: "3506", nama: "Kabupaten Kediri" },
+                { id: "3517", nama: "Kabupaten Jombang" },
+                { id: "3510", nama: "Kabupaten Banyuwangi" },
+                { id: "3509", nama: "Kabupaten Jember" },
+                { id: "3523", nama: "Kabupaten Tuban" },
+                { id: "3522", nama: "Kabupaten Bojonegoro" },
+                { id: "3524", nama: "Kabupaten Lamongan" },
+                { id: "3572", nama: "Kota Blitar" },
+                { id: "3505", nama: "Kabupaten Blitar" },
+                { id: "3577", nama: "Kota Madiun" }
+            ],
+            "31": [
+                { id: "3171", nama: "Kota Jakarta Selatan" },
+                { id: "3172", nama: "Kota Jakarta Timur" },
+                { id: "3173", nama: "Kota Jakarta Pusat" },
+                { id: "3174", nama: "Kota Jakarta Barat" },
+                { id: "3175", nama: "Kota Jakarta Utara" }
+            ],
+            "32": [
+                { id: "3273", nama: "Kota Bandung" },
+                { id: "3275", nama: "Kota Bekasi" },
+                { id: "3276", nama: "Kota Depok" },
+                { id: "3271", nama: "Kota Bogor" },
+                { id: "3204", nama: "Kabupaten Bandung" }
+            ],
+            "33": [
+                { id: "3374", nama: "Kota Semarang" },
+                { id: "3372", nama: "Kota Surakarta (Solo)" },
+                { id: "3302", nama: "Kabupaten Banyumas" },
+                { id: "3371", nama: "Kota Magelang" }
+            ],
+            "51": [
+                { id: "5171", nama: "Kota Denpasar" },
+                { id: "5103", nama: "Kabupaten Badung" },
+                { id: "5104", nama: "Kabupaten Gianyar" }
+            ]
+        };
+
+        async function initDispendukWilayahDropdown() {
+            const provSelect = document.getElementById('new-dojo-province');
+            if (!provSelect) return;
+
+            if (provSelect.options.length > 2 && dispendukProvincesCache) return;
+
+            provSelect.innerHTML = '<option value="">Memuat data Dispenduk...</option>';
+            provSelect.disabled = true;
+
+            try {
+                let provinces = dispendukProvincesCache;
+                if (!provinces) {
+                    const res = await fetch(`${DISPENDUK_API_BASE}/provinsi.json`);
+                    if (!res.ok) throw new Error('Gagal memuat API Dispenduk');
+                    provinces = await res.json();
+                    dispendukProvincesCache = provinces;
+                }
+
+                populateProvinceDropdown(provinces);
+                updateDispendukIndicator(true);
+            } catch (err) {
+                dispendukProvincesCache = DISPENDUK_FALLBACK_PROVINCES;
+                populateProvinceDropdown(DISPENDUK_FALLBACK_PROVINCES);
+                updateDispendukIndicator(false);
+            }
+        }
+
+        function populateProvinceDropdown(provinces) {
+            const provSelect = document.getElementById('new-dojo-province');
+            if (!provSelect) return;
+
+            provSelect.innerHTML = '<option value="">-- Pilih Provinsi Asal --</option>' +
+                provinces.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
+
+            provSelect.disabled = false;
+
+            const hasJatim = provinces.some(p => p.id === '35' || p.nama.toLowerCase().includes('jawa timur'));
+            if (hasJatim) {
+                provSelect.value = '35';
+                onDispendukProvinceChange('35', '3578');
+            }
+        }
+
+        async function onDispendukProvinceChange(provId, defaultRegencyId = null) {
+            const regSelect = document.getElementById('new-dojo-regency');
+            if (!regSelect) return;
+
+            if (!provId) {
+                regSelect.innerHTML = '<option value="">-- Pilih Provinsi Dahulu --</option>';
+                regSelect.disabled = true;
+                syncDojoCityValue();
+                return;
+            }
+
+            regSelect.disabled = true;
+            regSelect.innerHTML = '<option value="">Memuat kota/kabupaten Dispenduk...</option>';
+
+            try {
+                let regencies = dispendukRegenciesCache[provId];
+                if (!regencies) {
+                    const res = await fetch(`${DISPENDUK_API_BASE}/kabupaten/${provId}.json`);
+                    if (!res.ok) throw new Error('Gagal memuat kabupaten');
+                    regencies = await res.json();
+                    dispendukRegenciesCache[provId] = regencies;
+                }
+
+                populateRegencyDropdown(regencies, defaultRegencyId);
+            } catch (err) {
+                const fallback = DISPENDUK_FALLBACK_REGENCIES[provId] || [
+                    { id: `${provId}01`, nama: `Kabupaten Wilayah ${provId}` },
+                    { id: `${provId}71`, nama: `Kota Pusat ${provId}` }
+                ];
+                populateRegencyDropdown(fallback, defaultRegencyId);
+            }
+        }
+
+        function populateRegencyDropdown(regencies, defaultRegencyId = null) {
+            const regSelect = document.getElementById('new-dojo-regency');
+            if (!regSelect) return;
+
+            regSelect.innerHTML = '<option value="">-- Pilih Kota / Kabupaten --</option>' +
+                regencies.map(r => `<option value="${r.id}" data-nama="${r.nama}">${r.nama}</option>`).join('');
+
+            regSelect.disabled = false;
+
+            if (defaultRegencyId) {
+                regSelect.value = defaultRegencyId;
+            } else if (regencies.length > 0) {
+                regSelect.selectedIndex = 1;
+            }
+
+            onDispendukRegencyChange();
+        }
+
+        function onDispendukRegencyChange() {
+            syncDojoCityValue();
+        }
+
+        function syncDojoCityValue() {
+            const provSelect = document.getElementById('new-dojo-province');
+            const regSelect = document.getElementById('new-dojo-regency');
+            const hiddenCity = document.getElementById('new-dojo-city');
+            const previewText = document.getElementById('dispenduk-preview-text');
+            const kodeBadge = document.getElementById('dispenduk-kode-badge');
+
+            if (!provSelect || !regSelect || !hiddenCity) return;
+
+            const provText = provSelect.options[provSelect.selectedIndex]?.text || '';
+            const regOption = regSelect.options[regSelect.selectedIndex];
+            const regText = regOption?.getAttribute('data-nama') || regOption?.text || '';
+            const regId = regSelect.value || provSelect.value || '-';
+
+            if (provSelect.value && regSelect.value && !regText.startsWith('--')) {
+                const combined = `${regText}, ${provText}`;
+                hiddenCity.value = combined;
+                if (previewText) previewText.innerText = combined;
+                if (kodeBadge) kodeBadge.innerText = `Kode Dispenduk: ${regId}`;
+            } else if (provSelect.value && !provText.startsWith('--')) {
+                hiddenCity.value = provText;
+                if (previewText) previewText.innerText = provText;
+                if (kodeBadge) kodeBadge.innerText = `Provinsi: ${provSelect.value}`;
+            } else {
+                hiddenCity.value = 'Surabaya, Jawa Timur';
+                if (previewText) previewText.innerText = 'Belum dipilih';
+                if (kodeBadge) kodeBadge.innerText = 'ID: -';
+            }
+        }
+
+        function updateDispendukIndicator(isLive) {
+            const ind = document.getElementById('dispenduk-status-indicator');
+            if (!ind) return;
+            if (isLive) {
+                ind.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center space-x-1.5 shadow-2xs';
+                ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span>Dispendukcapil Live API</span>';
+            } else {
+                ind.className = 'text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex items-center space-x-1.5 shadow-2xs';
+                ind.innerHTML = '<i class="fa-solid fa-database text-[10px]"></i><span>Master Dispenduk (Offline)</span>';
+            }
+        }
+
         // Modal Helpers
         function openModal(id) {
             const el = document.getElementById(id);
             if (el) {
                 el.classList.remove('hidden');
                 el.classList.add('flex');
+            }
+            if (id === 'modal-create-dojo') {
+                initDispendukWilayahDropdown();
             }
         }
 
@@ -7277,92 +8047,951 @@
         // ==========================================
         // MANAJEMEN AKUN DOJO (ADMIN BUAT LOGIN)
         // ==========================================
-        let lastCreatedDojo = null;
+        let allLoadedDojos = [];
+        let currentDetailDojo = null;
+        let currentDetailMembers = [];
 
-        function renderAllDojos() {
+        async function renderAllDojos() {
             const tbody = document.getElementById('dojo-table-body');
             if (!tbody) return;
 
-            const defaultDojos = [
-                {
-                    name: 'K-Majestigers Elite Surabaya',
-                    code: 'KM-SBY-01',
-                    city: 'Surabaya, Jawa Timur',
-                    sensei: 'Sensei Budi Prasetyo (Dan 4)',
-                    email: 'sensei.budi@kmajestigers.com',
-                    totalAthletes: 38,
-                    status: 'AKTIF'
-                },
-                {
-                    name: 'K-Majestigers Jakarta Pusat',
-                    code: 'KM-JKT-02',
-                    city: 'Jakarta Pusat, DKI',
-                    sensei: 'Sensei Hendra Gunawan (Dan 5)',
-                    email: 'sensei.hendra@kmajestigers.com',
-                    totalAthletes: 52,
-                    status: 'AKTIF'
+            let dbDojos = [];
+            try {
+                const rawDbDojos = await InkaiAPI.getDojos();
+                if (Array.isArray(rawDbDojos) && rawDbDojos.length > 0) {
+                    dbDojos = rawDbDojos.map((d, idx) => ({
+                        id: d.id,
+                        name: d.name,
+                        code: d.code || `KM-DB-${String(idx + 1).padStart(2, '0')}`,
+                        city: d.address || d.branch?.name || 'Surabaya, Jawa Timur',
+                        sensei: d.headName || d.contactPerson || 'Sensei Dojo',
+                        phone: d.phoneNumber || '',
+                        email: d.admins?.[0]?.email || d.admins?.[0]?.user?.email || '-',
+                        totalAthletes: d._count?.members || 0,
+                        status: d.isDeleted ? 'NONAKTIF' : 'AKTIF',
+                        address: d.address || '',
+                        tempatLatihan: d.tempatLatihan || '',
+                        schedule: d.schedule || '',
+                        bankName: d.bankName || '',
+                        bankAccountNumber: d.bankAccountNumber || '',
+                        bankAccountName: d.bankAccountName || '',
+                        isLiveDb: true,
+                        persistedToDb: true
+                    }));
                 }
-            ];
+            } catch (e) {
+                console.warn('[Admin] Fallback ke local dojos:', e.message);
+            }
 
             const customDojos = InkaiAPI.getCustomDojos();
-            const combined = [...customDojos, ...defaultDojos];
+            let combined = [];
+
+            if (dbDojos.length > 0) {
+                combined = [...dbDojos];
+
+                customDojos.forEach(c => {
+                    const exists = combined.some(d => 
+                        (d.email && d.email !== '-' && c.email && c.email.toLowerCase() === d.email.toLowerCase()) ||
+                        (c.name && d.name && c.name.toLowerCase() === d.name.toLowerCase()) ||
+                        (c.id && c.id === d.id)
+                    );
+                    if (!exists) {
+                        combined.push(c);
+                    }
+                });
+            } else {
+                const defaultDojos = [
+                    {
+                        name: 'K-Majestigers Elite Surabaya',
+                        code: 'KM-SBY-01',
+                        city: 'Surabaya, Jawa Timur',
+                        sensei: 'Sensei Budi Prasetyo (Dan 4)',
+                        phone: '0811-9876-5432',
+                        email: 'sensei.budi@kmajestigers.com',
+                        totalAthletes: 16,
+                        status: 'AKTIF'
+                    }
+                ];
+                combined = [...customDojos, ...defaultDojos];
+            }
+
+            allLoadedDojos = combined;
 
             const badge = document.getElementById('dojo-count-badge');
-            if (badge) badge.innerText = `Total ${combined.length + 40} Cabang Aktif`;
+            if (badge) {
+                const dbCount = combined.filter(d => d.persistedToDb || d.isLiveDb).length;
+                badge.innerText = `Total ${combined.length} Cabang Aktif (${dbCount} Live DB)`;
+            }
 
-            tbody.innerHTML = combined.map(d => `
-                <tr class="hover:bg-amber-50/40 transition-colors">
-                    <td class="py-3.5 px-4">
-                        <span class="font-bold text-slate-900 block">${d.name}</span>
+            if (combined.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-10 text-slate-400">
+                            Belum ada cabang dojo yang terdaftar. Klik tombol <strong>Buat Akun Login Dojo</strong> di atas untuk mendaftarkan.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = combined.map((d, idx) => `
+                <tr class="hover:bg-amber-50/40 transition-colors border-b border-slate-100">
+                    <td class="py-3.5 px-3 text-center font-mono font-bold text-slate-500 text-xs">
+                        ${idx + 1}
+                    </td>
+                    <td class="py-3.5 px-4 cursor-pointer" onclick="openDojoDetailModal('${d.id || d.name}')">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="font-bold text-slate-900 hover:text-amber-700 transition-colors block">${d.name}</span>
+                            ${d.persistedToDb || d.isLiveDb ? '<span class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800 shrink-0" title="Tersimpan di Supabase Live DB">DB</span>' : ''}
+                        </div>
                         <span class="text-[10px] text-amber-800 font-mono font-bold">${d.code}</span>
                     </td>
                     <td class="py-3.5 px-4">${d.city}</td>
-                    <td class="py-3.5 px-4">${d.sensei}</td>
+                    <td class="py-3.5 px-4 font-medium">${d.sensei}</td>
                     <td class="py-3.5 px-4 font-mono text-[11px] text-amber-800 font-semibold">${d.email || '-'}</td>
-                    <td class="py-3.5 px-4 font-bold text-slate-900">${d.totalAthletes || 0} Atlet</td>
-                    <td class="py-3.5 px-4">
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${d.status || 'AKTIF'}</span>
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-900">
+                        <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 font-bold text-xs inline-block">
+                            ${d.totalAthletes || 0} Atlet
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${d.status === 'AKTIF' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">${d.status || 'AKTIF'}</span>
                     </td>
                     <td class="py-3.5 px-4 text-right">
-                        <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
+                        <div class="flex items-center justify-end space-x-2">
+                            <button onclick="openDojoDetailModal('${d.id || d.name}')" class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold text-[11px] border border-amber-300 shadow-2xs flex items-center space-x-1.5 transition-all">
+                                <i class="fa-solid fa-users-viewfinder text-amber-700"></i>
+                                <span>Detail &amp; Anggota</span>
+                            </button>
+                            <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function handleCreateDojoSubmit(e) {
+        async function openDojoDetailModal(dojoId) {
+            openModal('modal-dojo-detail');
+
+            document.getElementById('detail-dojo-title').innerText = 'Memuat Data Dojo...';
+            document.getElementById('detail-dojo-subtitle').innerText = 'Menghubungkan ke Database...';
+            document.getElementById('detail-dojo-sensei').innerText = '-';
+            document.getElementById('detail-dojo-phone').innerText = '-';
+            document.getElementById('detail-dojo-email').innerText = '-';
+            document.getElementById('detail-dojo-address').innerText = '-';
+            document.getElementById('detail-dojo-total-athletes').innerText = '...';
+
+            const tbody = document.getElementById('detail-dojo-members-tbody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-slate-500">
+                            <i class="fa-solid fa-circle-notch fa-spin text-amber-500 mr-2 text-base"></i>
+                            <span>Memuat daftar karateka dari database...</span>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            let dojo = allLoadedDojos.find(d => d.id === dojoId || d.name === dojoId);
+            if (!dojo && typeof InkaiAPI !== 'undefined') {
+                const raw = await InkaiAPI.getDojoDetail(dojoId);
+                if (raw) {
+                    dojo = {
+                        id: raw.id,
+                        name: raw.name,
+                        code: raw.code || 'KM-DB',
+                        city: raw.address || raw.branch?.name || 'Surabaya, Jawa Timur',
+                        sensei: raw.headName || raw.contactPerson || 'Sensei Dojo',
+                        phone: raw.phoneNumber || '',
+                        email: raw.admins?.[0]?.email || '-',
+                        address: raw.address || '-'
+                    };
+                }
+            }
+
+            if (!dojo) {
+                showToast('Informasi dojo tidak ditemukan.');
+                closeModal('modal-dojo-detail');
+                return;
+            }
+
+            currentDetailDojo = dojo;
+            document.getElementById('detail-dojo-title').innerText = dojo.name;
+            document.getElementById('detail-dojo-subtitle').innerText = `${dojo.code || 'KM-OFFICIAL'} • ${dojo.city || 'Indonesia'}`;
+            document.getElementById('detail-dojo-sensei').innerText = dojo.sensei || '-';
+            
+            const phoneElem = document.getElementById('detail-dojo-phone');
+            const waBtn = document.getElementById('detail-dojo-wa-btn');
+            if (phoneElem) {
+                phoneElem.innerText = dojo.phone || '-';
+                if (dojo.phone && waBtn) {
+                    const cleanPhone = dojo.phone.replace(/[^0-9]/g, '');
+                    waBtn.href = `https://wa.me/${cleanPhone}`;
+                    waBtn.classList.remove('hidden');
+                } else if (waBtn) {
+                    waBtn.classList.add('hidden');
+                }
+            }
+
+            document.getElementById('detail-dojo-email').innerText = dojo.email || '-';
+            document.getElementById('detail-dojo-address').innerText = dojo.address || dojo.city || '-';
+
+            try {
+                const members = await InkaiAPI.getDojoRoster(dojo.id);
+                currentDetailMembers = Array.isArray(members) ? members : [];
+                document.getElementById('detail-dojo-total-athletes').innerText = `${currentDetailMembers.length} Karateka`;
+                const badgeCount = document.getElementById('detail-members-count-badge');
+                if (badgeCount) badgeCount.innerText = `${currentDetailMembers.length} Atlet`;
+                renderDetailMembersTable(currentDetailMembers);
+            } catch (err) {
+                console.warn('[Admin] Gagal memuat anggota dojo:', err);
+                currentDetailMembers = [];
+                document.getElementById('detail-dojo-total-athletes').innerText = '0 Karateka';
+                renderDetailMembersTable([]);
+            }
+        }
+
+        let currentFilteredMembers = null;
+        let editingMemberId = null;
+
+        const DOJO_KARATE_RANKS = [
+            'Sabuk Putih (Kyu 10)',
+            'Sabuk Kuning (Kyu 7)',
+            'Sabuk Hijau (Kyu 6)',
+            'Sabuk Biru (Kyu 5)',
+            'Sabuk Biru (Kyu 4)',
+            'Sabuk Cokelat (Kyu 3)',
+            'Sabuk Cokelat (Kyu 2)',
+            'Sabuk Cokelat (Kyu 1)',
+            'Sabuk Hitam (Dan 1)',
+            'Sabuk Hitam (Dan 2)',
+            'Sabuk Hitam (Dan 3+)'
+        ];
+
+        function buildRankOptionsHtml(selectedRank) {
+            const sel = (selectedRank || '').trim().toLowerCase();
+            let found = false;
+            let options = DOJO_KARATE_RANKS.map(r => {
+                const match = r.toLowerCase() === sel;
+                if (match) found = true;
+                return `<option value="${r}" ${match ? 'selected' : ''}>${r}</option>`;
+            });
+            if (!found && selectedRank) {
+                options.unshift(`<option value="${selectedRank}" selected>${selectedRank}</option>`);
+            }
+            return options.join('');
+        }
+
+        function renderDetailMembersTable(members) {
+            const tbody = document.getElementById('detail-dojo-members-tbody');
+            if (!tbody) return;
+
+            if (!members || members.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-10 text-slate-500 bg-slate-50/50">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl mx-auto mb-2">
+                                <i class="fa-solid fa-users-slash"></i>
+                            </div>
+                            <p class="font-bold text-slate-800 text-sm">Belum Ada Karateka Terdaftar</p>
+                            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                Belum ada atlet yang terdaftar di cabang dojo ini. Klik tombol Tambah Anggota di atas untuk mendaftarkan atlet.
+                            </p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = members.map((m, idx) => {
+                const rank = m.currentRank || 'Sabuk Putih';
+                const rankLower = rank.toLowerCase();
+                let beltBadgeClass = 'bg-slate-100 text-slate-800 border-slate-300 font-bold';
+                if (rankLower.includes('hitam') || rankLower.includes('dan')) {
+                    beltBadgeClass = 'bg-slate-900 text-amber-300 border-slate-800 font-bold';
+                } else if (rankLower.includes('cokelat') || rankLower.includes('kyu 1') || rankLower.includes('kyu 2') || rankLower.includes('kyu 3')) {
+                    beltBadgeClass = 'bg-amber-900/10 text-amber-900 border-amber-700/30 font-bold';
+                } else if (rankLower.includes('biru') || rankLower.includes('kyu 4') || rankLower.includes('kyu 5')) {
+                    beltBadgeClass = 'bg-blue-100 text-blue-900 border-blue-300 font-bold';
+                } else if (rankLower.includes('hijau') || rankLower.includes('kyu 6')) {
+                    beltBadgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold';
+                } else if (rankLower.includes('kuning') || rankLower.includes('kyu 7') || rankLower.includes('kyu 8')) {
+                    beltBadgeClass = 'bg-yellow-100 text-yellow-900 border-yellow-300 font-bold';
+                }
+
+                const gender = m.gender === 'LAKI_LAKI' || m.gender === 'Laki-laki' ? 'Laki-laki' : (m.gender === 'PEREMPUAN' || m.gender === 'Perempuan' ? 'Perempuan' : '-');
+                const weightHeight = (m.weight || m.height) ? `${m.weight || '-'} kg / ${m.height || '-'} cm` : '-';
+                const nia = m.nia || '<span class="text-slate-400 font-normal">Belum ada NIA</span>';
+                const status = m.status || 'Active';
+                const isVerified = status.toLowerCase() === 'active' || status.toLowerCase() === 'aktif';
+
+                // Mode Edit Inline jika ID sedang aktif
+                if (editingMemberId === m.id) {
+                    const handleKey = `onkeydown="if(event.key==='Enter') saveInlineEditMember('${m.id}'); else if(event.key==='Escape') cancelInlineEditMember();"`;
+                    return `
+                        <tr class="bg-amber-50/40 border-b border-amber-200 transition-colors">
+                            <td class="py-2.5 px-3 text-center font-mono font-bold text-amber-600 text-xs">${idx + 1}</td>
+                            <td class="py-2.5 px-3">
+                                <input type="text" id="inline-edit-name-${m.id}" value="${(m.fullName || '').replace(/"/g, '&quot;')}" ${handleKey} placeholder="Nama Atlet" class="w-full px-2 py-1 bg-white border border-amber-400 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs">
+                                <input type="text" id="inline-edit-nia-${m.id}" value="${(m.nia || '').replace(/"/g, '&quot;')}" ${handleKey} placeholder="NIA (Opsional)" class="w-full mt-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-mono text-slate-700 focus:outline-none">
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <select id="inline-edit-rank-${m.id}" ${handleKey} class="w-full px-2 py-1 bg-white border border-amber-400 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs">
+                                    ${buildRankOptionsHtml(m.currentRank)}
+                                </select>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <select id="inline-edit-gender-${m.id}" ${handleKey} class="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none">
+                                    <option value="Laki-laki" ${gender === 'Laki-laki' ? 'selected' : ''}>Laki-laki</option>
+                                    <option value="Perempuan" ${gender === 'Perempuan' ? 'selected' : ''}>Perempuan</option>
+                                </select>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <div class="flex items-center space-x-1">
+                                    <input type="number" step="0.5" id="inline-edit-weight-${m.id}" value="${m.weight || ''}" ${handleKey} placeholder="Kg" class="w-14 px-1.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-mono text-center focus:outline-none">
+                                    <span class="text-slate-400 text-xs">/</span>
+                                    <input type="number" step="1" id="inline-edit-height-${m.id}" value="${m.height || ''}" ${handleKey} placeholder="Cm" class="w-14 px-1.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-mono text-center focus:outline-none">
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                <select id="inline-edit-status-${m.id}" ${handleKey} class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700 focus:outline-none">
+                                    <option value="Active" ${isVerified ? 'selected' : ''}>TERVERIFIKASI</option>
+                                    <option value="Pending" ${!isVerified ? 'selected' : ''}>PENDING</option>
+                                </select>
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                <div class="flex items-center justify-center space-x-1.5">
+                                    <button type="button" onclick="saveInlineEditMember('${m.id}')" title="Simpan Perubahan (Enter)" class="w-7 h-7 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center transition-colors shadow-2xs">
+                                        <i class="fa-solid fa-check text-xs"></i>
+                                    </button>
+                                    <button type="button" onclick="cancelInlineEditMember()" title="Batal Edit (Esc)" class="w-7 h-7 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors">
+                                        <i class="fa-solid fa-xmark text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="py-2.5 px-3 text-center font-mono font-bold text-slate-400 text-xs">${idx + 1}</td>
+                        <td class="py-2.5 px-3">
+                            <span class="font-bold text-slate-900 block text-xs">${m.fullName || 'Karateka'}</span>
+                            <span class="text-[10px] text-slate-500 font-mono">${nia}</span>
+                        </td>
+                        <td class="py-2.5 px-3">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${beltBadgeClass}">
+                                ${rank}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-700 text-xs">${gender}</td>
+                        <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${weightHeight}</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${isVerified ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
+                                ${isVerified ? 'TERVERIFIKASI' : 'PENDING'}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center">
+                            <div class="flex items-center justify-center space-x-1">
+                                <button type="button" onclick="startInlineEditMember('${m.id}')" title="Edit Inline" class="w-7 h-7 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </button>
+                                <button type="button" onclick="deleteMemberDojo('${m.id}', '${(m.fullName || 'Karateka').replace(/'/g, "\\'")}')" title="Hapus Atlet" class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterDetailMembers() {
+            const searchVal = document.getElementById('detail-member-search')?.value.trim().toLowerCase() || '';
+            const rankVal = document.getElementById('detail-member-filter-rank')?.value.toLowerCase() || '';
+            const genderVal = document.getElementById('detail-member-filter-gender')?.value.toLowerCase() || '';
+
+            if (!searchVal && !rankVal && !genderVal) {
+                currentFilteredMembers = null;
+                renderDetailMembersTable(currentDetailMembers);
+                return;
+            }
+
+            currentFilteredMembers = currentDetailMembers.filter(m => {
+                const matchSearch = !searchVal || 
+                    (m.fullName && m.fullName.toLowerCase().includes(searchVal)) ||
+                    (m.nia && m.nia.toLowerCase().includes(searchVal)) ||
+                    (m.currentRank && m.currentRank.toLowerCase().includes(searchVal));
+
+                const rankLower = (m.currentRank || '').toLowerCase();
+                const matchRank = !rankVal || rankLower.includes(rankVal);
+
+                const gLower = (m.gender || '').toLowerCase();
+                let matchGender = true;
+                if (genderVal === 'laki') {
+                    matchGender = gLower.includes('laki') || gLower === 'l' || gLower === 'm';
+                } else if (genderVal === 'perempuan') {
+                    matchGender = gLower.includes('perempuan') || gLower === 'p' || gLower === 'f';
+                }
+
+                return matchSearch && matchRank && matchGender;
+            });
+
+            renderDetailMembersTable(currentFilteredMembers);
+        }
+
+        function exportDojoRosterCsv() {
+            if (!currentDetailDojo) {
+                showToast('Dojo belum dipilih.');
+                return;
+            }
+            const list = currentFilteredMembers || currentDetailMembers;
+            if (!list || list.length === 0) {
+                showToast('Tidak ada data karateka untuk diekspor.');
+                return;
+            }
+
+            const headers = ['No', 'Nama Lengkap', 'NIA', 'Sabuk / Tingkatan', 'Gender', 'Berat (kg)', 'Tinggi (cm)', 'Status'];
+            const escapeCsv = (val) => {
+                if (val === null || val === undefined) return '""';
+                const str = String(val).replace(/"/g, '""');
+                return `"${str}"`;
+            };
+
+            const rows = list.map((m, idx) => [
+                idx + 1,
+                escapeCsv(m.fullName || ''),
+                escapeCsv(m.nia || ''),
+                escapeCsv(m.currentRank || 'Sabuk Putih'),
+                escapeCsv(m.gender || ''),
+                escapeCsv(m.weight || ''),
+                escapeCsv(m.height || ''),
+                escapeCsv(m.status || 'Active')
+            ].join(','));
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeDojoName = (currentDetailDojo.name || 'Dojo').replace(/[^a-zA-Z0-9_-]/g, '_');
+            const dateStr = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = `Roster_${safeDojoName}_${dateStr}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Berhasil mengekspor ${list.length} karateka ke file CSV.`);
+        }
+
+        function syncDojoMemberCountToMainTable(dojoId, newCount) {
+            if (!allLoadedDojos || !dojoId) return;
+            const target = allLoadedDojos.find(d => d.id === dojoId || d.name === dojoId);
+            if (target) {
+                target.totalAthletes = newCount;
+            }
+            const tbody = document.getElementById('dojos-table-body');
+            if (tbody && Array.isArray(allLoadedDojos)) {
+                tbody.innerHTML = allLoadedDojos.map((d, idx) => `
+                    <tr class="hover:bg-amber-50/40 transition-colors border-b border-slate-100">
+                        <td class="py-3.5 px-3 text-center font-mono font-bold text-slate-500 text-xs">
+                            ${idx + 1}
+                        </td>
+                        <td class="py-3.5 px-4 cursor-pointer" onclick="openDojoDetailModal('${d.id || d.name}')">
+                            <div class="flex items-center space-x-1.5">
+                                <span class="font-bold text-slate-900 hover:text-amber-700 transition-colors block">${d.name}</span>
+                                ${d.persistedToDb || d.isLiveDb ? '<span class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800 shrink-0" title="Tersimpan di Supabase Live DB">DB</span>' : ''}
+                            </div>
+                            <span class="text-[10px] text-amber-800 font-mono font-bold">${d.code}</span>
+                        </td>
+                        <td class="py-3.5 px-4">${d.city}</td>
+                        <td class="py-3.5 px-4 font-medium">${d.sensei}</td>
+                        <td class="py-3.5 px-4 font-mono text-[11px] text-amber-800 font-semibold">${d.email || '-'}</td>
+                        <td class="py-3.5 px-4 text-center font-bold text-slate-900">
+                            <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 font-bold text-xs inline-block">
+                                ${d.totalAthletes || 0} Atlet
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${d.status === 'AKTIF' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">${d.status || 'AKTIF'}</span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="flex items-center justify-end space-x-2">
+                                <button onclick="openDojoDetailModal('${d.id || d.name}')" class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold text-[11px] border border-amber-300 shadow-2xs flex items-center space-x-1.5 transition-all">
+                                    <i class="fa-solid fa-users-viewfinder text-amber-700"></i>
+                                    <span>Detail &amp; Anggota</span>
+                                </button>
+                                <button onclick="toggleSuspend(this)" class="text-xs text-rose-600 hover:underline">Nonaktifkan</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function startInlineEditMember(memberId) {
+            editingMemberId = memberId;
+            renderDetailMembersTable(currentFilteredMembers || currentDetailMembers);
+            setTimeout(() => {
+                const input = document.getElementById(`inline-edit-name-${memberId}`);
+                if (input) input.focus();
+            }, 60);
+        }
+
+        function cancelInlineEditMember() {
+            editingMemberId = null;
+            renderDetailMembersTable(currentFilteredMembers || currentDetailMembers);
+        }
+
+        async function saveInlineEditMember(memberId) {
+            const nameInput = document.getElementById(`inline-edit-name-${memberId}`);
+            const niaInput = document.getElementById(`inline-edit-nia-${memberId}`);
+            const rankInput = document.getElementById(`inline-edit-rank-${memberId}`);
+            const genderInput = document.getElementById(`inline-edit-gender-${memberId}`);
+            const weightInput = document.getElementById(`inline-edit-weight-${memberId}`);
+            const heightInput = document.getElementById(`inline-edit-height-${memberId}`);
+            const statusInput = document.getElementById(`inline-edit-status-${memberId}`);
+
+            if (!nameInput || !nameInput.value.trim()) {
+                showToast('Nama karateka tidak boleh kosong.');
+                return;
+            }
+
+            const fullName = nameInput.value.trim();
+            const nia = niaInput ? niaInput.value.trim() : undefined;
+            const currentRank = rankInput ? rankInput.value : undefined;
+            const gender = genderInput ? genderInput.value : undefined;
+            const weight = weightInput && weightInput.value ? parseFloat(weightInput.value) : null;
+            const height = heightInput && heightInput.value ? parseFloat(heightInput.value) : null;
+            const status = statusInput ? statusInput.value : undefined;
+
+            const payload = { fullName, currentRank, gender, status };
+            if (nia !== undefined) payload.nia = nia || null;
+            if (weight !== null) payload.weight = weight;
+            if (height !== null) payload.height = height;
+
+            showToast('Menyimpan perubahan ke database...');
+            try {
+                await InkaiAPI.updateAthlete(memberId, payload);
+                
+                // Update item di local state
+                const idx = currentDetailMembers.findIndex(m => m.id === memberId);
+                if (idx !== -1) {
+                    currentDetailMembers[idx] = { ...currentDetailMembers[idx], ...payload };
+                }
+                if (currentFilteredMembers) {
+                    const fidx = currentFilteredMembers.findIndex(m => m.id === memberId);
+                    if (fidx !== -1) {
+                        currentFilteredMembers[fidx] = { ...currentFilteredMembers[fidx], ...payload };
+                    }
+                }
+
+                editingMemberId = null;
+                renderDetailMembersTable(currentFilteredMembers || currentDetailMembers);
+                showToast(`Data "${fullName}" berhasil diperbarui!`);
+            } catch (err) {
+                console.error('[Admin] Gagal update member:', err);
+                showToast('Gagal memperbarui data: ' + err.message);
+            }
+        }
+
+        async function deleteMemberDojo(memberId, memberName) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus karateka "${memberName}" dari database dojo ini?`)) {
+                return;
+            }
+
+            showToast(`Menghapus ${memberName}...`);
+            try {
+                await InkaiAPI.deleteAthlete(memberId);
+                currentDetailMembers = currentDetailMembers.filter(m => m.id !== memberId);
+                if (currentFilteredMembers) {
+                    currentFilteredMembers = currentFilteredMembers.filter(m => m.id !== memberId);
+                }
+
+                document.getElementById('detail-dojo-total-athletes').innerText = `${currentDetailMembers.length} Karateka`;
+                const badgeCount = document.getElementById('detail-members-count-badge');
+                if (badgeCount) badgeCount.innerText = `${currentDetailMembers.length} Atlet`;
+
+                if (currentDetailDojo) {
+                    syncDojoMemberCountToMainTable(currentDetailDojo.id, currentDetailMembers.length);
+                }
+
+                renderDetailMembersTable(currentFilteredMembers || currentDetailMembers);
+                showToast(`Karateka "${memberName}" berhasil dihapus dari database.`);
+            } catch (err) {
+                console.error('[Admin] Gagal menghapus karateka:', err);
+                showToast('Gagal menghapus atlet: ' + err.message);
+            }
+        }
+
+        // Tambah Anggota Tunggal
+        function openAddMemberModal() {
+            if (!currentDetailDojo) {
+                showToast('Pilih dojo terlebih dahulu.');
+                return;
+            }
+            document.getElementById('add-member-target-dojo-name').innerText = currentDetailDojo.name;
+            const form = document.getElementById('form-add-dojo-member');
+            if (form) form.reset();
+            openModal('modal-add-dojo-member');
+        }
+
+        async function handleAddDojoMemberSubmit(e) {
             e.preventDefault();
+            if (!currentDetailDojo) return;
+
+            const fullName = document.getElementById('add-member-fullname').value.trim();
+            const nik = document.getElementById('add-member-nik')?.value.trim() || undefined;
+            const birthDate = document.getElementById('add-member-birthdate')?.value || undefined;
+            let nia = document.getElementById('add-member-nia').value.trim();
+            if (!nia) {
+                nia = 'INA-SBY-' + Math.floor(8840 + Math.random() * 900);
+            }
+            const currentRank = document.getElementById('add-member-rank').value;
+            const gender = document.getElementById('add-member-gender').value;
+            const weight = parseFloat(document.getElementById('add-member-weight').value) || null;
+            const height = parseFloat(document.getElementById('add-member-height').value) || null;
+
+            const submitBtn = document.getElementById('btn-submit-add-member');
+            const originalContent = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan...</span>';
+            }
+
+            try {
+                const payload = {
+                    fullName,
+                    dojoId: currentDetailDojo.id,
+                    nia,
+                    currentRank,
+                    gender,
+                    weight,
+                    height,
+                    status: 'Active'
+                };
+                if (nik) payload.nik = nik;
+                if (birthDate) payload.birthDate = birthDate;
+
+                const res = await InkaiAPI.addAthlete(payload);
+                const newMember = res?.data || res || { ...payload, id: 'mem-' + Date.now() };
+                currentDetailMembers.unshift(newMember);
+
+                document.getElementById('detail-dojo-total-athletes').innerText = `${currentDetailMembers.length} Karateka`;
+                const badgeCount = document.getElementById('detail-members-count-badge');
+                if (badgeCount) badgeCount.innerText = `${currentDetailMembers.length} Atlet`;
+
+                syncDojoMemberCountToMainTable(currentDetailDojo.id, currentDetailMembers.length);
+
+                closeModal('modal-add-dojo-member');
+                renderDetailMembersTable(currentDetailMembers);
+                showToast(`Karateka "${fullName}" (${nia}) berhasil disimpan ke database!`);
+            } catch (err) {
+                console.error('[Admin] Gagal tambah karateka:', err);
+                showToast('Gagal menambahkan karateka: ' + err.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalContent;
+                }
+            }
+        }
+
+        // Tambah Anggota Massal (Bulk)
+        let parsedBulkMembersList = [];
+
+        function openBulkMemberModal() {
+            if (!currentDetailDojo) {
+                showToast('Pilih dojo terlebih dahulu.');
+                return;
+            }
+            document.getElementById('bulk-member-target-dojo-name').innerText = currentDetailDojo.name;
+            const rawInput = document.getElementById('bulk-member-raw-text');
+            if (rawInput) rawInput.value = '';
+            parsedBulkMembersList = [];
+            renderBulkPreview();
+            openModal('modal-bulk-dojo-member');
+        }
+
+        function handleBulkFileSelect(event) {
+            const file = event.target?.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const textarea = document.getElementById('bulk-member-raw-text');
+                if (textarea) {
+                    textarea.value = content;
+                    parseBulkMemberInput();
+                    showToast(`File "${file.name}" berhasil dibaca (${parsedBulkMembersList.length} atlet terdeteksi).`);
+                }
+            };
+            reader.onerror = function() {
+                showToast('Gagal membaca file CSV/TXT.');
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function fillBulkMemberSample() {
+            const sample = `Bima Arya Sakti, Sabuk Putih (Kyu 10), Laki-laki, 58, 168
+Tiara Anindita, Sabuk Kuning (Kyu 7), Perempuan, 49, 158
+Fajar Maulana, Sabuk Biru (Kyu 5), Laki-laki, 62, 172
+Clara Salsabila, Sabuk Cokelat (Kyu 3), Perempuan, 54, 161`;
+            const rawInput = document.getElementById('bulk-member-raw-text');
+            if (rawInput) {
+                rawInput.value = sample;
+                parseBulkMemberInput();
+            }
+        }
+
+        function parseBulkMemberInput() {
+            const raw = document.getElementById('bulk-member-raw-text')?.value || '';
+            const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            
+            parsedBulkMembersList = [];
+            lines.forEach((line) => {
+                if (line.toLowerCase().startsWith('nama') || line.toLowerCase().startsWith('name')) return;
+
+                const parts = line.split(/[,;\t]/).map(p => p.trim());
+                if (parts.length >= 1 && parts[0]) {
+                    const name = parts[0];
+                    const rank = parts[1] || 'Sabuk Putih (Kyu 10)';
+                    const genderRaw = parts[2] ? parts[2].toLowerCase() : 'laki-laki';
+                    const gender = (genderRaw.includes('perempuan') || genderRaw === 'p' || genderRaw === 'f') ? 'Perempuan' : 'Laki-laki';
+                    const weight = parts[3] ? parseFloat(parts[3]) || null : null;
+                    const height = parts[4] ? parseFloat(parts[4]) || null : null;
+
+                    parsedBulkMembersList.push({
+                        fullName: name,
+                        currentRank: rank,
+                        gender,
+                        weight,
+                        height,
+                        dojoId: currentDetailDojo ? currentDetailDojo.id : ''
+                    });
+                }
+            });
+
+            renderBulkPreview();
+        }
+
+        function renderBulkPreview() {
+            const tbody = document.getElementById('bulk-preview-tbody');
+            const countElem = document.getElementById('bulk-preview-count');
+            if (!tbody) return;
+
+            if (countElem) {
+                countElem.innerText = `${parsedBulkMembersList.length} Atlet siap diimpor`;
+            }
+
+            if (parsedBulkMembersList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="p-4 text-center text-slate-400 italic">Ketik, tempel, atau unggah file di atas untuk melihat pratinjau</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = parsedBulkMembersList.slice(0, 10).map((m) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-1.5 px-2 font-bold text-slate-800">${m.fullName}</td>
+                    <td class="p-1.5 px-2 text-slate-600">${m.currentRank}</td>
+                    <td class="p-1.5 px-2 text-slate-600">${m.gender}</td>
+                    <td class="p-1.5 px-2 font-mono text-slate-500">${(m.weight || m.height) ? `${m.weight || '-'} kg / ${m.height || '-'} cm` : '-'}</td>
+                </tr>
+            `).join('') + (parsedBulkMembersList.length > 10 ? `<tr><td colspan="4" class="p-1 px-2 text-center text-[10px] text-slate-400 bg-slate-50">+ ${parsedBulkMembersList.length - 10} atlet lainnya</td></tr>` : '');
+        }
+
+        async function submitBulkMembers() {
+            if (parsedBulkMembersList.length === 0) {
+                showToast('Masukkan minimal satu data atlet.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-bulk-member');
+            const originalContent = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Mengimpor (${parsedBulkMembersList.length})...</span>`;
+            }
+
+            try {
+                showToast(`Mengimpor ${parsedBulkMembersList.length} karateka ke database...`);
+                
+                const payloadList = parsedBulkMembersList.map((m, idx) => ({
+                    ...m,
+                    dojoId: currentDetailDojo.id,
+                    nia: 'INA-SBY-' + (8900 + Math.floor(Math.random() * 8000) + idx),
+                    status: 'Active'
+                }));
+
+                await InkaiAPI.bulkAddAthletes(payloadList);
+
+                // Muat ulang roster langsung dari database live
+                const updatedRoster = await InkaiAPI.getDojoRoster(currentDetailDojo.id);
+                currentDetailMembers = Array.isArray(updatedRoster) ? updatedRoster : [];
+                
+                document.getElementById('detail-dojo-total-athletes').innerText = `${currentDetailMembers.length} Karateka`;
+                const badgeCount = document.getElementById('detail-members-count-badge');
+                if (badgeCount) badgeCount.innerText = `${currentDetailMembers.length} Atlet`;
+
+                syncDojoMemberCountToMainTable(currentDetailDojo.id, currentDetailMembers.length);
+
+                closeModal('modal-bulk-dojo-member');
+                renderDetailMembersTable(currentDetailMembers);
+                showToast(`Berhasil menambahkan ${payloadList.length} atlet ke database dojo!`);
+            } catch (err) {
+                console.error('[Admin] Gagal bulk import:', err);
+                showToast('Gagal mengimpor anggota massal: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+            }
+        }
+
+        // Global Keyboard Shortcut: Escape untuk membatalkan inline edit atau menutup modal teratas
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (editingMemberId) {
+                    cancelInlineEditMember();
+                    return;
+                }
+                const bulkModal = document.getElementById('modal-bulk-dojo-member');
+                if (bulkModal && !bulkModal.classList.contains('hidden')) {
+                    closeModal('modal-bulk-dojo-member');
+                    return;
+                }
+                const addModal = document.getElementById('modal-add-dojo-member');
+                if (addModal && !addModal.classList.contains('hidden')) {
+                    closeModal('modal-add-dojo-member');
+                    return;
+                }
+                const detailModal = document.getElementById('modal-dojo-detail');
+                if (detailModal && !detailModal.classList.contains('hidden')) {
+                    closeModal('modal-dojo-detail');
+                    return;
+                }
+            }
+        });
+
+        let isDojoDetailMaximized = false;
+
+        function toggleMaximizeDojoDetail() {
+            isDojoDetailMaximized = !isDojoDetailMaximized;
+            const container = document.getElementById('modal-dojo-detail-container');
+            const tableContainer = document.getElementById('detail-members-table-container');
+            const icon = document.getElementById('icon-maximize-dojo-detail');
+            const btn = document.getElementById('btn-maximize-dojo-detail');
+            if (!container) return;
+
+            if (isDojoDetailMaximized) {
+                container.classList.remove('max-w-4xl');
+                container.classList.add('max-w-[96vw]', 'w-[96vw]', 'max-h-[96vh]', 'h-[94vh]');
+                if (tableContainer) {
+                    tableContainer.classList.remove('max-h-72');
+                    tableContainer.classList.add('max-h-[58vh]');
+                }
+                if (icon) {
+                    icon.classList.remove('fa-expand');
+                    icon.classList.add('fa-compress');
+                }
+                if (btn) btn.title = 'Kecilkan Tampilan (Normal)';
+            } else {
+                container.classList.remove('max-w-[96vw]', 'w-[96vw]', 'max-h-[96vh]', 'h-[94vh]');
+                container.classList.add('max-w-4xl');
+                if (tableContainer) {
+                    tableContainer.classList.remove('max-h-[58vh]');
+                    tableContainer.classList.add('max-h-72');
+                }
+                if (icon) {
+                    icon.classList.remove('fa-compress');
+                    icon.classList.add('fa-expand');
+                }
+                if (btn) btn.title = 'Perbesar Tampilan Modal (Maksimal)';
+            }
+        }
+
+        async function handleCreateDojoSubmit(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('btn-submit-dojo') || e.target.querySelector('button[type="submit"]');
+            const originalBtnContent = submitBtn ? submitBtn.innerHTML : '';
+
             const name = document.getElementById('new-dojo-name').value.trim();
-            const code = document.getElementById('new-dojo-code').value.trim();
+            const code = document.getElementById('new-dojo-code')?.value?.trim() || '';
             const city = document.getElementById('new-dojo-city').value.trim();
             const sensei = document.getElementById('new-dojo-sensei').value.trim();
             const phone = document.getElementById('new-dojo-phone').value.trim();
             const email = document.getElementById('new-dojo-email').value.trim();
             const password = document.getElementById('new-dojo-password').value.trim();
 
-            const created = InkaiAPI.createDojoAccount({
-                name,
-                code,
-                city,
-                sensei,
-                phone,
-                email,
-                password
-            });
+            if (!name || !email || !sensei) {
+                showToast('Mohon lengkapi Nama Dojo, Sensei, dan Email.');
+                return;
+            }
 
-            lastCreatedDojo = created;
-            closeModal('modal-create-dojo');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <span>Menyimpan ke Database Live...</span>
+                `;
+            }
 
-            // Isi rincian kredensial ke modal sukses
-            document.getElementById('success-dojo-name').innerText = name;
-            document.getElementById('success-dojo-sensei').innerText = sensei;
-            document.getElementById('success-dojo-email').innerText = email;
-            document.getElementById('success-dojo-pass').innerText = password;
+            try {
+                const created = await InkaiAPI.createDojoAccount({
+                    name,
+                    code,
+                    city,
+                    sensei,
+                    phone,
+                    email,
+                    password
+                });
 
-            openModal('modal-dojo-success');
-            renderAllDojos();
-            showToast(`Akun Dojo '${name}' berhasil diterbitkan dan siap login!`);
-            document.getElementById('form-create-dojo').reset();
+                lastCreatedDojo = created;
+                closeModal('modal-create-dojo');
+
+                document.getElementById('success-dojo-name').innerText = name;
+                document.getElementById('success-dojo-sensei').innerText = sensei;
+                document.getElementById('success-dojo-email').innerText = email;
+                document.getElementById('success-dojo-pass').innerText = password;
+
+                const dbBadge = document.getElementById('success-dojo-db-badge');
+                if (dbBadge) {
+                    if (created.persistedToDb) {
+                        dbBadge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full inline-flex items-center space-x-1.5';
+                        dbBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span>Tersimpan di Supabase Live DB</span>';
+                    } else {
+                        dbBadge.className = 'text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full inline-flex items-center space-x-1.5';
+                        dbBadge.innerHTML = '<span>Tersimpan Lokal (Offline Sync)</span>';
+                    }
+                }
+
+                openModal('modal-dojo-success');
+                await renderAllDojos();
+
+                if (created.persistedToDb) {
+                    showToast(`Akun Dojo '${name}' berhasil disimpan ke Database!`);
+                } else {
+                    showToast(`Akun Dojo '${name}' berhasil diterbitkan dan siap login!`);
+                }
+                document.getElementById('form-create-dojo').reset();
+            } catch (err) {
+                console.error('[Admin] Gagal membuat akun dojo:', err);
+                showToast(`Gagal menerbitkan akun dojo: ${err.message}`);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnContent;
+                }
+            }
         }
 
         function copyDojoCredentials() {
@@ -7521,9 +9150,206 @@
             }
         }
 
+        function openAdminAuthModal() {
+            const modal = document.getElementById('modal-admin-auth');
+            const mismatchModal = document.getElementById('modal-role-mismatch');
+            if (mismatchModal) {
+                mismatchModal.classList.add('hidden');
+                mismatchModal.classList.remove('flex');
+            }
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            setAdminAuthAlert(null);
+        }
+
+        function closeAdminAuthModal() {
+            const modal = document.getElementById('modal-admin-auth');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function toggleAdminPassVisibility() {
+            const input = document.getElementById('admin-auth-pass');
+            const eye = document.getElementById('admin-auth-pass-eye');
+            if (!input || !eye) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                eye.classList.remove('fa-eye');
+                eye.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eye.classList.remove('fa-eye-slash');
+                eye.classList.add('fa-eye');
+            }
+        }
+
+        function fillAdminCredentials(email, pass) {
+            const emailInput = document.getElementById('admin-auth-email');
+            const passInput = document.getElementById('admin-auth-pass');
+            if (emailInput) {
+                emailInput.value = email;
+                emailInput.classList.add('ring-2', 'ring-amber-400');
+                setTimeout(() => emailInput.classList.remove('ring-2', 'ring-amber-400'), 800);
+            }
+            if (passInput) {
+                passInput.value = pass;
+                passInput.classList.add('ring-2', 'ring-amber-400');
+                setTimeout(() => passInput.classList.remove('ring-2', 'ring-amber-400'), 800);
+            }
+        }
+
+        function setAdminAuthAlert(msg, type = 'error') {
+            const box = document.getElementById('admin-auth-alert');
+            const txt = document.getElementById('admin-auth-alert-msg');
+            const icon = document.getElementById('admin-auth-alert-icon');
+            if (!box || !txt) return;
+
+            if (!msg) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            box.className = 'p-3 rounded-xl text-xs flex items-start space-x-2.5 transition-all';
+            if (type === 'error') {
+                box.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-200');
+                if (icon) icon.className = 'fa-solid fa-circle-xmark mt-0.5 flex-shrink-0 text-sm text-rose-600';
+            } else if (type === 'success') {
+                box.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+                if (icon) icon.className = 'fa-solid fa-circle-check mt-0.5 flex-shrink-0 text-sm text-emerald-600';
+            } else {
+                box.classList.add('bg-amber-50', 'text-amber-800', 'border', 'border-amber-200');
+                if (icon) icon.className = 'fa-solid fa-circle-info mt-0.5 flex-shrink-0 text-sm text-amber-600';
+            }
+            txt.innerText = msg;
+            box.classList.remove('hidden');
+        }
+
+        async function handleAdminAuthSubmit(e) {
+            e.preventDefault();
+            setAdminAuthAlert(null);
+
+            const identifier = document.getElementById('admin-auth-email')?.value.trim();
+            const pass = document.getElementById('admin-auth-pass')?.value;
+            const spinner = document.getElementById('admin-auth-spinner');
+            const btnText = document.getElementById('admin-auth-btn-text');
+
+            if (!identifier || !pass) {
+                setAdminAuthAlert('Email atau nomor NIA dan kata sandi wajib diisi.', 'error');
+                return;
+            }
+
+            spinner?.classList.remove('hidden');
+            if (btnText) btnText.innerText = 'Memverifikasi ke Database...';
+
+            try {
+                const res = await InkaiAPI.login(identifier, pass);
+                const user = res.user;
+                currentUser = user;
+                InkaiAPI.setCurrentUser(user);
+
+                const primaryRole = (user.primaryRole || user.role || 'MEMBER').toUpperCase();
+                const roleNames = (user.roleNames || []).map(r => (r || '').toUpperCase());
+                const isAdmin = primaryRole === 'ADMIN' || roleNames.some(r => ['ADMINISTRATOR', 'ADMIN', 'ADMIN_PUSAT', 'SUPERADMIN', 'PANITIA', 'EVENT_ORGANIZER', 'OPERATOR', 'OPERATOR_TATAMI', 'WASIT_JURI'].includes(r));
+
+                if (isAdmin) {
+                    const roleLabel = user.displayRole || (roleNames.includes('PANITIA') ? 'Panitia Pelaksana' : 'Super Admin');
+                    setAdminAuthAlert(`Login berhasil sebagai ${user.fullName || user.name} (${roleLabel}). Memuat dashboard...`, 'success');
+                    showToast(`Login berhasil sebagai ${user.fullName || user.name}`);
+                    applyAdminUserProfile(user);
+
+                    setTimeout(() => {
+                        closeAdminAuthModal();
+                    }, 800);
+                } else if (primaryRole === 'DOJO_MANAGER') {
+                    setAdminAuthAlert(`Akun teridentifikasi sebagai Manajer Dojo (${user.fullName || user.name}). Mengalihkan ke Portal Dojo & Kontingen...`, 'info');
+                    showToast('Mengalihkan ke Portal Dojo...');
+                    setTimeout(() => {
+                        window.location.href = InkaiAPI.getPortalUrl('DOJO_MANAGER');
+                    }, 1200);
+                } else {
+                    setAdminAuthAlert(`Akun teridentifikasi sebagai Atlet / Member (${user.fullName || user.name}). Mengalihkan ke Portal Atlet...`, 'info');
+                    showToast('Mengalihkan ke Portal Atlet...');
+                    setTimeout(() => {
+                        window.location.href = InkaiAPI.getPortalUrl('MEMBER');
+                    }, 1200);
+                }
+            } catch (err) {
+                setAdminAuthAlert(err.message || 'Kredensial tidak cocok dengan database.', 'error');
+            } finally {
+                spinner?.classList.add('hidden');
+                if (btnText) btnText.innerText = 'Verifikasi & Masuk';
+            }
+        }
+
+        function showRoleMismatchModal(user) {
+            const modal = document.getElementById('modal-role-mismatch');
+            if (!modal) return;
+
+            const nameEl = document.getElementById('mismatch-user-name');
+            const roleEl = document.getElementById('mismatch-user-role');
+            const portalEl = document.getElementById('mismatch-target-portal');
+            const btnText = document.getElementById('mismatch-btn-text');
+
+            const primaryRole = (user.primaryRole || user.role || 'MEMBER').toUpperCase();
+            const isDojo = primaryRole === 'DOJO_MANAGER';
+
+            if (nameEl) nameEl.innerText = user.fullName || user.name || user.email;
+            if (roleEl) {
+                roleEl.innerText = isDojo ? 'Manajer Dojo / Pelatih' : 'Atlet / Anggota';
+                roleEl.className = isDojo ? 'px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 text-[10px]' : 'px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 text-[10px]';
+            }
+            if (portalEl) portalEl.innerText = isDojo ? 'Portal Dojo & Kontingen (/dojo)' : 'Portal Atlet & Anggota (/member)';
+            if (btnText) btnText.innerText = isDojo ? 'Buka Portal Dojo' : 'Buka Portal Atlet';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function redirectToUserPortal() {
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            const role = currentUser.primaryRole || currentUser.role;
+            window.location.href = InkaiAPI.getPortalUrl(role);
+        }
+
+        function applyAdminUserProfile(user) {
+            if (!user) return;
+            const nameEl = document.getElementById('nav-user-name');
+            const roleEl = document.getElementById('nav-user-role');
+            const heroBadge = document.getElementById('hero-admin-badge');
+            const heroUser = document.getElementById('hero-admin-user');
+
+            const fullName = user.fullName || user.name || user.email || 'Admin';
+            if (nameEl) nameEl.innerText = fullName;
+
+            const roleNames = (user.roleNames || []).map(r => (r || '').toUpperCase());
+            let displayRole = user.displayRole;
+            if (!displayRole) {
+                if (roleNames.some(r => ['PANITIA', 'EVENT_ORGANIZER'].includes(r))) {
+                    displayRole = 'Panitia Pelaksana Turnamen';
+                } else if (roleNames.some(r => ['WASIT_JURI'].includes(r))) {
+                    displayRole = 'Wasit & Juri Resmi';
+                } else if (roleNames.some(r => ['OPERATOR', 'OPERATOR_TATAMI'].includes(r))) {
+                    displayRole = 'Operator Tatami / Matras';
+                } else {
+                    displayRole = 'Super Admin • Dewan Guru';
+                }
+            }
+
+            if (roleEl) roleEl.innerText = displayRole;
+            if (heroBadge) heroBadge.innerText = `EVENT DIRECTORY • ${displayRole.toUpperCase()}`;
+            if (heroUser) heroUser.innerText = fullName;
+        }
+
         function logoutToHome() {
             InkaiAPI.logout();
-            showToast('Anda telah keluar dari akun Super Admin.');
+            showToast('Anda telah keluar dari akun.');
             setTimeout(() => {
                 window.location.href = window.location.protocol === 'file:' ? 'index.html' : '/';
             }, 800);

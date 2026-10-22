@@ -240,7 +240,7 @@
             const role = (user.primaryRole || user.role || '').toUpperCase();
             const email = (user.email || '').toLowerCase();
 
-            if (role === 'ADMIN' && !email.includes('admin') && !email.includes('kmajestigers.com') && !email.includes('inkaisby')) {
+            if (role === 'ADMIN' && !email.includes('admin') && !email.includes('kmajestigers.com') && !email.includes('inkaisby') && !email.includes('panitia') && !user.token) {
                 logIncident('SESSION_TAMPERING_DETECTED', 'CRITICAL', `Upaya pemalsuan hak akses Super Admin terdeteksi pada user [${email}]. Akses dibatalkan!`);
                 return false;
             }

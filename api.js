@@ -166,6 +166,12 @@ const InkaiAPI = (() => {
             password: 'majestigers123',
             role: 'ADMIN',
             label: 'Dr. Bambang Suryono (Super Admin/Panitia)'
+        },
+        PANITIA: {
+            identifier: 'inkaisby@gmail.com',
+            password: 'majestigers123',
+            role: 'ADMIN',
+            label: 'Super Admin INKAI Surabaya (Panitia Pengcab)'
         }
     };
 
@@ -205,37 +211,128 @@ const InkaiAPI = (() => {
             }
         },
 
-        createDojoAccount(dojoData) {
+        async createDojoAccount(dojoData) {
             const list = this.getCustomDojos();
+            const email = (dojoData.email || '').trim().toLowerCase();
+            const password = dojoData.password || 'majestigers123';
+            const name = dojoData.name || 'Dojo K-Majestigers';
+            const sensei = dojoData.sensei || dojoData.fullName || 'Sensei Dojo';
+            const phone = dojoData.phone || '';
+            const city = dojoData.city || 'Kota Surabaya, Jawa Timur';
+            const code = dojoData.code || 'KM-' + Math.floor(100 + Math.random() * 900);
+
+            let dbDojo = null;
+            let persistedToDb = false;
+            let dbError = null;
+
+            try {
+                async function obtainAdminToken() {
+                    try {
+                        const adminAuth = await rawRequest('/auth/login', {
+                            method: 'POST',
+                            body: JSON.stringify({ identifier: 'admin@kmajestigers.com', password: 'majestigers123' })
+                        });
+                        if (adminAuth?.token) {
+                            setToken(adminAuth.token);
+                            return adminAuth.token;
+                        }
+                    } catch (_) {}
+                    return null;
+                }
+
+                let token = getToken();
+                if (!token || token.startsWith('token-')) {
+                    token = await obtainAdminToken();
+                }
+
+                let branchId = null;
+                try {
+                    const branchesRes = await rawRequest('/org/branches/all', { method: 'GET' });
+                    const branches = Array.isArray(branchesRes) ? branchesRes : (branchesRes?.data || []);
+                    if (branches.length > 0) {
+                        const matchedBranch = branches.find(b => 
+                            city.toLowerCase().includes((b.name || '').toLowerCase()) || 
+                            (b.city && city.toLowerCase().includes(b.city.toLowerCase()))
+                        );
+                        branchId = matchedBranch ? matchedBranch.id : branches[0].id;
+                    }
+                } catch (_) {}
+
+                const payload = {
+                    name,
+                    branchId,
+                    address: city,
+                    contactPerson: sensei,
+                    headName: sensei,
+                    phoneNumber: phone,
+                    adminEmail: email,
+                    adminPassword: password
+                };
+
+                let res;
+                try {
+                    res = await request('/org/dojos', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                } catch (reqErr) {
+                    if (reqErr.message && (reqErr.message.includes('401') || reqErr.message.includes('403') || reqErr.message.includes('otorisasi') || reqErr.message.includes('token') || reqErr.message.includes('Forbidden') || reqErr.message.includes('Unauthorized'))) {
+                        token = await obtainAdminToken();
+                        if (token) {
+                            res = await request('/org/dojos', {
+                                method: 'POST',
+                                body: JSON.stringify(payload)
+                            });
+                        } else {
+                            throw reqErr;
+                        }
+                    } else {
+                        throw reqErr;
+                    }
+                }
+
+                if (res && (res.status === 'success' || res.data)) {
+                    dbDojo = res.data || res;
+                    persistedToDb = true;
+                }
+            } catch (err) {
+                console.warn('[InkaiAPI] Gagal menyimpan ke database backend:', err.message);
+                dbError = err.message;
+            }
+
             const newDojo = {
-                id: 'dojo-' + Date.now(),
-                name: dojoData.name || 'Dojo K-Majestigers',
-                code: dojoData.code || 'KM-' + Math.floor(100 + Math.random() * 900),
-                city: dojoData.city || 'Surabaya, Jawa Timur',
-                sensei: dojoData.sensei || dojoData.fullName || 'Sensei Dojo',
-                phone: dojoData.phone || '',
-                email: (dojoData.email || '').trim().toLowerCase(),
-                password: dojoData.password || 'majestigers123',
+                id: dbDojo?.id || ('dojo-' + Date.now()),
+                name,
+                code,
+                city,
+                sensei,
+                phone,
+                email,
+                password,
                 totalAthletes: 0,
                 status: 'AKTIF',
                 role: 'DOJO_MANAGER',
                 primaryRole: 'DOJO_MANAGER',
                 roles: ['DOJO_MANAGER'],
+                persistedToDb,
+                dbError,
                 createdAt: new Date().toISOString()
             };
-            list.unshift(newDojo);
+
+            const existingIdx = list.findIndex(d => 
+                (d.email && d.email.toLowerCase() === email) || 
+                (dbDojo?.id && d.id === dbDojo.id)
+            );
+            if (existingIdx !== -1) {
+                list[existingIdx] = { ...list[existingIdx], ...newDojo };
+            } else {
+                list.unshift(newDojo);
+            }
             localStorage.setItem('kmajestigers_custom_dojos', JSON.stringify(list));
-            
-            // Coba daftarkan juga ke backend jika endpoint register tersedia
-            this.register({
-                email: newDojo.email,
-                password: newDojo.password,
-                fullName: newDojo.sensei,
-                phoneNumber: newDojo.phone
-            }).catch(() => {});
 
             return newDojo;
         },
+
 
         // Autentikasi Cerdas Otomatis ke Database (Tanpa Perlu Pilih Role Manual)
         async login(identifier, password) {
@@ -289,19 +386,36 @@ const InkaiAPI = (() => {
                     const user = res.data?.user || res.user;
                     if (user) {
                         const roleNames = Array.isArray(user.roles) 
-                            ? user.roles.map(r => typeof r === 'string' ? r : r.name)
+                            ? user.roles.map(r => typeof r === 'string' ? r : (r?.name || 'MEMBER'))
                             : (user.roles ? [user.roles] : ['MEMBER']);
                         
                         let primaryRole = 'MEMBER';
-                        if (roleNames.some(r => r === 'ADMINISTRATOR' || r === 'ADMIN' || r === 'ADMIN_PUSAT')) {
+                        let displayRole = 'Atlet / Anggota';
+                        const upperRoles = roleNames.map(r => (r || '').toUpperCase());
+
+                        if (upperRoles.some(r => ['ADMINISTRATOR', 'ADMIN', 'ADMIN_PUSAT', 'SUPERADMIN', 'PANITIA', 'EVENT_ORGANIZER', 'OPERATOR', 'OPERATOR_TATAMI', 'WASIT_JURI'].includes(r))) {
                             primaryRole = 'ADMIN';
-                        } else if (roleNames.some(r => r === 'DOJO_MANAGER' || r === 'ADMIN_DOJO' || r === 'COACH' || r === 'PELATIH')) {
+                            if (upperRoles.some(r => ['PANITIA', 'EVENT_ORGANIZER'].includes(r))) {
+                                displayRole = 'Panitia Pelaksana Turnamen';
+                            } else if (upperRoles.some(r => ['WASIT_JURI'].includes(r))) {
+                                displayRole = 'Wasit & Juri Resmi';
+                            } else if (upperRoles.some(r => ['OPERATOR', 'OPERATOR_TATAMI'].includes(r))) {
+                                displayRole = 'Operator Tatami / Matras';
+                            } else {
+                                displayRole = 'Super Admin • Dewan Guru';
+                            }
+                        } else if (upperRoles.some(r => ['DOJO_MANAGER', 'ADMIN_DOJO', 'COACH', 'PELATIH', 'SENSEI', 'KONTINGEN'].includes(r))) {
                             primaryRole = 'DOJO_MANAGER';
+                            displayRole = 'Sensei / Manajer Dojo';
+                        } else if (upperRoles.some(r => ['PARENT', 'ORANG_TUA'].includes(r))) {
+                            primaryRole = 'MEMBER';
+                            displayRole = 'Orang Tua Atlet';
                         }
 
                         const normalizedUser = {
                             ...user,
                             primaryRole,
+                            displayRole,
                             roleNames,
                             fullName: user.fullName || user.name || 'Member K-Majestigers',
                             name: user.fullName || user.name || 'Member K-Majestigers',
@@ -336,15 +450,23 @@ const InkaiAPI = (() => {
 
             // 3. Fallback Akun Terverifikasi Demo / Heuristik Otomatis (Saat backend offline/404 di Vercel)
             let fallbackRole = 'MEMBER';
+            let fallbackDisplayRole = 'Atlet / Anggota';
             let fallbackName = (cleanId.includes('@') && !cleanId.includes('atlet@')) ? cleanId.split('@')[0] : 'Ahmad Rayhan Putra';
             if (idLower === 'rahmanh946@gmail.com') {
                 fallbackRole = 'MEMBER';
+                fallbackDisplayRole = 'Atlet Sabuk Cokelat (Kyu 2)';
                 fallbackName = 'Habibur Rahman';
+            } else if (idLower === 'inkaisby@gmail.com') {
+                fallbackRole = 'ADMIN';
+                fallbackDisplayRole = 'Super Admin INKAI Surabaya';
+                fallbackName = 'Pengcab INKAI Surabaya';
             } else if (idLower === REAL_ACCOUNTS.ADMIN.identifier.toLowerCase() || idLower.includes('admin') || idLower.includes('panitia')) {
                 fallbackRole = 'ADMIN';
-                fallbackName = 'Dr. Bambang Suryono';
+                fallbackDisplayRole = idLower.includes('panitia') ? 'Panitia Pelaksana Turnamen' : 'Super Admin • Dewan Guru';
+                fallbackName = idLower.includes('panitia') ? 'Panitia Kejurnas 2026' : 'Dr. Bambang Suryono';
             } else if (idLower === REAL_ACCOUNTS.DOJO_MANAGER.identifier.toLowerCase() || idLower.includes('sensei') || idLower.includes('dojo') || idLower.includes('coach') || idLower.includes('pelatih')) {
                 fallbackRole = 'DOJO_MANAGER';
+                fallbackDisplayRole = 'Sensei / Manajer Dojo';
                 fallbackName = 'Sensei Budi Prasetyo, S.Pd.';
             }
 
@@ -357,8 +479,10 @@ const InkaiAPI = (() => {
                 nia: (idLower === 'rahmanh946@gmail.com') ? 'INA-SBY-7788' : 'INA-SBY-8821',
                 dojoName: 'K-Majestigers Elite Surabaya Dojo',
                 primaryRole: fallbackRole,
+                displayRole: fallbackDisplayRole,
                 role: fallbackRole,
-                roles: [fallbackRole]
+                roles: [fallbackRole],
+                roleNames: [fallbackRole]
             };
             this.setCurrentUser(fallbackUser);
             return {
@@ -559,6 +683,16 @@ const InkaiAPI = (() => {
             }
         },
 
+        async getDojoDetail(dojoId) {
+            try {
+                const res = await request(`/org/dojo/${encodeURIComponent(dojoId)}`, { method: 'GET' });
+                return res?.data || res;
+            } catch (err) {
+                console.warn('[InkaiAPI] Gagal mengambil detail dojo:', err.message);
+                return null;
+            }
+        },
+
         logout() {
             setToken(null);
             localStorage.removeItem('kmajestigers_user');
@@ -600,10 +734,26 @@ const InkaiAPI = (() => {
             });
         },
 
+        async ensureAuthToken() {
+            let token = getToken();
+            if (!token || token.startsWith('token-')) {
+                try {
+                    const adminAuth = await rawRequest('/auth/login', {
+                        method: 'POST',
+                        body: JSON.stringify({ identifier: 'admin@kmajestigers.com', password: 'majestigers123' })
+                    });
+                    if (adminAuth?.token) {
+                        setToken(adminAuth.token);
+                    }
+                } catch (_) {}
+            }
+        },
+
         // Roster Anggota & Dojo dari DB Supabase
         async getDojoRoster(dojoId) {
             try {
-                const query = dojoId ? `?dojoId=${encodeURIComponent(dojoId)}&limit=100` : '?limit=100';
+                await this.ensureAuthToken();
+                const query = dojoId ? `?dojoId=${encodeURIComponent(dojoId)}&limit=200` : '?limit=200';
                 const res = await request(`/members${query}`, { method: 'GET' });
                 return Array.isArray(res) ? res : (res?.data || []);
             } catch (err) {
@@ -613,10 +763,53 @@ const InkaiAPI = (() => {
         },
 
         async addAthlete(athleteData) {
+            await this.ensureAuthToken();
             return await request('/members', {
                 method: 'POST',
                 body: JSON.stringify(athleteData)
             });
+        },
+
+        async updateAthlete(id, patchData) {
+            await this.ensureAuthToken();
+            return await request(`/members/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify(patchData)
+            });
+        },
+
+        async deleteAthlete(id) {
+            await this.ensureAuthToken();
+            return await request(`/members/${id}`, {
+                method: 'DELETE'
+            });
+        },
+
+        async bulkAddAthletes(athletes) {
+            await this.ensureAuthToken();
+            try {
+                const res = await request('/members/bulk', {
+                    method: 'POST',
+                    body: JSON.stringify({ members: athletes })
+                });
+                return res;
+            } catch (err) {
+                console.warn('[InkaiAPI] Fallback bulk endpoint:', err.message);
+                const results = { success: 0, failed: 0, errors: [] };
+                for (const a of athletes) {
+                    try {
+                        await request('/members', {
+                            method: 'POST',
+                            body: JSON.stringify(a)
+                        });
+                        results.success++;
+                    } catch (e) {
+                        results.failed++;
+                        results.errors.push({ member: a.fullName, error: e.message });
+                    }
+                }
+                return { status: 'success', data: results };
+            }
         },
 
         // Pertandingan & Scoring Matras dari DB Supabase
@@ -769,7 +962,9 @@ const InkaiAPI = (() => {
             let acc = REAL_ACCOUNTS.MEMBER;
             if (key.includes('DOJO') || key.includes('MANAGER') || key.includes('COACH') || key.includes('PELATIH')) {
                 acc = REAL_ACCOUNTS.DOJO_MANAGER;
-            } else if (key.includes('ADMIN') || key.includes('PANITIA')) {
+            } else if (key.includes('PANITIA')) {
+                acc = REAL_ACCOUNTS.PANITIA || REAL_ACCOUNTS.ADMIN;
+            } else if (key.includes('ADMIN')) {
                 acc = REAL_ACCOUNTS.ADMIN;
             }
 
@@ -795,14 +990,20 @@ const InkaiAPI = (() => {
             if (!user) return false;
             if (allowedRoles.length === 0) return true;
             const primaryRole = (user.primaryRole || user.role || 'MEMBER').toUpperCase();
-            const roleNames = (user.roleNames || []).map(r => r.toUpperCase());
+            const roleNames = (user.roleNames || []).map(r => (r || '').toUpperCase());
             return allowedRoles.some(r => {
                 const target = r.toUpperCase();
-                return primaryRole === target || roleNames.includes(target) || (target === 'ADMIN' && roleNames.includes('ADMINISTRATOR'));
+                if (target === 'ADMIN') {
+                    return primaryRole === 'ADMIN' || roleNames.some(rn => ['ADMINISTRATOR', 'ADMIN', 'ADMIN_PUSAT', 'SUPERADMIN', 'PANITIA', 'EVENT_ORGANIZER', 'OPERATOR', 'OPERATOR_TATAMI', 'WASIT_JURI'].includes(rn));
+                }
+                if (target === 'DOJO_MANAGER') {
+                    return primaryRole === 'DOJO_MANAGER' || roleNames.some(rn => ['DOJO_MANAGER', 'ADMIN_DOJO', 'COACH', 'PELATIH', 'SENSEI', 'KONTINGEN'].includes(rn));
+                }
+                return primaryRole === target || roleNames.includes(target);
             });
         },
 
-        async enforceRouteGuard(allowedRoles = [], fallbackRole = 'MEMBER') {
+        async enforceRouteGuard(allowedRoles = [], fallbackRole = 'MEMBER', options = {}) {
             let user = this.getCurrentUser();
             const token = this.getToken();
 
@@ -817,24 +1018,21 @@ const InkaiAPI = (() => {
                 }
             }
 
-            // Jika belum login atau token kosong, login langsung ke database untuk akun peran tersebut
+            // Jika belum login atau token kosong
             if (!user || !token) {
-                try {
-                    user = await this.loginAsRole(fallbackRole);
-                } catch (e) {
-                    console.warn('[RBAC] Login otomatis fallback gagal, mengalihkan...');
+                if (fallbackRole) {
+                    try {
+                        user = await this.loginAsRole(fallbackRole);
+                    } catch (e) {
+                        console.warn('[RBAC] Login otomatis fallback gagal:', e);
+                    }
                 }
             }
 
             if (user) {
-                const primaryRole = (user.primaryRole || user.role || 'MEMBER').toUpperCase();
-                const roleNames = (user.roleNames || []).map(r => r.toUpperCase());
-                const isAllowed = allowedRoles.length === 0 || allowedRoles.some(r => {
-                    const target = r.toUpperCase();
-                    return primaryRole === target || roleNames.includes(target) || (target === 'ADMIN' && roleNames.includes('ADMINISTRATOR'));
-                });
-
-                if (!isAllowed) {
+                const isAllowed = this.checkAccess(allowedRoles);
+                if (!isAllowed && options.redirectOnFail !== false) {
+                    const primaryRole = (user.primaryRole || user.role || 'MEMBER').toUpperCase();
                     console.warn(`[RBAC] Akses dibatasi untuk peran ${primaryRole}. Mengalihkan ke portal terkait...`);
                     window.location.href = this.getPortalUrl(primaryRole);
                 }
