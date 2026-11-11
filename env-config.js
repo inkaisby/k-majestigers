@@ -35,9 +35,9 @@
             : (window.INKAI_API_BASE || '/api'),
 
         // Project Supabase Cloud:
-        SUPABASE_PROJECT_REF: 'ecmafwuuuviesytcnorv',
+        SUPABASE_PROJECT_REF: 'dlkiwinvpihdcdvmaqlr',
         SUPABASE_REGION: 'ap-northeast-2',
-        SUPABASE_URL: 'https://ecmafwuuuviesytcnorv.supabase.co',
+        SUPABASE_URL: 'https://dlkiwinvpihdcdvmaqlr.supabase.co',
         SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_YJ9fZDi927TyfuRo-M8nUQ_7HtcB_1F',
         SUPABASE_ANON_KEY: 'sb_publishable_YJ9fZDi927TyfuRo-M8nUQ_7HtcB_1F',
     }, window.__ENV || {});

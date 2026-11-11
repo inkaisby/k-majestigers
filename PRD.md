@@ -254,7 +254,7 @@ Platform K-Majestigers secara resmi mengadopsi dan terintegrasi dengan **INKAI C
                             ▼
 ┌────────────────────────────────────────────────────────┐
 │         Supabase PostgreSQL (Project: majestigers)     │
-│  - Ref: ecmafwuuuviesytcnorv (ap-northeast-2)          │
+│  - Ref: dlkiwinvpihdcdvmaqlr                                       │
 │  - Engine: PostgreSQL 17.11 (Active & Synced)          │
 │  - Model Member, MemberRank (Sabuk Kyu/Dan), Dojo      │
 │  - Model Event, EventCategory, EventRegistration       │

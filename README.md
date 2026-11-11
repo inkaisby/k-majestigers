@@ -36,7 +36,7 @@ Spesifikasi lengkap dan arsitektur produk dapat dilihat pada [PRD (Product Requi
 
 ## Integrasi Backend & Supabase Database
 Platform ini terintegrasi langsung dengan backend INKAI di `D:\website\inkai\inkai-backend` (Port 5001) dan database cloud **Supabase**:
-- **Project Supabase**: `majestigers` (`ecmafwuuuviesytcnorv`)
+- **Project Supabase**: `majestigers` (`dlkiwinvpihdcdvmaqlr`)
 - **Wilayah**: `ap-northeast-2` (PostgreSQL 17)
 - **Akun Demo Terverifikasi (RBAC)**:
   - **1. Anggota / Atlet**: `atlet@kmajestigers.com` / `majestigers123` (NIA: `INA-SBY-8821`, Kyu 2 Cokelat)
@@ -100,7 +100,7 @@ npm start
 - **[`vercel.json`](file:///d:/website/majestigers/vercel.json)**: Aturan routing clean URLs, rewrites, dan security headers.
 
 ### 2. Konfigurasi di Supabase Dashboard
-1. Buka [Supabase Dashboard](https://supabase.com/dashboard) &rarr; Masuk ke project **`majestigers`** (`ecmafwuuuviesytcnorv`).
+1. Buka [Supabase Dashboard](https://supabase.com/dashboard) &rarr; Masuk ke project **`majestigers`** (`dlkiwinvpihdcdvmaqlr`).
 2. **Project Settings &rarr; Database**:
    - Salin **Connection String (Transaction Pooler - Port 6543)** untuk `DATABASE_URL`.
    - Salin **Direct Connection (Port 5432)** untuk `DIRECT_URL`.

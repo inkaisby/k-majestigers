@@ -1,8 +1,15 @@
 const path = 'D:/website/inkai/inkai-backend/node_modules/';
-require(path + 'dotenv').config({ path: 'D:/website/inkai/inkai-backend/.env' });
+const envPath = require('path').resolve(__dirname, '.env');
+require(path + 'dotenv').config({ path: envPath });
 const { PrismaClient } = require(path + '@prisma/client');
 const bcrypt = require(path + 'bcryptjs');
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DIRECT_URL || process.env.DATABASE_URL
+    }
+  }
+});
 
 async function main() {
   console.log('--- SEEDING LIVE SUPABASE DATABASE FOR K-MAJESTIGERS ---');

@@ -67,6 +67,7 @@ const InkaiAPI = (() => {
         const url = `${getBaseUrl()}${endpoint}`;
         const headers = {
             'Content-Type': 'application/json',
+            'X-Tenant': 'majestigers',
             ...(options.headers || {})
         };
 
